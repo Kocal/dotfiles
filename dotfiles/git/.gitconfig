@@ -1,0 +1,97 @@
+# Identity
+
+[user]
+	email = hugo@alliau.me
+	name = Hugo Alliaume
+	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEp3XcbIyvTVZM+MOdpue98PTKaNPBtIo0puTFBk4Nvh
+
+# Core
+
+[core]
+	editor = code --wait
+	excludesfile = ~/.gitignore_global
+	attributesfile = ~/.gitattributes
+	autocrlf = input
+	ignorecase = false
+
+[init]
+	defaultBranch = main
+
+[color]
+	ui = auto
+
+# GPG/SSH
+
+[gpg]
+	format = ssh
+
+[commit]
+	gpgsign = true
+	verbose = true
+
+[tag]
+	gpgsign = true
+	forceSignAnnotated = true
+
+# Branches & Remotes
+
+[branch]
+	sort = -committerdate
+
+[fetch]
+	prune = true
+	pruneTags = true
+	all = true
+
+[pull]
+	rebase = true
+
+[push]
+	autoSetupRemote = true
+	default = current
+	followTags = true
+
+# Merge & Rebase
+
+[merge]
+	summary = true
+	conflictstyle = zdiff3
+
+[rebase]
+	updateRefs = true
+	autoSquash = true
+	autoStash = true
+
+[rerere]
+	enabled = true
+	autoupdate = true
+
+# Diff & Tools
+
+[diff]
+	tool = default-difftool
+	algorithm = histogram
+	colorMoved = default
+
+[difftool "default-difftool"]
+	cmd = code --wait --diff $LOCAL $REMOTE
+
+# [interactive]
+# 	diffFilter = delta --color-only
+
+# [delta]
+# 	navigate = true
+# 	side-by-side = true
+# 	line-numbers = true
+
+# Misc
+
+[gh]
+	remote = upstream
+
+[help]
+	autocorrect = prompt
+
+# Includes
+[include]
+	path = ~/.gitconfig.os

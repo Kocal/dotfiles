@@ -1,0 +1,22 @@
+# Compilation flags
+# export ARCHFLAGS="-arch x86_64"
+export LDFLAGS="-L/opt/homebrew/opt/libiconv/lib"
+export CPPFLAGS="-I/opt/homebrew/opt/libiconv/include"
+
+# Homebrew
+export PATH="/opt/homebrew/opt/php@8.4/bin:$PATH"
+export PATH="/opt/homebrew/opt/php@8.4/sbin:$PATH"
+export PATH="/opt/homebrew/opt/make/libexec/gnubin:$PATH"
+export PATH="/opt/homebrew/opt/bison/bin:$PATH"
+
+# Cargo
+export PATH="$HOME/.cargo/bin:$PATH"
+
+# PNPM
+#export PNPM_HOME="/Users/kocal/Library/pnpm"
+#export PATH="$PNPM_HOME:$PATH"
+
+# Bun
+#[ -s "/Users/kocal/.bun/_bun" ] && source "/Users/kocal/.bun/_bun"
+#export BUN_INSTALL="/Users/kocal/.bun"
+#export PATH="$BUN_INSTALL/bin:$PATH"

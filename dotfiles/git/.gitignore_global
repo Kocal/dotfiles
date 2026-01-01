@@ -1,0 +1,7 @@
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+webpack-encore/.npmrc
+symfony-webpack-encore-*.tgz
