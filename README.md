@@ -4,12 +4,11 @@ My personal configuration files for various applications and tools.
 
 ## Installation
 
-Install the repository (without git):
+Clone the repository:
 ```shell
 [ "$(uname -s)" = "Linux" ] && sudo apt update && sudo apt install -y git
 mkdir -p ~/workspace/kocal && cd $_
-git clone https://github.com/Kocal/dotfiles.git dotfiles
-cd dotfiles
+git clone https://github.com/Kocal/dotfiles.git dotfiles && cd $_
 git remote set-url origin git@github.com:Kocal/dotfiles.git
 ```
 
@@ -22,34 +21,13 @@ Install mandatory softwares:
 # Homebrew
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-# Make
+# GNU Make for MacOS
 [ "$(uname -s)" = "Darwin" ] && brew install make
-
-# 1Password CLI
-# - MacOS: https://developer.1password.com/docs/cli/get-started/#install
-# - Linux: https://developer.1password.com/docs/cli/get-started/#install-linux
 ```
+
+- **1Password CLI** ([MacOS](https://developer.1password.com/docs/cli/get-started/#install) / [Linux](https://developer.1password.com/docs/cli/get-started/#install-linux))
 
 ## git
-
-Install GitHub CLI:
-```shell
-# MacOS
-[ "$(uname -s)" = "Darwin" ] && brew install gh
-
-# Linux (https://github.com/cli/cli/blob/trunk/docs/install_linux.md#debian)
-if [ "$(uname -s)" = "Linux" ]; then
-	(type -p wget >/dev/null || (sudo apt update && sudo apt install wget -y)) \
-		&& sudo mkdir -p -m 755 /etc/apt/keyrings \
-		&& out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg \
-		&& cat $out | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
-		&& sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
-		&& sudo mkdir -p -m 755 /etc/apt/sources.list.d \
-		&& echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
-		&& sudo apt update \
-		&& sudo apt install gh -y
-fi
-```
 
 Install dotfiles:
 ```shell
@@ -61,6 +39,12 @@ ln -s "$PWD/dotfiles/git/.gitignore_global" ~/.gitignore_global
 
 [ -f ~/.gitconfig.os ] && mv ~/.gitconfig.os{,.back}
 ln -s "$PWD/dotfiles/git/.gitconfig.$(uname -s)" ~/.gitconfig.os
+```
+
+## GitHub CLI
+
+```shell
+brew install gh
 ```
 
 ## zsh
@@ -77,11 +61,16 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/too
 
 Install dotfiles:
 ```shell
-[ -f ~/.zshenv ] && mv ~/.zshenv{,.back}
-ln -s "$PWD/dotfiles/zsh/.zshenv" ~/.zshenv
+mkdir -p ~/.local/bin
 
 [ -f ~/.zshenv.os ] && mv ~/.zshenv.os{,.back}
 ln -s "$PWD/dotfiles/zsh/.zshenv.$(uname -s)" ~/.zshenv.os
+
+[ -f ~/.zshenv ] && mv ~/.zshenv{,.back}
+ln -s "$PWD/dotfiles/zsh/.zshenv" ~/.zshenv
+
+[ -f ~/.zshrc.os ] && mv ~/.zshrc.os{,.back}
+ln -s "$PWD/dotfiles/zsh/.zshrc.$(uname -s)" ~/.zshrc.os
 
 [ -f ~/.zshrc ] && mv ~/.zshrc{,.back}
 ln -s "$PWD/dotfiles/zsh/.zshrc" ~/.zshrc
@@ -103,4 +92,150 @@ Install dotfiles:
 ```shell
 [ -f ~/.vimrc ] && mv ~/.vimrc{,.back}
 ln -s "$PWD/dotfiles/vim/.vimrc" ~/.vimrc
+```
+
+## PHP
+
+### Prerequisites
+
+```shell
+[ "$(uname -s)" = "Darwin" ] && brew install autoconf bison re2c libiconv libxml2 sqlite # To complete...
+[ "$(uname -s)" = "Linux" ] && sudo apt install -y pkg-config build-essential autoconf libc6-dev bison re2c libxml2-dev \
+  libsqlite3-dev libpq-dev libcurl4-openssl-dev libgd-dev libpng-dev zlib1g-dev libonig-dev libedit-dev libsodium-dev \
+  libargon2-dev libtidy-dev libxslt1-dev libzip-dev
+```
+
+### PHP Integrated Environment (PIE)
+
+```shell
+[ -f ~/.local/bin/pie.phar ] && mv ~/.local/bin/pie.phar{,.back}
+curl -fsSL  https://github.com/php/pie/releases/latest/download/pie.phar -o ~/.local/bin/pie.phar 
+```
+
+### Build from sources
+
+Clone PHP sources:
+```shell
+PHP_VERSIONS=("8.1" "8.2" "8.3" "8.4" "8.5")
+
+mkdir -p ~/workspace/php && cd $_
+for PHP_VERSION in ${PHP_VERSIONS[@]}; do
+  local branch="PHP-$PHP_VERSION"
+  local directory="$branch"
+  [ ! -d "$directory" ] && git clone https://github.com/php/php-src.git --single-branch --branch $branch $directory
+  (cd $directory; git checkout $branch && git pull)
+done
+```
+
+Build and install PHP:
+```shell
+PHP_CONFIGURE_FLAGS=(
+  --enable-debug --enable-option-checking=fatal
+  # GD
+  --enable-gd --with-external-gd --with-avif --with-webp --with-jpeg --with-freetype
+  # String & Encoding
+  --enable-mbregex --enable-mbstring --with-iconv
+  # Database
+  --enable-dba --enable-mysqlnd --with-pdo-sqlite=/usr --with-sqlite3=/usr --with-pdo-pgsql=/usr --with-pgsql=/usr
+  # Web & FPM
+  --disable-cgi --enable-fpm --with-fpm-user=www-data --with-fpm-group=www-data
+  # Math & File
+  --enable-bcmath --enable-calendar --enable-exif --enable-ftp
+  # Network & Protocol
+  --with-curl --enable-soap --enable-sockets
+  # Process & System
+  --enable-pcntl --enable-shmop --enable-sysvmsg --enable-sysvsem --enable-sysvshm
+  # Internationalization
+  --enable-intl
+  # Debugging
+  --enable-phpdbg --enable-phpdbg-readline
+  # Security & Cryptography
+  --with-password-argon2 --with-sodium=shared --with-openssl --with-mhash
+  # Libraries
+  --with-external-pcre --with-ffi --with-libxml --with-libedit --with-readline --with-zlib --with-tidy --with-xsl --with-zip --with-pic
+)
+
+for PHP_VERSION in ${PHP_VERSIONS[@]}; do
+  echo "Building PHP $PHP_VERSION..."
+  cd PHP-$PHP_VERSION \
+    && ./buildconf --force \
+    && ./configure \
+      --prefix=$HOME/.local/php-$PHP_VERSION \
+      --with-config-file-path=$HOME/.local/etc/php-$PHP_VERSION \
+      --with-config-file-scan-dir=$HOME/.local/etc/php-$PHP_VERSION/conf.d \
+      "${PHP_CONFIGURE_FLAGS[@]}" \
+    && make -j"$(nproc)" \
+    && make install \
+    && cd ..
+done
+```
+
+Configure `php.ini`:
+```shell
+for PHP_VERSION in ${PHP_VERSIONS[@]}; do
+    mkdir -p ~/.local/etc/php-$PHP_VERSION/conf.d
+    [ -f ~/.local/etc/php-$PHP_VERSION/php.ini ] && mv ~/.local/etc/php-$PHP_VERSION/php.ini{,.back}
+    cp ~/workspace/php/PHP-$PHP_VERSION/php.ini-development ~/.local/etc/php-$PHP_VERSION/php.ini
+    
+    rm -f ~/.local/bin/php$PHP_VERSION
+    ln -s ~/.local/php-$PHP_VERSION/bin/php ~/.local/bin/php$PHP_VERSION
+done
+```
+
+### Install Composer
+
+```shell
+if [ command -v composer >/dev/null 2>&1 ]; then
+    echo "Composer is already installed"
+    composer self-update
+else 
+    php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+    php -r "if (hash_file('sha384', 'composer-setup.php') === 'c8b085408188070d5f52bcfe4ecfbee5f727afa458b2573b8eaaf77b3419b0bf2768dc67c86944da1544f06fa544fd47') { echo 'Installer verified'.PHP_EOL; } else { echo 'Installer corrupt'.PHP_EOL; unlink('composer-setup.php'); exit(1); }"
+    php composer-setup.php
+    php -r "unlink('composer-setup.php');"
+    mv composer.phar ~/.local/bin/composer
+fi 
+
+command -v composer >/dev/null 2>&1 || { echo >&2 "Composer installation failed"; }
+```
+
+### Install XDebug
+
+```shell
+for PHP_VERSION in ${PHP_VERSIONS[@]}; do
+    echo "Installing XDebug for PHP $PHP_VERSION..."
+    ~/.local/php-$PHP_VERSION/bin/php ~/.local/bin/pie.phar install xdebug/xdebug
+done
+```
+
+### Symfony CLI
+
+```shell
+brew install symfony-cli/tap/symfony-cli
+```
+
+### Blackfire
+
+Install Blackfire Agent:
+```shell
+if [ "$(uname -s)" = "Linux" ]; then
+    wget -q -O - https://packages.blackfire.io/gpg.key | sudo dd of=/usr/share/keyrings/blackfire-archive-keyring.asc
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/blackfire-archive-keyring.asc] http://packages.blackfire.io/debian any main" | sudo tee /etc/apt/sources.list.d/blackfire.list    sudo apt update
+    sudo apt update
+    sudo apt install blackfire
+fi
+```
+
+Configure Blackfire Agent (get credentials from https://app.blackfire.io/my/organizations):
+```shell
+sudo blackfire agent:config
+if [ "$(uname -s)" = "Linux" ]; then
+    sudo systemctl restart blackfire-agent
+fi
+```
+Install the PHP Probe:
+```shell
+if [ "$(uname -s)" = "Linux" ]; then
+   sudo apt install blackfire-php # And we are stuck due to our custom builds, waiting for Blackfire support :D
+fi
 ```

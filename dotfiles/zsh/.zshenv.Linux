@@ -1,0 +1,7 @@
+# Add all PHP versions to PATH for the Symfony CLI
+# Note: the last version is the default one used when calling `php`
+PHP_VERSIONS=("8.1" "8.2" "8.3" "8.4" "8.5")
+for version in "${PHP_VERSIONS[@]}"; do
+    export PATH="$HOME/.local/php-$version/bin:$PATH"
+    export PATH="$HOME/.local/php-$version/sbin:$PATH"
+done
