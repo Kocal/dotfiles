@@ -130,7 +130,7 @@ done
 Build and install PHP:
 ```shell
 PHP_CONFIGURE_FLAGS=(
-  --enable-debug --enable-option-checking=fatal
+  --enable-option-checking=fatal
   # GD
   --enable-gd --with-external-gd --with-avif --with-webp --with-jpeg --with-freetype
   # String & Encoding
@@ -150,23 +150,31 @@ PHP_CONFIGURE_FLAGS=(
   # Debugging
   --enable-phpdbg --enable-phpdbg-readline
   # Security & Cryptography
-  --with-password-argon2 --with-sodium=shared --with-openssl --with-mhash
+  --with-password-argon2 --with-sodium --with-openssl --with-mhash
   # Libraries
   --with-external-pcre --with-ffi --with-libxml --with-libedit --with-readline --with-zlib --with-tidy --with-xsl --with-zip --with-pic
+)
+declare -A PHP_CONFIGURE_FLAGS_PER_VERSION=(
+  ["8.1"]="--enable-opcache"
+  ["8.2"]="--enable-opcache"
+  ["8.3"]="--enable-opcache"
+  ["8.4"]="--enable-opcache"
+  ["8.5"]=""
 )
 
 for PHP_VERSION in ${PHP_VERSIONS[@]}; do
   echo "Building PHP $PHP_VERSION..."
-  cd PHP-$PHP_VERSION \
+  
+  cd ~/workspace/php/PHP-$PHP_VERSION \
     && ./buildconf --force \
     && ./configure \
       --prefix=$HOME/.local/php-$PHP_VERSION \
       --with-config-file-path=$HOME/.local/etc/php-$PHP_VERSION \
       --with-config-file-scan-dir=$HOME/.local/etc/php-$PHP_VERSION/conf.d \
-      "${PHP_CONFIGURE_FLAGS[@]}" \
+      "${PHP_CONFIGURE_FLAGS[@]}" ${PHP_CONFIGURE_FLAGS_PER_VERSION[$PHP_VERSION]} \
     && make -j"$(nproc)" \
     && make install \
-    && cd ..
+    && cd -
 done
 ```
 
@@ -208,6 +216,25 @@ for PHP_VERSION in ${PHP_VERSIONS[@]}; do
 done
 ```
 
+### Install APCu
+
+```shell
+for PHP_VERSION in ${PHP_VERSIONS[@]}; do
+    echo "Installing APCu for PHP $PHP_VERSION..."
+    ~/.local/php-$PHP_VERSION/bin/php ~/.local/bin/pie.phar install apcu/apcu
+done
+```
+
+### Install OPCache
+
+```shell
+cp dotfiles/php/conf.d/opcache.ini ~/.local/etc/php-8.1/conf.d/ext-opcache.ini
+cp dotfiles/php/conf.d/opcache.ini ~/.local/etc/php-8.2/conf.d/ext-opcache.ini
+cp dotfiles/php/conf.d/opcache.ini ~/.local/etc/php-8.3/conf.d/ext-opcache.ini
+cp dotfiles/php/conf.d/opcache.ini ~/.local/etc/php-8.4/conf.d/ext-opcache.ini
+cp dotfiles/php/conf.d/opcache.ini ~/.local/etc/php-8.5/conf.d/ext-opcache.ini
+```
+
 ### Symfony CLI
 
 ```shell
@@ -236,6 +263,18 @@ fi
 Install the PHP Probe:
 ```shell
 if [ "$(uname -s)" = "Linux" ]; then
-   sudo apt install blackfire-php # And we are stuck due to our custom builds, waiting for Blackfire support :D
+    mkdir -p tmp && (cd tmp; apt download blackfire-php)
+    rm -fr tmp/blackfire-php
+    dpkg-deb -R tmp/blackfire-php_*.deb tmp/blackfire-php
+    
+    for PHP_VERSION in ${PHP_VERSIONS[@]}; do
+        cp tmp/blackfire-php/usr/lib/blackfire-php/blackfire.ini.dist ~/.local/etc/php-$PHP_VERSION/conf.d/99-blackfire.ini
+    done
+    
+    cp tmp/blackfire-php/usr/lib/blackfire-php/amd64/blackfire-20210902.so ~/.local/php-8.1/lib/php/extensions/no-debug-non-zts-20210902/blackfire.so
+    cp tmp/blackfire-php/usr/lib/blackfire-php/amd64/blackfire-20220829.so ~/.local/php-8.2/lib/php/extensions/no-debug-non-zts-20220829/blackfire.so
+    cp tmp/blackfire-php/usr/lib/blackfire-php/amd64/blackfire-20230831.so ~/.local/php-8.3/lib/php/extensions/no-debug-non-zts-20230831/blackfire.so
+    cp tmp/blackfire-php/usr/lib/blackfire-php/amd64/blackfire-20240924.so ~/.local/php-8.4/lib/php/extensions/no-debug-non-zts-20240924/blackfire.so
+    cp tmp/blackfire-php/usr/lib/blackfire-php/amd64/blackfire-20250925.so ~/.local/php-8.5/lib/php/extensions/no-debug-non-zts-20250925/blackfire.so
 fi
 ```
