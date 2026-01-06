@@ -262,19 +262,5 @@ fi
 ```
 Install the PHP Probe:
 ```shell
-if [ "$(uname -s)" = "Linux" ]; then
-    mkdir -p tmp && (cd tmp; apt download blackfire-php)
-    rm -fr tmp/blackfire-php
-    dpkg-deb -R tmp/blackfire-php_*.deb tmp/blackfire-php
-    
-    for PHP_VERSION in ${PHP_VERSIONS[@]}; do
-        cp tmp/blackfire-php/usr/lib/blackfire-php/blackfire.ini.dist ~/.local/etc/php-$PHP_VERSION/conf.d/99-blackfire.ini
-    done
-    
-    cp tmp/blackfire-php/usr/lib/blackfire-php/amd64/blackfire-20210902.so ~/.local/php-8.1/lib/php/extensions/no-debug-non-zts-20210902/blackfire.so
-    cp tmp/blackfire-php/usr/lib/blackfire-php/amd64/blackfire-20220829.so ~/.local/php-8.2/lib/php/extensions/no-debug-non-zts-20220829/blackfire.so
-    cp tmp/blackfire-php/usr/lib/blackfire-php/amd64/blackfire-20230831.so ~/.local/php-8.3/lib/php/extensions/no-debug-non-zts-20230831/blackfire.so
-    cp tmp/blackfire-php/usr/lib/blackfire-php/amd64/blackfire-20240924.so ~/.local/php-8.4/lib/php/extensions/no-debug-non-zts-20240924/blackfire.so
-    cp tmp/blackfire-php/usr/lib/blackfire-php/amd64/blackfire-20250925.so ~/.local/php-8.5/lib/php/extensions/no-debug-non-zts-20250925/blackfire.so
-fi
+blackfire php:install
 ```
