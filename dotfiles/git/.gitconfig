@@ -49,7 +49,7 @@
 [push]
 	autoSetupRemote = true
 	default = current
-	followTags = true
+	followTags = false
 
 # Merge & Rebase
 
