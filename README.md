@@ -228,11 +228,14 @@ done
 ### Install OPCache
 
 ```shell
-cp dotfiles/php/conf.d/opcache.ini ~/.local/etc/php-8.1/conf.d/ext-opcache.ini
-cp dotfiles/php/conf.d/opcache.ini ~/.local/etc/php-8.2/conf.d/ext-opcache.ini
-cp dotfiles/php/conf.d/opcache.ini ~/.local/etc/php-8.3/conf.d/ext-opcache.ini
-cp dotfiles/php/conf.d/opcache.ini ~/.local/etc/php-8.4/conf.d/ext-opcache.ini
-cp dotfiles/php/conf.d/opcache.ini ~/.local/etc/php-8.5/conf.d/ext-opcache.ini
+for PHP_VERSION in ${PHP_VERSIONS[@]}; do
+    cp dotfiles/php/conf.d/opcache.ini ~/.local/etc/php-$PHP_VERSION/conf.d/ext-opcache.ini
+    
+    # opcache is built-in from PHP 8.5
+    if [ "$PHP_VERSION" = "8.5" ]; then
+      sed -i '/zend_extension=opcache/d' ~/.local/etc/php-$PHP_VERSION/conf.d/ext-opcache.ini
+    fi
+done
 ```
 
 ### Symfony CLI
