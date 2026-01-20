@@ -36,6 +36,7 @@ alias sfc="symfony console"
 alias sfcp="symfony composer"
 alias sfp="symfony php"
 alias ux="cd ~/workspace/symfony/ux"
+alias uxc="cd ~/workspace/symfony/ux.symfony.com"
 alias ux-link="~/workspace/symfony/ux/link ."
 
 source ~/.zshenv.os
