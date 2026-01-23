@@ -94,6 +94,12 @@ Install dotfiles:
 ln -s "$PWD/dotfiles/vim/.vimrc" ~/.vimrc
 ```
 
+## Opencode
+
+```shell
+curl -fsSL https://opencode.ai/install | bash
+```
+
 ## Docker
 
 ### MacOS

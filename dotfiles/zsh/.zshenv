@@ -16,12 +16,13 @@ export LANG=fr_FR.UTF-8
 export LC_ALL=fr_FR.UTF-8
 export TIMEFMT=$'%J\n%U user\n%S system\n%P cpu\n%*E total'
 
-export FIXUID=$(id -u)
-export FIXGID=$(id -g)
-
 export PATH="$PATH:$HOME/.local/bin"
+# Composer
 export PATH="$HOME/.composer/vendor/bin:$PATH"
+# Rust
 export PATH="$HOME/.cargo/bin:$PATH"
+# opencode
+export PATH="$HOME/.opencode/bin:$PATH"
 
 # Set personal aliases, overriding those provided by oh-my-zsh libs,
 # plugins, and themes. Aliases can be placed here, though oh-my-zsh
