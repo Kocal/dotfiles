@@ -39,6 +39,7 @@ alias sfp="symfony php"
 alias ux="cd ~/workspace/symfony/ux"
 alias uxc="cd ~/workspace/symfony/ux.symfony.com"
 alias ux-link="~/workspace/symfony/ux/link ."
+alias encore="cd ~/workspace/symfony/webpack-encore"
 
 _log_info() {
     echo -e "\033[1;34m[INFO]\033[0m $*"
