@@ -1,0 +1,3 @@
+[submodule "symfony-skills"]
+	path = symfony-skills
+	url = https://github.com/welcoMattic/symfony-skills

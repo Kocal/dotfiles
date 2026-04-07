@@ -100,6 +100,16 @@ ln -s "$PWD/dotfiles/vim/.vimrc" ~/.vimrc
 curl -fsSL https://opencode.ai/install | bash
 ```
 
+### Skills
+```shell
+[ -d ~/.agents/skills ] && mv ~/.agents/skills{,.back}
+mkdir -p ~/.agents/skills
+
+ln -s "$PWD/dotfiles/agents/skills"/* ~/.agents/skills/
+./symfony-skills/install.sh opencode
+```
+
+
 ## Docker
 
 ### MacOS
