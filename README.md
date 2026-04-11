@@ -10,6 +10,7 @@ Clone the repository:
 mkdir -p ~/workspace/kocal && cd $_
 git clone https://github.com/Kocal/dotfiles.git dotfiles && cd $_
 git remote set-url origin git@github.com:Kocal/dotfiles.git
+git submodule update --init --recursive
 ```
 
 Install mandatory softwares:
