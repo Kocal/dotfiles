@@ -100,15 +100,24 @@ ln -s "$PWD/dotfiles/vim/.vimrc" ~/.vimrc
 curl -fsSL https://opencode.ai/install | bash
 ```
 
+```shell
+[ -e ~/.config/opencode/opencode.json ] && mv ~/.config/opencode/opencode.json{,.back}
+ln -s "$PWD/dotfiles/opencode/opencode.json" ~/.config/opencode/opencode.json
+
+[ -e ~/.config/opencode/AGENTS.md ] && mv ~/.config/opencode/AGENTS.md{,.back}
+ln -s "$PWD/dotfiles/opencode/AGENTS.md" ~/.config/opencode/AGENTS.md
+```
+
 ### Skills
+
 ```shell
 [ -d ~/.agents/skills ] && mv ~/.agents/skills{,.back}
 mkdir -p ~/.agents/skills
 
 ln -s "$PWD/dotfiles/agents/skills"/* ~/.agents/skills/
 ./symfony-skills/install.sh opencode
+ln -s "$PWD/caveman/skills"/* ~/.agents/skills/
 ```
-
 
 ## Docker
 

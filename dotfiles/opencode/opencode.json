@@ -1,0 +1,16 @@
+{
+    "$schema": "https://opencode.ai/config.json",
+    "instructions": ["AGENTS.md", "CONTRIBUTING.md", "docs/guidelines.md", ".cursor/rules/*.md"],
+    "command": {
+        "caveman": {
+            "template": "Execute skill \"caveman\".",
+            "description": "Trigger: /caveman lite|full|ultra",
+            "agent": "build"
+        },
+        "caveman:compress": {
+            "template": "Execute skill \"compress\".",
+            "description": "Trigger: /caveman:compress <filepath> or \"compress memory file\"",
+            "agent": "build"
+        }
+    }
+}

@@ -1,3 +1,6 @@
 [submodule "symfony-skills"]
 	path = symfony-skills
 	url = https://github.com/welcoMattic/symfony-skills
+[submodule "caveman"]
+	path = caveman
+	url = https://github.com/juliusbrussee/caveman
