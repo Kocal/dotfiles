@@ -32,13 +32,13 @@ Install mandatory softwares:
 
 Install dotfiles:
 ```shell
-[ -f ~/.gitconfig ] && mv ~/.gitconfig{,.back}
+[ -e ~/.gitconfig ] && mv ~/.gitconfig{,.back}
 ln -s "$PWD/dotfiles/git/.gitconfig" ~/.gitconfig
 
-[ -f ~/.gitignore_global ] && mv ~/.gitignore_global{,.back}
+[ -e ~/.gitignore_global ] && mv ~/.gitignore_global{,.back}
 ln -s "$PWD/dotfiles/git/.gitignore_global" ~/.gitignore_global
 
-[ -f ~/.gitconfig.os ] && mv ~/.gitconfig.os{,.back}
+[ -e ~/.gitconfig.os ] && mv ~/.gitconfig.os{,.back}
 ln -s "$PWD/dotfiles/git/.gitconfig.$(uname -s)" ~/.gitconfig.os
 ```
 

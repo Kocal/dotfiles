@@ -56,6 +56,7 @@
 [merge]
 	summary = true
 	conflictstyle = zdiff3
+	stat = true
 
 [rebase]
 	updateRefs = true
