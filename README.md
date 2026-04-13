@@ -109,6 +109,11 @@ ln -s "$PWD/dotfiles/opencode/opencode.json" ~/.config/opencode/opencode.json
 ln -s "$PWD/dotfiles/opencode/AGENTS.md" ~/.config/opencode/AGENTS.md
 ```
 
+Cleanup backups:
+```shell
+rm ~/.config/opencode/opencode.json.back ~/.config/opencode/AGENTS.md.back
+```
+
 ### Skills
 
 ```shell
@@ -118,6 +123,11 @@ mkdir -p ~/.agents/skills
 ln -s "$PWD/dotfiles/agents/skills"/* ~/.agents/skills/
 ./symfony-skills/install.sh opencode
 ln -s "$PWD/caveman/skills"/* ~/.agents/skills/
+```
+
+Cleanup backups:
+```shell
+rm -rf ~/.agents/skills.back
 ```
 
 ## Docker
