@@ -38,6 +38,9 @@ ln -s "$PWD/dotfiles/git/.gitconfig" ~/.gitconfig
 [ -e ~/.gitignore_global ] && mv ~/.gitignore_global{,.back}
 ln -s "$PWD/dotfiles/git/.gitignore_global" ~/.gitignore_global
 
+[ -e ~/.gitconfig.local ] && mv ~/.gitconfig.local{,.back}
+touch  ~/.gitconfig.local
+
 [ -e ~/.gitconfig.os ] && mv ~/.gitconfig.os{,.back}
 ln -s "$PWD/dotfiles/git/.gitconfig.$(uname -s)" ~/.gitconfig.os
 ```

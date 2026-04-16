@@ -96,3 +96,6 @@
 # Includes
 [include]
 	path = ~/.gitconfig.os
+
+[include]
+	path = ~/.gitconfig.local

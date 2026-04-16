@@ -1,1 +1,4 @@
 tmp/
+
+# This file is normally created via `touch`, and not symlinked from an existing file in the repo, but just in case... ⚠
+.gitconfig.local
