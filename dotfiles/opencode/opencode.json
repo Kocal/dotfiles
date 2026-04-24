@@ -12,5 +12,16 @@
             "description": "Trigger: /caveman:compress <filepath> or \"compress memory file\"",
             "agent": "build"
         }
+    },
+    "mcp": {
+        "chrome-devtools": {
+            "type": "local",
+            "command": [
+                "npx",
+                "-y",
+                "chrome-devtools-mcp@latest",
+                "--no-usage-statistics"
+            ]
+        }
     }
 }
