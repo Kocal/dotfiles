@@ -133,6 +133,15 @@ Cleanup backups:
 rm -rf ~/.agents/skills.back
 ```
 
+### RTK
+
+https://www.rtk-ai.app/#install
+
+```shell
+brew install rtk
+rtk init --global --opencode
+```
+
 ## Docker
 
 ### MacOS
