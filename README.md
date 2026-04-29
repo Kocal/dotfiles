@@ -98,39 +98,41 @@ Install dotfiles:
 ln -s "$PWD/dotfiles/vim/.vimrc" ~/.vimrc
 ```
 
-## Opencode
+## Claude Code
 
 ```shell
-curl -fsSL https://opencode.ai/install | bash
+brew install --cask claude-code
 ```
 
 ```shell
-[ -e ~/.config/opencode/opencode.json ] && mv ~/.config/opencode/opencode.json{,.back}
-ln -s "$PWD/dotfiles/opencode/opencode.json" ~/.config/opencode/opencode.json
+[ -e ~/.claude/settings.json ] && mv ~/.claude/settings.json{,.back}
+ln -s "$PWD/dotfiles/claude/settings.json" ~/.claude/settings.json
 
-[ -e ~/.config/opencode/AGENTS.md ] && mv ~/.config/opencode/AGENTS.md{,.back}
-ln -s "$PWD/dotfiles/opencode/AGENTS.md" ~/.config/opencode/AGENTS.md
+[ -e ~/.claude/statusline-command.sh ] && mv ~/.claude/statusline-command.sh{,.back}
+ln -s "$PWD/dotfiles/claude/statusline-command.sh" ~/.claude/statusline-command.sh
+
+[ -e ~/.claude/CLAUDE.md ] && mv ~/.claude/CLAUDE.md{,.back}
+ln -s "$PWD/dotfiles/claude/CLAUDE.md" ~/.claude/CLAUDE.md
 ```
 
-Cleanup backups:
 ```shell
-rm ~/.config/opencode/opencode.json.back ~/.config/opencode/AGENTS.md.back
+rm ~/.claude/settings.json.back ~/.claude/AGENTS.md.back
 ```
 
 ### Skills
 
 ```shell
-[ -d ~/.agents/skills ] && mv ~/.agents/skills{,.back}
-mkdir -p ~/.agents/skills
+[ -d ~/.claude/skills ] && mv ~/.claude/skills{,.back}
+mkdir -p ~/.claude/skills
 
-ln -s "$PWD/dotfiles/agents/skills"/* ~/.agents/skills/
-./symfony-skills/install.sh opencode
-ln -s "$PWD/caveman/skills"/* ~/.agents/skills/
+ln -s "$PWD/dotfiles/claude/skills"/* ~/.claude/skills/
+./symfony-skills/install.sh claude-code
+ln -s "$PWD/caveman/skills"/* ~/.claude/skills/
 ```
 
 Cleanup backups:
 ```shell
-rm -rf ~/.agents/skills.back
+rm -rf ~/.claude/skills.back
 ```
 
 ### RTK
@@ -139,7 +141,7 @@ https://www.rtk-ai.app/#install
 
 ```shell
 brew install rtk
-rtk init --global --opencode
+rtk init --global
 ```
 
 ## Docker
