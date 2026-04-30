@@ -28,5 +28,18 @@
   "statusLine": {
     "type": "command",
     "command": "sh /Users/kocal/.claude/statusline-command.sh"
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "rtk hook claude"
+          }
+        ]
+      }
+    ]
   }
 }
