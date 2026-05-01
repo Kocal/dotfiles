@@ -102,6 +102,7 @@ ln -s "$PWD/dotfiles/vim/.vimrc" ~/.vimrc
 
 ```shell
 brew install --cask claude-code
+claude # to initialize configuration directory, then quit the app
 ```
 
 ```shell
@@ -116,7 +117,7 @@ ln -s "$PWD/dotfiles/claude/CLAUDE.md" ~/.claude/CLAUDE.md
 ```
 
 ```shell
-rm ~/.claude/settings.json.back ~/.claude/AGENTS.md.back
+rm ~/.claude/settings.json.back ~/.claude/statusline-command.sh.back ~/.claude/CLAUDE.md.back
 ```
 
 ### Skills
