@@ -6,7 +6,7 @@
     "pr": ""
   },
   "enabledPlugins": {
-    "/Users/kocal/.claude/skills/symfony": true,
+    "~/.claude/skills/symfony": true,
     "chrome-devtools-mcp@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
@@ -27,7 +27,7 @@
   "spinnerTipsEnabled": false,
   "statusLine": {
     "type": "command",
-    "command": "sh /Users/kocal/.claude/statusline-command.sh"
+    "command": "sh ~/.claude/statusline-command.sh"
   },
   "hooks": {
     "PreToolUse": [
