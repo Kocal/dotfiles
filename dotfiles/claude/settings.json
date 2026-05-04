@@ -64,7 +64,15 @@
       "Bash(symfony php vendor/bin/phpunit *)",
       "Bash(composer run *)",
       "Bash(symfony composer run *)",
-      "Bash(pnpm run *)"
+      "Bash(pnpm run *)",
+      "Bash(rtk ls *)",
+      "Bash(rtk tree *)",
+      "Bash(rtk read *)",
+      "Bash(rtk err *)",
+      "Bash(rtk json *)",
+      "Bash(rtk find *)",
+      "Bash(rtk log *)",
+      "Bash(rtk grep *)"
     ],
     "deny": [
       "Read(**/.env*)",
