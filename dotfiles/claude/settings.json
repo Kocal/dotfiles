@@ -72,7 +72,10 @@
       "Bash(rtk json *)",
       "Bash(rtk find *)",
       "Bash(rtk log *)",
-      "Bash(rtk grep *)"
+      "Bash(rtk grep *)",
+      "Bash(rtk gh issue read *)",
+      "Bash(rtk gh pr diff *)",
+      "Bash(rtk gh pr view *)"
     ],
     "deny": [
       "Read(**/.env*)",

@@ -3,6 +3,27 @@ name: natural-writing
 description: Write natural, human-sounding text by avoiding AI-typical patterns like em-dashes, filler adverbs, and robotic phrasing. Calibrated from real blog posts and technical writing.
 ---
 
+## When to Activate
+
+Apply this skill any time prose is being written or edited for human readers. Triggers include:
+
+- Replies and comments on GitHub or GitLab (issues, pull requests, merge requests, code reviews, discussions).
+- Documentation: README, guides, tutorials, API docs, changelogs, release notes.
+- Blog posts, articles, newsletters, social media drafts.
+- Emails, Slack/Discord messages, chat replies.
+- Commit messages and PR/MR descriptions.
+- Code comments and docstrings written in natural language.
+- Any user-facing string or message in a UI.
+- Rewriting, translating, or polishing text written by someone else (or by an AI) before sending it.
+
+Do not activate for:
+
+- Pure code edits with no natural-language content.
+- Structured data (JSON, YAML, config files) without prose fields.
+- Mechanical output where a fixed format is required (logs, machine-readable reports).
+
+When in doubt: if a human will read it as sentences, this skill applies.
+
 ## Core Principles
 
 1. **Be direct and conversational**, like explaining something to a colleague. Get to the point quickly.
