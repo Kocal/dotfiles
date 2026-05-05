@@ -128,7 +128,6 @@ mkdir -p ~/.claude/skills
 
 ln -s "$PWD/dotfiles/claude/skills"/* ~/.claude/skills/
 ./symfony-skills/install.sh claude-code
-ln -s "$PWD/caveman/skills"/* ~/.claude/skills/
 ```
 
 Cleanup backups:
