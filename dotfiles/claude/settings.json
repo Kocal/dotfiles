@@ -19,6 +19,7 @@
       "Bash(npm test *)",
       "Bash(npx tsc *)",
       "Bash(git status)",
+      "Bash(git branch --show-current)",
       "Bash(git diff *)",
       "Bash(git log *)",
       "Bash(git add *)",
@@ -66,7 +67,7 @@
       "Bash(wget *)",
       "Bash(chmod *)"
     ],
-    "defaultMode": "acceptEdits"
+    "defaultMode": "plan"
   },
   "hooks": {
     "PreToolUse": [
@@ -88,7 +89,7 @@
   "enabledPlugins": {
     "~/.claude/skills/symfony": true,
     "chrome-devtools-mcp@claude-plugins-official": true,
-    "caveman@caveman": true
+    "caveman@caveman": false
   },
   "extraKnownMarketplaces": {
     "chrome-devtools-plugins": {
@@ -111,5 +112,7 @@
       "Processing"
     ]
   },
-  "companyAnnouncements": []
+  "companyAnnouncements": [],
+  "theme": "auto",
+  "preferredNotifChannel": "notifications_disabled"
 }
