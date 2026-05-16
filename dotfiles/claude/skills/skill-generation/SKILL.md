@@ -12,7 +12,7 @@ Use this skill whenever the user asks to create, generate, or scaffold a new ski
 A skill is a single Markdown file located at:
 
 ```
-~/workspace/kocal/dotfiles/agents/skills/<skill-name>/SKILL.md
+~/workspace/kocal/dotfiles/claude/skills/<skill-name>/SKILL.md
 ```
 
 Where `<skill-name>` is a short, lowercase, hyphenated identifier (e.g. `github-cli`, `natural-writing`, `skill-generation`).
@@ -66,7 +66,7 @@ When the user asks for a new skill:
 
 1. Ask what aspects of Docker the skill should cover (Compose, image builds, deployment, etc.).
 2. Propose a plan with the skill name (`docker`), sections, and key rules.
-3. After validation, create `~/workspace/kocal/dotfiles/dotfiles/agents/skills/docker/SKILL.md`.
+3. After validation, create `~/workspace/kocal/dotfiles/dotfiles/claude/skills/docker/SKILL.md`.
 4. Summarize the result.
 
 ### User says: "Create a skill to always use pnpm instead of npm"
