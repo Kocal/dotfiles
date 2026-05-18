@@ -120,6 +120,22 @@ ln -s "$PWD/dotfiles/claude/CLAUDE.md" ~/.claude/CLAUDE.md
 rm ~/.claude/settings.json.back ~/.claude/statusline-command.sh.back ~/.claude/CLAUDE.md.back
 ```
 
+### Agents
+
+```shell
+[ -d ~/.claude/agent-memory ] && mv ~/.claude/agent-memory{,.back}
+[ -d ~/.claude/agents ] && mv ~/.claude/agents{,.back}
+mkdir -p ~/.claude/agent-memory ~/.claude/agents
+
+ln -s "$PWD/dotfiles/claude/agent-memory"/* ~/.claude/agent-memory/
+ln -s "$PWD/dotfiles/claude/agents"/* ~/.claude/agents/
+```
+
+Cleanup backups:
+```shell
+rm -rf ~/.claude/agent-memory.back ~/.claude/agents.back
+```
+
 ### Skills
 
 ```shell
