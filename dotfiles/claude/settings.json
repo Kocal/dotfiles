@@ -53,7 +53,6 @@
       "Bash(rtk git log *)",
       "Bash(rtk git add *)",
       "Bash(rtk git commit *)",
-      "Bash(rtk git log *)",
       "Bash(rtk git show *)"
     ],
     "deny": [
