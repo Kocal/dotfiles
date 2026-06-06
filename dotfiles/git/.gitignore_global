@@ -5,3 +5,5 @@
 
 webpack-encore/.npmrc
 symfony-webpack-encore-*.tgz
+
+**/.claude/settings.local.json

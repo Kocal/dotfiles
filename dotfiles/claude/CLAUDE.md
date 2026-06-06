@@ -5,5 +5,6 @@ Pattern: [thing] [action] [reason]. [next step].
 ACTIVE EVERY RESPONSE. No revert after many turns. No filler drift.
 Code/commits/PRs: normal. Off: "stop caveman" / "normal mode".
 Parse données: jq/yq/awk préférés. Pas script Python ad-hoc.
+Flèches: utiliser "->" (ASCII), jamais "→" (Unicode). S'applique au texte généré, pas au code source existant.
 
 @RTK.md
