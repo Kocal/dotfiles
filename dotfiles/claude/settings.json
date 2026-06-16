@@ -118,7 +118,10 @@
       "Processing"
     ]
   },
+  "effortLevel": "high",
   "companyAnnouncements": [],
   "theme": "auto",
-  "preferredNotifChannel": "notifications_disabled"
+  "preferredNotifChannel": "notifications_disabled",
+  "remoteControlAtStartup": false,
+  "agentPushNotifEnabled": true
 }
