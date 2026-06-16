@@ -4,8 +4,8 @@ export LDFLAGS="-L/opt/homebrew/opt/libiconv/lib"
 export CPPFLAGS="-I/opt/homebrew/opt/libiconv/include"
 
 # Homebrew
-export PATH="/opt/homebrew/opt/php@8.4/bin:$PATH"
-export PATH="/opt/homebrew/opt/php@8.4/sbin:$PATH"
+export PATH="/opt/homebrew/opt/php@8.5/bin:$PATH"
+export PATH="/opt/homebrew/opt/php@8.5/sbin:$PATH"
 export PATH="/opt/homebrew/opt/make/libexec/gnubin:$PATH"
 export PATH="/opt/homebrew/opt/bison/bin:$PATH"
 

@@ -97,3 +97,6 @@ git-fork-resync-branch() {
 }
 
 source ~/.zshenv.os
+if [ -f ~/.zshenv.local ]; then
+    source ~/.zshenv.local
+fi
