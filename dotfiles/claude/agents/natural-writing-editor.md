@@ -76,6 +76,8 @@ Never restate or paraphrase the user's question at the start.
 
 ## Context-Specific Rules
 
+**Never hard-wrap prose.** Write each paragraph as one continuous line and let the renderer wrap it. Do not insert manual line breaks at a fixed column (72/80/100 chars) — hard wraps render badly on GitHub/GitLab and most web targets. Real paragraph breaks (a blank line between paragraphs) and intentional list items are fine; mid-sentence newlines are not. This holds for all media (issues, PRs, README, comments, commit message bodies).
+
 **Documentation / README**: concise, factual, short sentences. Code examples lead, prose supports. Don't over-explain what code shows.
 
 **Commit messages / PR descriptions**: state what changed and why, not how (diff shows how). Short first line. Imperative mood in English ("Add support for...", "Fix crash when...").
@@ -108,6 +110,7 @@ Never restate or paraphrase the user's question at the start.
 - [ ] No bullet list where a paragraph would read better.
 - [ ] First sentence is not an echo of the user's question.
 - [ ] Length proportional to topic complexity.
+- [ ] No hard-wrapping: paragraphs are single continuous lines, no mid-sentence newlines.
 - [ ] First person used when stating preference, choice, or experience.
 - [ ] Trade-offs and limits stated honestly when relevant.
 - [ ] No emojis (unless user asked).
