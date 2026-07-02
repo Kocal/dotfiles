@@ -28,6 +28,23 @@ Install mandatory softwares:
 
 - **1Password CLI** ([MacOS](https://developer.1password.com/docs/cli/get-started/#install) / [Linux](https://developer.1password.com/docs/cli/get-started/#install-linux))
 
+## nix
+
+Install nix package manager:
+```shell
+curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install | sh
+```
+
+Check everything is working:
+```shell
+nix-shell -p hyfetch --run hyfetch
+```
+
+Run nix-darwin:
+```shell
+sudo nix run nix-darwin/master#darwin-rebuild --extra-experimental-features "nix-command flakes" -- switch --flake "$PWD/nix"
+```
+
 ## git
 
 Install dotfiles:
@@ -231,7 +248,7 @@ sudo systemctl enable containerd.service
 
 ```shell
 [ -f ~/.local/bin/pie.phar ] && mv ~/.local/bin/pie.phar{,.back}
-curl -fsSL  https://github.com/php/pie/releases/latest/download/pie.phar -o ~/.local/bin/pie.phar 
+curl -fsSL  https://github.com/php/pie/releases/latest/download/pie.phar -o ~/.local/bin/pie.phar
 ```
 
 ### Build from sources
@@ -286,7 +303,7 @@ declare -A PHP_CONFIGURE_FLAGS_PER_VERSION=(
 
 for PHP_VERSION in ${PHP_VERSIONS[@]}; do
   echo "Building PHP $PHP_VERSION..."
-  
+
   cd ~/workspace/php/PHP-$PHP_VERSION \
     && ./buildconf --force \
     && ./configure \
@@ -306,7 +323,7 @@ for PHP_VERSION in ${PHP_VERSIONS[@]}; do
     mkdir -p ~/.local/etc/php-$PHP_VERSION/conf.d
     [ -f ~/.local/etc/php-$PHP_VERSION/php.ini ] && mv ~/.local/etc/php-$PHP_VERSION/php.ini{,.back}
     cp ~/workspace/php/PHP-$PHP_VERSION/php.ini-development ~/.local/etc/php-$PHP_VERSION/php.ini
-    
+
     rm -f ~/.local/bin/php$PHP_VERSION
     ln -s ~/.local/php-$PHP_VERSION/bin/php ~/.local/bin/php$PHP_VERSION
 done
@@ -318,13 +335,13 @@ done
 if [ command -v composer >/dev/null 2>&1 ]; then
     echo "Composer is already installed"
     composer self-update
-else 
+else
     php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
     php -r "if (hash_file('sha384', 'composer-setup.php') === 'c8b085408188070d5f52bcfe4ecfbee5f727afa458b2573b8eaaf77b3419b0bf2768dc67c86944da1544f06fa544fd47') { echo 'Installer verified'.PHP_EOL; } else { echo 'Installer corrupt'.PHP_EOL; unlink('composer-setup.php'); exit(1); }"
     php composer-setup.php
     php -r "unlink('composer-setup.php');"
     mv composer.phar ~/.local/bin/composer
-fi 
+fi
 
 command -v composer >/dev/null 2>&1 || { echo >&2 "Composer installation failed"; }
 ```
@@ -352,7 +369,7 @@ done
 ```shell
 for PHP_VERSION in ${PHP_VERSIONS[@]}; do
     cp dotfiles/php/conf.d/opcache.ini ~/.local/etc/php-$PHP_VERSION/conf.d/ext-opcache.ini
-    
+
     # opcache is built-in from PHP 8.5
     if [ "$PHP_VERSION" = "8.5" ]; then
       sed -i '/zend_extension=opcache/d' ~/.local/etc/php-$PHP_VERSION/conf.d/ext-opcache.ini
