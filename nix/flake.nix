@@ -30,6 +30,7 @@
           pkgs.mkalias
           pkgs.gnumake
           pkgs.gh
+          pkgs.rtk
         ];
 
       # Correctly set up /Applications for GUI apps installed via nix-darwin.

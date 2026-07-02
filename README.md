@@ -144,10 +144,9 @@ rm -rf ~/.claude/skills.back
 
 ### RTK
 
-https://www.rtk-ai.app/#install
+https://www.rtk-ai.app/#install (installed via the nix flake — `pkgs.rtk`)
 
 ```shell
-brew install rtk
 rtk init --global
 ```
 
