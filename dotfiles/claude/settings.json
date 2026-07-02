@@ -121,6 +121,7 @@
   },
   "effortLevel": "xhigh",
   "companyAnnouncements": [],
+  "tui": "default",
   "theme": "auto",
   "preferredNotifChannel": "notifications_disabled",
   "remoteControlAtStartup": false,
