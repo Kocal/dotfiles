@@ -31,6 +31,7 @@
           pkgs.gnumake
           pkgs.gh
           pkgs.rtk
+          pkgs.orbstack
         ];
 
       # Correctly set up /Applications for GUI apps installed via nix-darwin.
@@ -70,9 +71,10 @@
       # The platform the configuration will be used on.
       nixpkgs.hostPlatform = "aarch64-darwin";
 
-      # vim-solarized8 is marked unfree in nixpkgs; allow just that one.
+      # Allow specific unfree packages only.
       nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
         "vim-solarized8"
+        "orbstack"
       ];
 
       # Needed so home-manager can resolve the user's home directory.

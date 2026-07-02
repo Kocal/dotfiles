@@ -154,7 +154,7 @@ rtk init --global
 
 ### MacOS
 
-https://orbstack.dev/download
+OrbStack (https://orbstack.dev/) is installed via the nix flake (`pkgs.orbstack`).
 
 ### Linux/Ubuntu
 
