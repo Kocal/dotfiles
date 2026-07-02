@@ -9,6 +9,10 @@
     home-manager.url = "github:nix-community/home-manager/master";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
+    # EOL PHP versions (8.1, 8.0, ...) not in nixpkgs anymore.
+    phps.url = "github:fossar/nix-phps";
+    phps.inputs.nixpkgs.follows = "nixpkgs";
+
     nix-homebrew.url = "github:zhaofengli/nix-homebrew";
     homebrew-core = {
       url = "github:homebrew/homebrew-core";
@@ -20,7 +24,7 @@
     };
   };
 
-  outputs = inputs@{ self, nix-darwin, nixpkgs, home-manager, nix-homebrew, homebrew-core, homebrew-cask }:
+  outputs = inputs@{ self, nix-darwin, nixpkgs, home-manager, phps, nix-homebrew, homebrew-core, homebrew-cask }:
   let
     configuration = { config, pkgs, lib, ... }: {
       # List packages installed in system profile. To search by name, run:
@@ -73,11 +77,18 @@
       # The platform the configuration will be used on.
       nixpkgs.hostPlatform = "aarch64-darwin";
 
-      # Allow specific unfree packages only.
-      nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
-        "vim-solarized8"
-        "orbstack"
-        "claude-code"
+      # Allow specific unfree packages only (blackfire probe + agent match by name).
+      nixpkgs.config.allowUnfreePredicate = pkg:
+        builtins.elem (lib.getName pkg) [
+          "vim-solarized8"
+          "orbstack"
+          "claude-code"
+        ] || lib.hasInfix "blackfire" (lib.getName pkg);
+
+      # PHP 8.1 is EOL; fossar/nix-phps marks it insecure. Permit it for local dev.
+      # If the switch errors, copy the exact "php-8.1.xx" name from the message here.
+      nixpkgs.config.permittedInsecurePackages = [
+        "php-8.1.33"
       ];
 
       # Needed so home-manager can resolve the user's home directory.
@@ -98,6 +109,7 @@
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
           home-manager.backupFileExtension = "hm-backup";
+          home-manager.extraSpecialArgs = { inherit inputs; };
           home-manager.users.kocal = import ./home.nix;
         }
         nix-homebrew.darwinModules.nix-homebrew

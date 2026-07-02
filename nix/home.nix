@@ -5,6 +5,7 @@
     ./home/vim.nix
     ./home/zsh.nix
     ./home/node.nix
+    ./home/php.nix
     ./home/claude.nix
   ];
 
