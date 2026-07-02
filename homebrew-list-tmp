@@ -1,0 +1,45 @@
+➜  dotfiles git:(nix) ✗ brew list
+==> Formulae
+act                             giflib                          liblzf                          media-info                      python@3.14
+amqp@8.3                        glab                            libmediainfo                    mkcert                          python@3.9
+aom                             glew                            libmms                          mole                            rabbitmq-c
+apr                             glib                            libnghttp2                      mpdecimal                       re2c
+apr-util                        gmp                             libnghttp3                      msgpack@8.3                     readline
+argon2                          gource                          libngtcp2                       ncurses                         redis@8.3
+aspell                          gpatch                          libomp                          neovim                          ripgrep
+autoconf                        graphite2                       libpng                          net-snmp                        rtk
+autoconf-archive                harfbuzz                        libpq                           nmsize                          rtmpdump
+automake                        highway                         libraw                          nspr                            rust-parallel
+bash                            htop                            librsvg                         nss                             sdl2
+bat                             icu4c@78                        libsodium                       oniguruma                       sdl2_image
+bison                           igbinary@8.3                    libssh2                         openexr                         shared-mime-info
+blackfire                       imagemagick                     libthai                         openjdk                         sphinx-doc
+boost                           imagick@8.3                     libtiff                         openjdk@21                      sqlite
+brotli                          imagick@8.4                     libtool                         openjpeg                        svt-av1
+ca-certificates                 imath                           libultrahdr                     openjph                         symfony-cli
+cairo                           jasper                          libunibreak                     openldap                        tesseract
+ccat                            jbig2dec                        libunistring                    openssl@3                       tidy-html5
+certifi                         jpeg-turbo                      libuv                           opus                            tree
+cmake                           jpeg-xl                         libvmaf                         pango                           tree-sitter
+composer                        jpegoptim                       libvpx                          parallel                        unbound
+coreutils                       jq                              libx11                          pcre2                           unibilium
+curl                            krb5                            libxau                          php                             unixodbc
+dav1d                           lame                            libxcb                          php@8.1                         upsun-cli
+docker-credential-helper-ecr    leptonica                       libxdmcp                        php@8.2                         utf8proc
+fd                              libarchive                      libxext                         php@8.3                         vale
+ffmpeg                          libass                          libxrender                      php@8.4                         vim
+findutils                       libavif                         libzen                          phpredis@8.3                    webp
+fontconfig                      libb2                           libzip                          pigz                            wget
+freetds                         libdatrie                       little-cms2                     pipx                            woff2
+freetype                        libde265                        llhttp                          pixman                          x264
+fribidi                         libdeflate                      lpeg                            pkgconf                         x265
+fswatch                         libevent                        luajit                          platformsh-cli                  xdebug@8.3
+gd                              libgit2                         luv                             pngquant                        xorgproto
+gdbm                            libheif                         lz4                             popt                            xz
+gdk-pixbuf                      libiconv                        lzo                             python-packaging                yq
+gettext                         libidn                          m4                              python-setuptools               zizmor
+gh                              libidn2                         make                            python@3.10                     zstd
+ghostscript                     liblqr                          manala                          python@3.12
+
+==> Casks
+battery                 claude-code@latest      devtoys                 font-monaspace          ghostty                 ngrok                   yacreader

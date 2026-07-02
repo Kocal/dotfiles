@@ -19,9 +19,6 @@ Install mandatory softwares:
 [ "$(uname -s)" = "Darwin" ] && xcode-select --install
 [ "$(uname -s)" = "Linux" ] && sudo apt update && sudo apt install -y curl wget build-essential autoconf
 
-# Homebrew
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
 # GNU Make for MacOS
 [ "$(uname -s)" = "Darwin" ] && brew install make
 ```
