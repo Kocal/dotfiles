@@ -45,6 +45,10 @@ Run nix-darwin:
 sudo nix run nix-darwin/master#darwin-rebuild --extra-experimental-features "nix-command flakes" -- switch --flake "$PWD/nix"
 ```
 
+```shell
+sudo darwin-rebuild switch --flake "$PWD/nix"
+```
+
 ## git
 
 Install dotfiles:
