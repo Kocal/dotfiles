@@ -32,6 +32,7 @@
           pkgs.gh
           pkgs.rtk
           pkgs.orbstack
+          pkgs.claude-code
         ];
 
       # Correctly set up /Applications for GUI apps installed via nix-darwin.
@@ -75,6 +76,7 @@
       nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
         "vim-solarized8"
         "orbstack"
+        "claude-code"
       ];
 
       # Needed so home-manager can resolve the user's home directory.

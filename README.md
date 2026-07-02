@@ -10,7 +10,6 @@ Clone the repository:
 mkdir -p ~/workspace/kocal && cd $_
 git clone https://github.com/Kocal/dotfiles.git dotfiles && cd $_
 git remote set-url origin git@github.com:Kocal/dotfiles.git
-git submodule update --init --recursive
 ```
 
 Install mandatory softwares:
@@ -91,25 +90,10 @@ ln -s "$PWD/dotfiles/zsh/.zshrc" ~/.zshrc
 
 ## Claude Code
 
-```shell
-brew install --cask claude-code
-claude # to initialize configuration directory, then quit the app
-```
-
-```shell
-[ -e ~/.claude/settings.json ] && mv ~/.claude/settings.json{,.back}
-ln -s "$PWD/dotfiles/claude/settings.json" ~/.claude/settings.json
-
-[ -e ~/.claude/statusline-command.sh ] && mv ~/.claude/statusline-command.sh{,.back}
-ln -s "$PWD/dotfiles/claude/statusline-command.sh" ~/.claude/statusline-command.sh
-
-[ -e ~/.claude/CLAUDE.md ] && mv ~/.claude/CLAUDE.md{,.back}
-ln -s "$PWD/dotfiles/claude/CLAUDE.md" ~/.claude/CLAUDE.md
-```
-
-```shell
-rm ~/.claude/settings.json.back ~/.claude/statusline-command.sh.back ~/.claude/CLAUDE.md.back
-```
+`claude-code` is installed via the nix flake (`pkgs.claude-code`). The base config
+(`settings.json`, `statusline-command.sh`, `CLAUDE.md`) is symlinked to this repo by
+home-manager (`nix/home.nix`), using out-of-store symlinks so runtime edits by Claude
+are written back into the repo.
 
 ### Agents
 
@@ -134,7 +118,6 @@ rm -rf ~/.claude/agent-memory.back ~/.claude/agents.back
 mkdir -p ~/.claude/skills
 
 ln -s "$PWD/dotfiles/claude/skills"/* ~/.claude/skills/
-./symfony-skills/install.sh claude-code
 ```
 
 Cleanup backups:
