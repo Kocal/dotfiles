@@ -60,12 +60,6 @@ touch  ~/.gitconfig.local
 ln -s "$PWD/dotfiles/git/.gitconfig.$(uname -s)" ~/.gitconfig.os
 ```
 
-## GitHub CLI
-
-```shell
-brew install gh
-```
-
 ## zsh
 
 Install zsh and Oh My Zsh:
