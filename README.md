@@ -18,9 +18,6 @@ Install mandatory softwares:
 # Prerequisites
 [ "$(uname -s)" = "Darwin" ] && xcode-select --install
 [ "$(uname -s)" = "Linux" ] && sudo apt update && sudo apt install -y curl wget build-essential autoconf
-
-# GNU Make for MacOS
-[ "$(uname -s)" = "Darwin" ] && brew install make
 ```
 
 - **1Password CLI** ([MacOS](https://developer.1password.com/docs/cli/get-started/#install) / [Linux](https://developer.1password.com/docs/cli/get-started/#install-linux))

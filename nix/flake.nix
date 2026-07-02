@@ -28,6 +28,7 @@
       environment.systemPackages =
         [
           pkgs.mkalias
+          pkgs.gnumake
         ];
 
       # Correctly set up /Applications for GUI apps installed via nix-darwin.
