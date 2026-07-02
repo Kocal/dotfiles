@@ -61,69 +61,19 @@ ln -s "$PWD/dotfiles/git/.gitconfig.$(uname -s)" ~/.gitconfig.os
 
 ## zsh
 
-Install zsh and Oh My Zsh:
-```shell
-# zsh
-[ "$(uname -s)" = "Darwin" ] && brew install zsh
-[ "$(uname -s)" = "Linux" ] && sudo apt install zsh
-
-# Oh My Zsh
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-```
-
-Install dotfiles:
-```shell
-mkdir -p ~/.local/bin
-
-[ -f ~/.zshenv.os ] && mv ~/.zshenv.os{,.back}
-ln -s "$PWD/dotfiles/zsh/.zshenv.$(uname -s)" ~/.zshenv.os
-
-[ -f ~/.zshenv ] && mv ~/.zshenv{,.back}
-ln -s "$PWD/dotfiles/zsh/.zshenv" ~/.zshenv
-
-[ -f ~/.zshrc.os ] && mv ~/.zshrc.os{,.back}
-ln -s "$PWD/dotfiles/zsh/.zshrc.$(uname -s)" ~/.zshrc.os
-
-[ -f ~/.zshrc ] && mv ~/.zshrc{,.back}
-ln -s "$PWD/dotfiles/zsh/.zshrc" ~/.zshrc
-```
+zsh is configured via home-manager (`nix/home/zsh.nix`): native completion +
+autosuggestions + syntax highlighting, Starship prompt, aliases and shell
+functions (`nix/home/zsh/functions.zsh`). Node versions are managed by `fnm`
+(`nix/home/node.nix`). Applied by `darwin-rebuild switch`.
 
 ## Claude Code
 
-`claude-code` is installed via the nix flake (`pkgs.claude-code`). The base config
-(`settings.json`, `statusline-command.sh`, `CLAUDE.md`) is symlinked to this repo by
-home-manager (`nix/home.nix`), using out-of-store symlinks so runtime edits by Claude
-are written back into the repo.
-
-### Agents
-
-```shell
-[ -d ~/.claude/agent-memory ] && mv ~/.claude/agent-memory{,.back}
-[ -d ~/.claude/agents ] && mv ~/.claude/agents{,.back}
-mkdir -p ~/.claude/agent-memory ~/.claude/agents
-
-ln -s "$PWD/dotfiles/claude/agent-memory"/* ~/.claude/agent-memory/
-ln -s "$PWD/dotfiles/claude/agents"/* ~/.claude/agents/
-```
-
-Cleanup backups:
-```shell
-rm -rf ~/.claude/agent-memory.back ~/.claude/agents.back
-```
-
-### Skills
-
-```shell
-[ -d ~/.claude/skills ] && mv ~/.claude/skills{,.back}
-mkdir -p ~/.claude/skills
-
-ln -s "$PWD/dotfiles/claude/skills"/* ~/.claude/skills/
-```
-
-Cleanup backups:
-```shell
-rm -rf ~/.claude/skills.back
-```
+`claude-code` is installed via the nix flake (`pkgs.claude-code`). The whole config
+lives in `nix/home/claude/` (`settings.json`, `statusline-command.sh`, `CLAUDE.md`,
+and the `agents/`, `skills/`, `agent-memory/` directories). home-manager
+(`nix/home/claude.nix`) symlinks it into `~/.claude` with out-of-store symlinks, so
+runtime edits/writes by Claude are reflected back into the repo. Agent memory is
+runtime state, kept in the repo dir but gitignored (see `.gitignore`).
 
 ### RTK
 

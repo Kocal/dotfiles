@@ -29,6 +29,7 @@
         [
           pkgs.mkalias
           pkgs.gnumake
+          pkgs.bat
           pkgs.gh
           pkgs.rtk
           pkgs.orbstack
@@ -96,6 +97,7 @@
         {
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
+          home-manager.backupFileExtension = "hm-backup";
           home-manager.users.kocal = import ./home.nix;
         }
         nix-homebrew.darwinModules.nix-homebrew
