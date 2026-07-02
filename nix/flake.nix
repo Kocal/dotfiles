@@ -6,6 +6,9 @@
     nix-darwin.url = "github:nix-darwin/nix-darwin/master";
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
 
+    home-manager.url = "github:nix-community/home-manager/master";
+    home-manager.inputs.nixpkgs.follows = "nixpkgs";
+
     nix-homebrew.url = "github:zhaofengli/nix-homebrew";
     homebrew-core = {
       url = "github:homebrew/homebrew-core";
@@ -17,14 +20,13 @@
     };
   };
 
-  outputs = inputs@{ self, nix-darwin, nixpkgs, nix-homebrew, homebrew-core, homebrew-cask }:
+  outputs = inputs@{ self, nix-darwin, nixpkgs, home-manager, nix-homebrew, homebrew-core, homebrew-cask }:
   let
-    configuration = { config, pkgs, ... }: {
+    configuration = { config, pkgs, lib, ... }: {
       # List packages installed in system profile. To search by name, run:
       # $ nix-env -qaP | grep wget
       environment.systemPackages =
         [
-          pkgs.vim
           pkgs.mkalias
         ];
 
@@ -64,6 +66,17 @@
 
       # The platform the configuration will be used on.
       nixpkgs.hostPlatform = "aarch64-darwin";
+
+      # vim-solarized8 is marked unfree in nixpkgs; allow just that one.
+      nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+        "vim-solarized8"
+      ];
+
+      # Needed so home-manager can resolve the user's home directory.
+      users.users.kocal = {
+        name = "kocal";
+        home = "/Users/kocal";
+      };
     };
   in
   {
@@ -72,6 +85,12 @@
     darwinConfigurations."MacBook-Pro-de-Hugo" = nix-darwin.lib.darwinSystem {
       modules = [
         configuration
+        home-manager.darwinModules.home-manager
+        {
+          home-manager.useGlobalPkgs = true;
+          home-manager.useUserPackages = true;
+          home-manager.users.kocal = import ./home.nix;
+        }
         nix-homebrew.darwinModules.nix-homebrew
         {
           nix-homebrew = {

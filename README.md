@@ -98,24 +98,6 @@ ln -s "$PWD/dotfiles/zsh/.zshrc.$(uname -s)" ~/.zshrc.os
 ln -s "$PWD/dotfiles/zsh/.zshrc" ~/.zshrc
 ```
 
-## vim
-
-Install vim and vim-plug:
-```shell
-# vim
-[ "$(uname -s)" = "Darwin" ] && brew install vim
-[ "$(uname -s)" = "Linux" ] && sudo apt install vim
-
-# vim-plug
-curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-```
-
-Install dotfiles:
-```shell
-[ -f ~/.vimrc ] && mv ~/.vimrc{,.back}
-ln -s "$PWD/dotfiles/vim/.vimrc" ~/.vimrc
-```
-
 ## Claude Code
 
 ```shell
