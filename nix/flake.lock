@@ -86,6 +86,22 @@
         "type": "github"
       }
     },
+    "homebrew-vorssaint": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1782781550,
+        "narHash": "sha256-ZjC1ytgIqlREJybda5hUeyusjom+xbn2XmVXr1eQefo=",
+        "owner": "vorssaint",
+        "repo": "homebrew-tap",
+        "rev": "9e1b6f1fb98102ad21ad899977cdae8d4c7fcc54",
+        "type": "github"
+      },
+      "original": {
+        "owner": "vorssaint",
+        "repo": "homebrew-tap",
+        "type": "github"
+      }
+    },
     "nix-darwin": {
       "inputs": {
         "nixpkgs": [
@@ -168,6 +184,7 @@
         "home-manager": "home-manager",
         "homebrew-cask": "homebrew-cask",
         "homebrew-core": "homebrew-core",
+        "homebrew-vorssaint": "homebrew-vorssaint",
         "nix-darwin": "nix-darwin",
         "nix-homebrew": "nix-homebrew",
         "nixpkgs": "nixpkgs",

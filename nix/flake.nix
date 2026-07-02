@@ -22,9 +22,15 @@
       url = "github:homebrew/homebrew-cask";
       flake = false;
     };
+
+    # Third-party tap for Vorssaint (not in core homebrew-cask).
+    homebrew-vorssaint = {
+      url = "github:vorssaint/homebrew-tap";
+      flake = false;
+    };
   };
 
-  outputs = inputs@{ self, nix-darwin, nixpkgs, home-manager, phps, nix-homebrew, homebrew-core, homebrew-cask }:
+  outputs = inputs@{ self, nix-darwin, nixpkgs, home-manager, phps, nix-homebrew, homebrew-core, homebrew-cask, homebrew-vorssaint }:
   let
     configuration = { config, pkgs, lib, ... }: {
       # List packages installed in system profile. To search by name, run:
@@ -59,9 +65,7 @@
           # /Applications/Nix Apps as real bundles, so Spotlight/Launchpad see them.
           pkgs.brave
           pkgs.firefox-bin
-          pkgs.inkscape
           pkgs.jetbrains-toolbox
-          pkgs.pinta
           pkgs.rectangle-pro
         ];
 
@@ -118,9 +122,12 @@
           "ghostty" # nixpkgs ghostty is broken on darwin
           "mgba-app" # nixpkgs mgba is linux-only
           "imageoptim" # not in nixpkgs
-          "copyclip" # not in nixpkgs
           "affinity" # not in nixpkgs (proprietary Serif)
           "ankama" # nixpkgs ankama-launcher is linux-only
+          "inkscape" # nixpkgs build broken on darwin (appstream/libadwaita)
+          "pinta" # nixpkgs build broken on darwin (appstream/libadwaita)
+          "yacreader" # nixpkgs build pulls linux-only pipewire on darwin
+          "vorssaint/tap/vorssaint" # third-party vendor tap, not in core homebrew-cask
         ];
       };
     };
@@ -155,6 +162,7 @@
             taps = {
               "homebrew/homebrew-core" = homebrew-core;
               "homebrew/homebrew-cask" = homebrew-cask;
+              "vorssaint/homebrew-tap" = homebrew-vorssaint;
             };
 
             # Optional: Enable fully-declarative tap management
