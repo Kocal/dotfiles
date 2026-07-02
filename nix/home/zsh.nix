@@ -30,7 +30,6 @@ in
       uxc = "cd ~/workspace/symfony/ux.symfony.com";
       ux-link = "~/workspace/symfony/ux/link .";
       encore = "cd ~/workspace/symfony/webpack-encore";
-      yt-dl = ''docker run --rm -i -e PGID=$(id -g) -e PUID=$(id -u) -v "$(pwd)":/workdir:rw mikenye/youtube-dl'';
 
       # git shortcuts (oh-my-zsh git plugin style)
       g = "git";

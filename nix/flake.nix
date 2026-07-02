@@ -38,6 +38,22 @@
           pkgs.rtk
           pkgs.orbstack
           pkgs.claude-code
+
+          # CLI tools
+          pkgs.ffmpeg
+          pkgs.jq
+          pkgs.yq-go # mikefarah yq (`yq` command), not the python yq
+          pkgs.curl
+          pkgs.tree
+          pkgs.uv
+          pkgs.yt-dlp
+          pkgs.htop
+          pkgs.btop
+          pkgs.fd
+          pkgs.ripgrep
+          pkgs.glab
+          pkgs.wget
+          pkgs.mkcert
         ];
 
       # Correctly set up /Applications for GUI apps installed via nix-darwin.
