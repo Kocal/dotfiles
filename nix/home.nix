@@ -6,6 +6,7 @@
     ./home/zsh.nix
     ./home/node.nix
     ./home/php.nix
+    ./home/ghostty.nix
     ./home/claude.nix
   ];
 

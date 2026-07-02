@@ -31,7 +31,6 @@
       # $ nix-env -qaP | grep wget
       environment.systemPackages =
         [
-          pkgs.mkalias
           pkgs.gnumake
           pkgs.bat
           pkgs.gh
@@ -54,28 +53,17 @@
           pkgs.glab
           pkgs.wget
           pkgs.mkcert
-        ];
+          pkgs.zizmor
 
-      # Correctly set up /Applications for GUI apps installed via nix-darwin.
-      system.activationScripts.applications.text = let
-        env = pkgs.buildEnv {
-          name = "system-applications";
-          paths = config.environment.systemPackages;
-          pathsToLink = ["/Applications"];
-        };
-      in
-        pkgs.lib.mkForce ''
-        # Set up applications.
-        echo "setting up /Applications..." >&2
-        rm -rf /Applications/Nix\ Apps
-        mkdir -p /Applications/Nix\ Apps
-        find ${env}/Applications -maxdepth 1 -type l -exec readlink '{}' + |
-        while read -r src; do
-          app_name=$(basename "$src")
-          echo "copying $src" >&2
-          ${pkgs.mkalias}/bin/mkalias "$src" "/Applications/Nix Apps/$app_name"
-        done
-            '';
+          # GUI apps available on nix-darwin. nix-darwin copies these into
+          # /Applications/Nix Apps as real bundles, so Spotlight/Launchpad see them.
+          pkgs.brave
+          pkgs.firefox-bin
+          pkgs.inkscape
+          pkgs.jetbrains-toolbox
+          pkgs.pinta
+          pkgs.rectangle-pro
+        ];
 
       # Necessary for using flakes on this system.
       nix.settings.experimental-features = "nix-command flakes";
@@ -99,7 +87,11 @@
           "vim-solarized8"
           "orbstack"
           "claude-code"
-        ] || lib.hasInfix "blackfire" (lib.getName pkg);
+          "jetbrains-toolbox"
+          "rectangle-pro"
+        ]
+        || lib.hasInfix "blackfire" (lib.getName pkg)
+        || lib.hasInfix "firefox" (lib.getName pkg);
 
       # PHP 8.1 is EOL; fossar/nix-phps marks it insecure. Permit it for local dev.
       # If the switch errors, copy the exact "php-8.1.xx" name from the message here.
@@ -111,6 +103,25 @@
       users.users.kocal = {
         name = "kocal";
         home = "/Users/kocal";
+      };
+
+      # User running darwin-rebuild; required by the homebrew module.
+      system.primaryUser = "kocal";
+
+      # GUI apps not available/working on nix-darwin -> Homebrew casks.
+      homebrew = {
+        enable = true;
+        onActivation.cleanup = "none"; # don't remove undeclared brew packages
+        casks = [
+          "1password" # strict location/signing, unreliable from a nix copy
+          "cloudflare-warp" # needs the signed system network extension
+          "ghostty" # nixpkgs ghostty is broken on darwin
+          "mgba-app" # nixpkgs mgba is linux-only
+          "imageoptim" # not in nixpkgs
+          "copyclip" # not in nixpkgs
+          "affinity" # not in nixpkgs (proprietary Serif)
+          "ankama" # nixpkgs ankama-launcher is linux-only
+        ];
       };
     };
   in

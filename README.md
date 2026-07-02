@@ -19,8 +19,6 @@ Install mandatory softwares:
 [ "$(uname -s)" = "Linux" ] && sudo apt update && sudo apt install -y curl wget build-essential autoconf
 ```
 
-- **1Password CLI** ([MacOS](https://developer.1password.com/docs/cli/get-started/#install) / [Linux](https://developer.1password.com/docs/cli/get-started/#install-linux))
-
 ## nix
 
 Install nix package manager:
@@ -42,38 +40,31 @@ sudo nix run nix-darwin/master#darwin-rebuild --extra-experimental-features "nix
 sudo darwin-rebuild switch --flake "$PWD/nix"
 ```
 
-## git
+### Update
 
-Install dotfiles:
+Dependencies are pinned in `nix/flake.lock`. Updating means bumping a flake input and rebuilding — there is no per-package pin, so a package's version follows the input it comes from. Most CLI tools and apps (including `claude-code`, `gh`, `php`, the GUI apps...) come from `nixpkgs`.
+
+Update everything:
 ```shell
-[ -e ~/.gitconfig ] && mv ~/.gitconfig{,.back}
-ln -s "$PWD/dotfiles/git/.gitconfig" ~/.gitconfig
-
-[ -e ~/.gitignore_global ] && mv ~/.gitignore_global{,.back}
-ln -s "$PWD/dotfiles/git/.gitignore_global" ~/.gitignore_global
-
-[ -e ~/.gitconfig.local ] && mv ~/.gitconfig.local{,.back}
-touch  ~/.gitconfig.local
-
-[ -e ~/.gitconfig.os ] && mv ~/.gitconfig.os{,.back}
-ln -s "$PWD/dotfiles/git/.gitconfig.$(uname -s)" ~/.gitconfig.os
+nix flake update --flake "$PWD/nix"
+sudo darwin-rebuild switch --flake "$PWD/nix"
 ```
 
-## zsh
+Update a single input (and only what it provides):
+```shell
+nix flake update nixpkgs --flake "$PWD/nix"   # bumps everything from nixpkgs: claude-code, gh, php, GUI apps, ...
+# other inputs: home-manager, nix-darwin, phps, nix-homebrew
+sudo darwin-rebuild switch --flake "$PWD/nix"
+```
 
-zsh is configured via home-manager (`nix/home/zsh.nix`): native completion +
-autosuggestions + syntax highlighting, Starship prompt, aliases and shell
-functions (`nix/home/zsh/functions.zsh`). Node versions are managed by `fnm`
-(`nix/home/node.nix`). Applied by `darwin-rebuild switch`.
+So "update just Claude Code" really means updating the whole `nixpkgs` input, which moves every nixpkgs package to the channel's latest at once. Commit the resulting `flake.lock` change to keep the machine reproducible.
 
-## Claude Code
+Homebrew casks (1Password, Ghostty, ...) are managed by Homebrew, not the lock file. Upgrade them with `brew upgrade`, or set `homebrew.onActivation.upgrade = true;` in `flake.nix` to upgrade them on every switch.
 
-`claude-code` is installed via the nix flake (`pkgs.claude-code`). The whole config
-lives in `nix/home/claude/` (`settings.json`, `statusline-command.sh`, `CLAUDE.md`,
-and the `agents/`, `skills/`, `agent-memory/` directories). home-manager
-(`nix/home/claude.nix`) symlinks it into `~/.claude` with out-of-store symlinks, so
-runtime edits/writes by Claude are reflected back into the repo. Agent memory is
-runtime state, kept in the repo dir but gitignored (see `.gitignore`).
+Roll back a bad update:
+```shell
+sudo darwin-rebuild --rollback
+```
 
 ### RTK
 
@@ -84,10 +75,6 @@ rtk init --global
 ```
 
 ## Docker
-
-### MacOS
-
-OrbStack (https://orbstack.dev/) is installed via the nix flake (`pkgs.orbstack`).
 
 ### Linux/Ubuntu
 
