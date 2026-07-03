@@ -21,6 +21,12 @@ in
       # listing (oh-my-zsh style)
       l = "ls -lah";
 
+      # directory navigation (oh-my-zsh style). `..` / `../dir` are handled by
+      # AUTO_CD below; these multi-level jumps aren't real dirs, so need aliases.
+      "..." = "cd ../../";
+      "...." = "cd ../../../";
+      "....." = "cd ../../../../";
+
       # Symfony / project shortcuts
       sf = "symfony";
       sfc = "symfony console";
@@ -62,6 +68,12 @@ in
       # env not covered by sessionVariables/sessionPath
       (lib.mkOrder 500 ''
         export TIMEFMT=$'%J\n%U user\n%S system\n%P cpu\n%*E total'
+      '')
+
+      # oh-my-zsh-like: type a directory name to cd into it (`..`, `../foo`,
+      # `some/dir`). Restores behavior lost when leaving oh-my-zsh.
+      (lib.mkOrder 520 ''
+        setopt AUTO_CD
       '')
 
       # shell helpers + functions (real .zsh file, no Nix escaping needed)
