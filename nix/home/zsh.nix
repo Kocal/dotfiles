@@ -1,4 +1,4 @@
-{ pkgs, lib, ... }:
+{ config, pkgs, lib, ... }:
 let
   isLinux = pkgs.stdenv.hostPlatform.isLinux;
 in
@@ -53,6 +53,9 @@ in
       grbi = "git rebase -i";
       gsta = "git stash";
       gstp = "git stash pop";
+
+      # nix-darwin rebuild switch (absolute path, so it works from any directory)
+      drs = "sudo darwin-rebuild switch --flake ${config.dotfiles.dir}/nix";
     };
 
     initContent = lib.mkMerge [
@@ -63,6 +66,25 @@ in
 
       # shell helpers + functions (real .zsh file, no Nix escaping needed)
       (lib.mkOrder 550 (builtins.readFile ./zsh/functions.zsh))
+
+      # oh-my-zsh-like line editing, without a plugin manager.
+      (lib.mkOrder 600 ''
+        # Up/Down search history for entries matching what's already typed (prefix).
+        autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
+        zle -N up-line-or-beginning-search
+        zle -N down-line-or-beginning-search
+        bindkey "^[[A" up-line-or-beginning-search
+        bindkey "^[OA" up-line-or-beginning-search
+        bindkey "^[[B" down-line-or-beginning-search
+        bindkey "^[OB" down-line-or-beginning-search
+
+        # Completion menu: highlighted, arrow-navigable, colored like `ls`.
+        zmodload zsh/complist
+        eval "$(${pkgs.coreutils}/bin/dircolors -b)"
+        zstyle ':completion:*' menu select
+        zstyle ':completion:*' list-colors "''${(s.:.)LS_COLORS}"
+        zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'  # case-insensitive
+      '')
 
       # Linux-only bits (dormant on darwin), from old .zsh{env,rc}.Linux
       (lib.mkOrder 1200 (lib.optionalString isLinux ''
