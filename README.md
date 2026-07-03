@@ -1,391 +1,124 @@
 # Dotfiles
 
-My personal configuration files for various applications and tools.
+Personal macOS (Apple Silicon) dotfiles, built on nix-darwin + home-manager. Everything is declarative in `nix/`. The darwinConfiguration is named `MacBook-Pro-de-Hugo` and the repo is expected to live at `~/workspace/kocal/dotfiles`.
 
-## Installation
+## Install
 
-Clone the repository:
+Clone the repo:
+
 ```shell
-[ "$(uname -s)" = "Linux" ] && sudo apt update && sudo apt install -y git
 mkdir -p ~/workspace/kocal && cd $_
-git clone https://github.com/Kocal/dotfiles.git dotfiles && cd $_
+git clone https://github.com/Kocal/dotfiles.git dotfiles && cd dotfiles
 git remote set-url origin git@github.com:Kocal/dotfiles.git
-git submodule update --init --recursive
 ```
 
-Install mandatory softwares:
+Install the Xcode command-line tools and Nix:
+
 ```shell
-# Prerequisites
-[ "$(uname -s)" = "Darwin" ] && xcode-select --install
-[ "$(uname -s)" = "Linux" ] && sudo apt update && sudo apt install -y curl wget build-essential autoconf
-
-# Homebrew
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-# GNU Make for MacOS
-[ "$(uname -s)" = "Darwin" ] && brew install make
+xcode-select --install
+curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install | sh
 ```
 
-- **1Password CLI** ([MacOS](https://developer.1password.com/docs/cli/get-started/#install) / [Linux](https://developer.1password.com/docs/cli/get-started/#install-linux))
+Bootstrap nix-darwin (first run only):
 
-## git
-
-Install dotfiles:
 ```shell
-[ -e ~/.gitconfig ] && mv ~/.gitconfig{,.back}
-ln -s "$PWD/dotfiles/git/.gitconfig" ~/.gitconfig
-
-[ -e ~/.gitignore_global ] && mv ~/.gitignore_global{,.back}
-ln -s "$PWD/dotfiles/git/.gitignore_global" ~/.gitignore_global
-
-[ -e ~/.gitconfig.local ] && mv ~/.gitconfig.local{,.back}
-touch  ~/.gitconfig.local
-
-[ -e ~/.gitconfig.os ] && mv ~/.gitconfig.os{,.back}
-ln -s "$PWD/dotfiles/git/.gitconfig.$(uname -s)" ~/.gitconfig.os
+sudo nix run nix-darwin/master#darwin-rebuild --extra-experimental-features "nix-command flakes" -- switch --flake "$PWD/nix"
 ```
 
-## GitHub CLI
+All subsequent rebuilds:
 
 ```shell
-brew install gh
+sudo darwin-rebuild switch --flake "$PWD/nix"
 ```
 
-## zsh
+## Layout
 
-Install zsh and Oh My Zsh:
-```shell
-# zsh
-[ "$(uname -s)" = "Darwin" ] && brew install zsh
-[ "$(uname -s)" = "Linux" ] && sudo apt install zsh
-
-# Oh My Zsh
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+```
+nix/
+  flake.nix         flake inputs, system packages, homebrew casks
+  home.nix          home-manager entrypoint, imports all home/ modules
+  home/
+    options.nix     dotfiles.dir option (defaults to ~/workspace/kocal/dotfiles)
+    git.nix         programs.git: SSH signing via 1Password's op-ssh-sign
+    zsh.nix         zsh + Starship, aliases, shell functions
+    vim.nix         programs.vim: plugins + vimrc
+    node.nix        fnm (Node version manager)
+    php.nix         PHP 8.1-8.5 + composer + symfony-cli
+    claude.nix      ~/.claude/* symlinked out-of-store to nix/home/claude/
+    ghostty.nix     Ghostty config (app itself is a Homebrew cask)
 ```
 
-Install dotfiles:
-```shell
-mkdir -p ~/.local/bin
+### System packages
 
-[ -f ~/.zshenv.os ] && mv ~/.zshenv.os{,.back}
-ln -s "$PWD/dotfiles/zsh/.zshenv.$(uname -s)" ~/.zshenv.os
+CLI tools and GUI apps go into `environment.systemPackages` in `flake.nix` when they're available and working in nixpkgs: things like `gh`, `bat`, `ripgrep`, `ffmpeg`, `claude-code`, `orbstack`, `jetbrains-toolbox`, `rectangle-pro`, and more. See `flake.nix` for the full list.
 
-[ -f ~/.zshenv ] && mv ~/.zshenv{,.back}
-ln -s "$PWD/dotfiles/zsh/.zshenv" ~/.zshenv
+GUI apps installed this way get copied as real `.app` bundles into `/Applications/Nix Apps`, so Spotlight and Launchpad find them automatically.
 
-[ -f ~/.zshrc.os ] && mv ~/.zshrc.os{,.back}
-ln -s "$PWD/dotfiles/zsh/.zshrc.$(uname -s)" ~/.zshrc.os
+Homebrew casks (`homebrew.casks` in `flake.nix`) are for apps that can't come from Nix: not in nixpkgs, darwin build broken (GTK/Qt deps, appstream/libadwaita), or strict signing and location requirements (1Password, Cloudflare WARP). Current casks include Ghostty, 1Password, Inkscape, Pinta, Affinity, mGBA, and a few others; see `flake.nix`.
 
-[ -f ~/.zshrc ] && mv ~/.zshrc{,.back}
-ln -s "$PWD/dotfiles/zsh/.zshrc" ~/.zshrc
-```
+### Home-manager modules
 
-## vim
+- **git** (`home/git.nix`): commits and tags signed via 1Password's `op-ssh-sign`. Machine-local overrides (different email, signing key, etc.) go in `~/.gitconfig.local`, included but not managed by Nix.
+- **zsh** (`home/zsh.nix`): native completion, autosuggestions, syntax highlighting, Starship prompt. Aliases and shell functions are in `nix/home/zsh/functions.zsh`. Loads `~/.zshrc.local` if it exists.
+- **vim** (`home/vim.nix`): plugins (vim-sensible, vim-obsession, vim-airline, vim-solarized8) via Nix; config from `nix/home/vim/vimrc.vim`.
+- **node** (`home/node.nix`): fnm as the version manager. Nix installs fnm itself; you still need to run `fnm install --lts` (or a specific version) after first setup.
+- **php** (`home/php.nix`): PHP 8.1-8.5, each with xdebug, apcu, blackfire probe, and opcache. Default unversioned `php` is 8.4. Versioned binaries (`php8.1` ... `php8.5`) are on PATH so the Symfony CLI picks the right one via `.php-version`. PHP 8.1 comes from the `phps` input (EOL, dropped from nixpkgs).
+- **claude** (`home/claude.nix`): `~/.claude/settings.json`, `~/.claude/CLAUDE.md`, `~/.claude/agents/`, `~/.claude/skills/`, and `~/.claude/agent-memory/` are all out-of-store symlinks pointing back into `nix/home/claude/`. Runtime writes by Claude land in the repo, not a read-only store path.
+- **ghostty** (`home/ghostty.nix`): config written to `~/.config/ghostty/config` by home-manager. The app itself is a cask; nixpkgs ghostty is broken on darwin.
 
-Install vim and vim-plug:
-```shell
-# vim
-[ "$(uname -s)" = "Darwin" ] && brew install vim
-[ "$(uname -s)" = "Linux" ] && sudo apt install vim
+## Post-install
 
-# vim-plug
-curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-```
+Steps Nix can't handle declaratively:
 
-Install dotfiles:
-```shell
-[ -f ~/.vimrc ] && mv ~/.vimrc{,.back}
-ln -s "$PWD/dotfiles/vim/.vimrc" ~/.vimrc
-```
-
-## Claude Code
+**RTK**: initialize the global config:
 
 ```shell
-brew install --cask claude-code
-claude # to initialize configuration directory, then quit the app
-```
-
-```shell
-[ -e ~/.claude/settings.json ] && mv ~/.claude/settings.json{,.back}
-ln -s "$PWD/dotfiles/claude/settings.json" ~/.claude/settings.json
-
-[ -e ~/.claude/statusline-command.sh ] && mv ~/.claude/statusline-command.sh{,.back}
-ln -s "$PWD/dotfiles/claude/statusline-command.sh" ~/.claude/statusline-command.sh
-
-[ -e ~/.claude/CLAUDE.md ] && mv ~/.claude/CLAUDE.md{,.back}
-ln -s "$PWD/dotfiles/claude/CLAUDE.md" ~/.claude/CLAUDE.md
-```
-
-```shell
-rm ~/.claude/settings.json.back ~/.claude/statusline-command.sh.back ~/.claude/CLAUDE.md.back
-```
-
-### Agents
-
-```shell
-[ -d ~/.claude/agent-memory ] && mv ~/.claude/agent-memory{,.back}
-[ -d ~/.claude/agents ] && mv ~/.claude/agents{,.back}
-mkdir -p ~/.claude/agent-memory ~/.claude/agents
-
-ln -s "$PWD/dotfiles/claude/agent-memory"/* ~/.claude/agent-memory/
-ln -s "$PWD/dotfiles/claude/agents"/* ~/.claude/agents/
-```
-
-Cleanup backups:
-```shell
-rm -rf ~/.claude/agent-memory.back ~/.claude/agents.back
-```
-
-### Skills
-
-```shell
-[ -d ~/.claude/skills ] && mv ~/.claude/skills{,.back}
-mkdir -p ~/.claude/skills
-
-ln -s "$PWD/dotfiles/claude/skills"/* ~/.claude/skills/
-./symfony-skills/install.sh claude-code
-```
-
-Cleanup backups:
-```shell
-rm -rf ~/.claude/skills.back
-```
-
-### RTK
-
-https://www.rtk-ai.app/#install
-
-```shell
-brew install rtk
 rtk init --global
 ```
 
-## Docker
-
-### MacOS
-
-https://orbstack.dev/download
-
-### Linux/Ubuntu
-
-[Documentation](https://docs.docker.com/desktop/setup/install/linux/ubuntu/)
-
-Install repository and Docker Engine:
-```shell
-# Add Docker's official GPG key:
-sudo apt update
-sudo apt install ca-certificates curl
-sudo install -m 0755 -d /etc/apt/keyrings
-sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-sudo chmod a+r /etc/apt/keyrings/docker.asc
-
-# Add the repository to Apt sources:
-sudo tee /etc/apt/sources.list.d/docker.sources <<EOF
-Types: deb
-URIs: https://download.docker.com/linux/ubuntu
-Suites: $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
-Components: stable
-Signed-By: /etc/apt/keyrings/docker.asc
-EOF
-
-sudo apt update
-sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-sudo systemctl status docker
-```
-
-Ensure that Docker is working (with sudo):
-```shell
-sudo docker run hello-world
-```
-
-Add your user to the `docker` group to run Docker without `sudo`:
-```shell
-sudo groupadd docker
-sudo usermod -aG docker $USER
-newgrp docker
-```
-
-Ensure that Docker is working (without sudo):
-```shell
-docker run hello-world
-```
-
-Enable Docker to start on boot:
-```shell
-sudo systemctl enable docker.service
-sudo systemctl enable containerd.service
-```
-
-## PHP
-
-### Prerequisites
+**Blackfire**: configure the agent (credentials from your Blackfire account). Nix installs the binary but sets up no service, so start it yourself or add a launchd agent:
 
 ```shell
-[ "$(uname -s)" = "Darwin" ] && brew install autoconf bison re2c libiconv libxml2 sqlite # To complete...
-[ "$(uname -s)" = "Linux" ] && sudo apt install -y pkg-config build-essential autoconf libc6-dev bison re2c libxml2-dev \
-  libsqlite3-dev libpq-dev libcurl4-openssl-dev libgd-dev libpng-dev zlib1g-dev libonig-dev libedit-dev libsodium-dev \
-  libargon2-dev libtidy-dev libxslt1-dev libzip-dev
+blackfire agent:config
 ```
 
-### PHP Integrated Environment (PIE)
+**Node**: install at least one version via fnm:
 
 ```shell
-[ -f ~/.local/bin/pie.phar ] && mv ~/.local/bin/pie.phar{,.back}
-curl -fsSL  https://github.com/php/pie/releases/latest/download/pie.phar -o ~/.local/bin/pie.phar 
+fnm install --lts
 ```
 
-### Build from sources
+## Maintenance
 
-Clone PHP sources:
-```shell
-PHP_VERSIONS=("8.1" "8.2" "8.3" "8.4" "8.5")
+### Update
 
-mkdir -p ~/workspace/php && cd $_
-for PHP_VERSION in ${PHP_VERSIONS[@]}; do
-  local branch="PHP-$PHP_VERSION"
-  local directory="$branch"
-  [ ! -d "$directory" ] && git clone https://github.com/php/php-src.git --single-branch --branch $branch $directory
-  (cd $directory; git checkout $branch && git pull)
-done
-```
+Dependencies are pinned in `nix/flake.lock`. Updating bumps a flake input and rebuilds; there is no per-package pin, so a package's version follows whatever input it comes from. Most CLI tools and apps (including `claude-code`, `gh`, `php`, the GUI apps) come from `nixpkgs`.
 
-Build and install PHP:
-```shell
-PHP_CONFIGURE_FLAGS=(
-  --enable-option-checking=fatal
-  # GD
-  --enable-gd --with-external-gd --with-avif --with-webp --with-jpeg --with-freetype
-  # String & Encoding
-  --enable-mbregex --enable-mbstring --with-iconv
-  # Database
-  --enable-dba --enable-mysqlnd --with-pdo-sqlite=/usr --with-sqlite3=/usr --with-pdo-pgsql=/usr --with-pgsql=/usr
-  # Web & FPM
-  --disable-cgi --enable-fpm --with-fpm-user=www-data --with-fpm-group=www-data
-  # Math & File
-  --enable-bcmath --enable-calendar --enable-exif --enable-ftp
-  # Network & Protocol
-  --with-curl --enable-soap --enable-sockets
-  # Process & System
-  --enable-pcntl --enable-shmop --enable-sysvmsg --enable-sysvsem --enable-sysvshm
-  # Internationalization
-  --enable-intl
-  # Debugging
-  --enable-phpdbg --enable-phpdbg-readline
-  # Security & Cryptography
-  --with-password-argon2 --with-sodium --with-openssl --with-mhash
-  # Libraries
-  --with-external-pcre --with-ffi --with-libxml --with-libedit --with-readline --with-zlib --with-tidy --with-xsl --with-zip --with-pic
-)
-declare -A PHP_CONFIGURE_FLAGS_PER_VERSION=(
-  ["8.1"]="--enable-opcache"
-  ["8.2"]="--enable-opcache"
-  ["8.3"]="--enable-opcache"
-  ["8.4"]="--enable-opcache"
-  ["8.5"]=""
-)
-
-for PHP_VERSION in ${PHP_VERSIONS[@]}; do
-  echo "Building PHP $PHP_VERSION..."
-  
-  cd ~/workspace/php/PHP-$PHP_VERSION \
-    && ./buildconf --force \
-    && ./configure \
-      --prefix=$HOME/.local/php-$PHP_VERSION \
-      --with-config-file-path=$HOME/.local/etc/php-$PHP_VERSION \
-      --with-config-file-scan-dir=$HOME/.local/etc/php-$PHP_VERSION/conf.d \
-      "${PHP_CONFIGURE_FLAGS[@]}" ${PHP_CONFIGURE_FLAGS_PER_VERSION[$PHP_VERSION]} \
-    && make -j"$(nproc)" \
-    && make install \
-    && cd -
-done
-```
-
-Configure `php.ini`:
-```shell
-for PHP_VERSION in ${PHP_VERSIONS[@]}; do
-    mkdir -p ~/.local/etc/php-$PHP_VERSION/conf.d
-    [ -f ~/.local/etc/php-$PHP_VERSION/php.ini ] && mv ~/.local/etc/php-$PHP_VERSION/php.ini{,.back}
-    cp ~/workspace/php/PHP-$PHP_VERSION/php.ini-development ~/.local/etc/php-$PHP_VERSION/php.ini
-    
-    rm -f ~/.local/bin/php$PHP_VERSION
-    ln -s ~/.local/php-$PHP_VERSION/bin/php ~/.local/bin/php$PHP_VERSION
-done
-```
-
-### Install Composer
+Update everything:
 
 ```shell
-if [ command -v composer >/dev/null 2>&1 ]; then
-    echo "Composer is already installed"
-    composer self-update
-else 
-    php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-    php -r "if (hash_file('sha384', 'composer-setup.php') === 'c8b085408188070d5f52bcfe4ecfbee5f727afa458b2573b8eaaf77b3419b0bf2768dc67c86944da1544f06fa544fd47') { echo 'Installer verified'.PHP_EOL; } else { echo 'Installer corrupt'.PHP_EOL; unlink('composer-setup.php'); exit(1); }"
-    php composer-setup.php
-    php -r "unlink('composer-setup.php');"
-    mv composer.phar ~/.local/bin/composer
-fi 
-
-command -v composer >/dev/null 2>&1 || { echo >&2 "Composer installation failed"; }
+sudo nix flake update --flake "$PWD/nix"
+sudo darwin-rebuild switch --flake "$PWD/nix"
 ```
 
-### Install XDebug
+Update a single input:
 
 ```shell
-for PHP_VERSION in ${PHP_VERSIONS[@]}; do
-    echo "Installing XDebug for PHP $PHP_VERSION..."
-    ~/.local/php-$PHP_VERSION/bin/php ~/.local/bin/pie.phar install xdebug/xdebug
-done
+sudo nix flake update nixpkgs --flake "$PWD/nix"   # bumps everything from nixpkgs: claude-code, gh, php, GUI apps, ...
+# other inputs: home-manager, nix-darwin, phps, nix-homebrew
+sudo darwin-rebuild switch --flake "$PWD/nix"
 ```
 
-### Install APCu
+"Update just Claude Code" means updating the full `nixpkgs` input, which moves every nixpkgs package to the channel's latest at once. Commit the resulting `flake.lock` change to keep the machine reproducible.
+
+Homebrew casks (1Password, Ghostty, ...) are managed by Homebrew, not the lock file. Upgrade them with `brew upgrade`, or set `homebrew.onActivation.upgrade = true;` in `flake.nix` to upgrade them automatically on every `darwin-rebuild switch`.
+
+Roll back a bad update:
 
 ```shell
-for PHP_VERSION in ${PHP_VERSIONS[@]}; do
-    echo "Installing APCu for PHP $PHP_VERSION..."
-    ~/.local/php-$PHP_VERSION/bin/php ~/.local/bin/pie.phar install apcu/apcu
-done
+sudo darwin-rebuild --rollback
 ```
 
-### Install OPCache
+### Add a package
 
-```shell
-for PHP_VERSION in ${PHP_VERSIONS[@]}; do
-    cp dotfiles/php/conf.d/opcache.ini ~/.local/etc/php-$PHP_VERSION/conf.d/ext-opcache.ini
-    
-    # opcache is built-in from PHP 8.5
-    if [ "$PHP_VERSION" = "8.5" ]; then
-      sed -i '/zend_extension=opcache/d' ~/.local/etc/php-$PHP_VERSION/conf.d/ext-opcache.ini
-    fi
-done
-```
-
-### Symfony CLI
-
-```shell
-brew install symfony-cli/tap/symfony-cli
-```
-
-### Blackfire
-
-Install Blackfire Agent:
-```shell
-if [ "$(uname -s)" = "Linux" ]; then
-    wget -q -O - https://packages.blackfire.io/gpg.key | sudo dd of=/usr/share/keyrings/blackfire-archive-keyring.asc
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/blackfire-archive-keyring.asc] http://packages.blackfire.io/debian any main" | sudo tee /etc/apt/sources.list.d/blackfire.list    sudo apt update
-    sudo apt update
-    sudo apt install blackfire
-fi
-```
-
-Configure Blackfire Agent (get credentials from https://app.blackfire.io/my/organizations):
-```shell
-sudo blackfire agent:config
-if [ "$(uname -s)" = "Linux" ]; then
-    sudo systemctl restart blackfire-agent
-fi
-```
-Install the PHP Probe:
-```shell
-blackfire php:install
-```
+For CLI tools or Nix-packaged GUI apps, add to `environment.systemPackages` in `nix/flake.nix`, then rebuild. For casks, add the cask name to `homebrew.casks`; if it's from a third-party tap, add the tap to `nix-homebrew.taps` as well.

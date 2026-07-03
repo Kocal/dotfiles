@@ -100,7 +100,6 @@
     "command": "sh ~/.claude/statusline-command.sh"
   },
   "enabledPlugins": {
-    "~/.claude/skills/symfony": true,
     "chrome-devtools-mcp@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true
   },

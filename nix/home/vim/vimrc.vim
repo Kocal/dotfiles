@@ -294,12 +294,4 @@ call CreateShortcut("C-o",":call OpenNetrw()<CR>", "inv", "noTrailingIInInsert",
 " Ctrl \ - Toggle comments
 call CreateShortcut("C-\\", ":call ToggleComment()<CR>", "inv")
 
-""" Vim-Plug Plugins
-call plug#begin()
-
-Plug 'tpope/vim-sensible'
-Plug 'tpope/vim-obsession'
-Plug 'vim-airline/vim-airline'
-Plug 'lifepillar/vim-solarized8'
-
-call plug#end()
+""" Plugins are managed by Nix (home-manager programs.vim.plugins), not vim-plug.
