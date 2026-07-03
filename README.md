@@ -97,14 +97,14 @@ Dependencies are pinned in `nix/flake.lock`. Updating bumps a flake input and re
 Update everything:
 
 ```shell
-nix flake update --flake "$PWD/nix"
+sudo nix flake update --flake "$PWD/nix"
 sudo darwin-rebuild switch --flake "$PWD/nix"
 ```
 
 Update a single input:
 
 ```shell
-nix flake update nixpkgs --flake "$PWD/nix"   # bumps everything from nixpkgs: claude-code, gh, php, GUI apps, ...
+sudo nix flake update nixpkgs --flake "$PWD/nix"   # bumps everything from nixpkgs: claude-code, gh, php, GUI apps, ...
 # other inputs: home-manager, nix-darwin, phps, nix-homebrew
 sudo darwin-rebuild switch --flake "$PWD/nix"
 ```
