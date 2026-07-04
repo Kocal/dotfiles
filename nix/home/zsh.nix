@@ -96,6 +96,12 @@ in
         zstyle ':completion:*' menu select
         zstyle ':completion:*' list-colors "''${(s.:.)LS_COLORS}"
         zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'  # case-insensitive
+
+        # Shift-Tab cycles the completion menu backwards (oh-my-zsh parity).
+        # ^[[Z is back-tab (terminfo kcbt). Bound at the prompt to start a menu in
+        # reverse, and in the menuselect keymap to step back while it's open.
+        bindkey "^[[Z" reverse-menu-complete
+        bindkey -M menuselect "^[[Z" reverse-menu-complete
       '')
 
       # Linux-only bits (dormant on darwin), from old .zsh{env,rc}.Linux
