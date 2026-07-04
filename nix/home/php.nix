@@ -9,6 +9,10 @@ let
     xdebug
     apcu
     blackfire
+    xsl
+    redis
+    amqp
+    imagick
   ]);
 
   extraConfig = ''
