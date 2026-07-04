@@ -8,6 +8,7 @@
     ./home/go.nix
     ./home/php.nix
     ./home/ghostty.nix
+    ./home/docker.nix
     ./home/claude.nix
   ];
 
