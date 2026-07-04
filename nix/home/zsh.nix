@@ -62,6 +62,10 @@ in
 
       # nix-darwin rebuild switch (absolute path, so it works from any directory)
       drs = "sudo darwin-rebuild switch --flake ${config.dotfiles.dir}/nix";
+
+      # nix garbage collect: delete all old generations, free the store
+      # (prunes stale php-with-extensions builds, etc.). No rollback after.
+      nix-clean = "sudo nix-collect-garbage -d";
     };
 
     initContent = lib.mkMerge [

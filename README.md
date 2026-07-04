@@ -63,7 +63,7 @@ Homebrew casks (`homebrew.casks` in `flake.nix`) are for apps that can't come fr
 - **zsh** (`home/zsh.nix`): native completion, autosuggestions, syntax highlighting, Starship prompt. Aliases and shell functions are in `nix/home/zsh/functions.zsh`. Loads `~/.zshrc.local` if it exists.
 - **vim** (`home/vim.nix`): plugins (vim-sensible, vim-obsession, vim-airline, vim-solarized8) via Nix; config from `nix/home/vim/vimrc.vim`.
 - **node** (`home/node.nix`): fnm as the version manager. Nix installs fnm itself; you still need to run `fnm install --lts` (or a specific version) after first setup.
-- **php** (`home/php.nix`): PHP 8.1-8.5, each with xdebug, apcu, blackfire probe, and opcache. Default unversioned `php` is 8.4. Versioned binaries (`php8.1` ... `php8.5`) are on PATH so the Symfony CLI picks the right one via `.php-version`. PHP 8.1 comes from the `phps` input (EOL, dropped from nixpkgs).
+- **php** (`home/php.nix`): PHP 8.1-8.5, each with opcache, xdebug, apcu, blackfire probe, xsl, redis, amqp, and imagick. Default unversioned `php` is 8.4. Versioned binaries (`php8.1` ... `php8.5`) are on PATH so the Symfony CLI picks the right one via `.php-version`. PHP 8.1 comes from the `phps` input (EOL, dropped from nixpkgs).
 - **claude** (`home/claude.nix`): `~/.claude/settings.json`, `~/.claude/CLAUDE.md`, `~/.claude/agents/`, `~/.claude/skills/`, and `~/.claude/agent-memory/` are all out-of-store symlinks pointing back into `nix/home/claude/`. Runtime writes by Claude land in the repo, not a read-only store path.
 - **docker** (`home/docker.nix`): `~/.docker/config.json` symlinked out-of-store to `nix/home/docker/config.json`, so `docker login` / `docker context use` writes land in the repo instead of failing against a read-only store path. Sets `credsStore = osxkeychain` (the helper OrbStack ships); this replaced a stray global `ecr-login` default that broke every Docker Hub pull once the Brew-installed helper disappeared in the Nix migration.
 - **ghostty** (`home/ghostty.nix`): config written to `~/.config/ghostty/config` by home-manager. The app itself is a cask; nixpkgs ghostty is broken on darwin.
@@ -120,6 +120,24 @@ Roll back a bad update:
 ```shell
 sudo darwin-rebuild --rollback
 ```
+
+### Garbage collection
+
+Every `darwin-rebuild switch` (aliased `drs`) creates a new generation; old generations stay on disk as GC roots and pile up. Concretely, each rebuild that changes PHP leaves stale `php-with-extensions` store paths behind, so the Symfony CLI's local PHP-discovery patch lists the same PHP version several times over.
+
+Free the store by deleting old generations:
+
+```shell
+nix-clean   # alias for: sudo nix-collect-garbage -d
+```
+
+`-d` deletes ALL old generations of every profile (system + user) and collects garbage; there's no rollback after that. To keep a rollback window instead, delete only generations older than a few days:
+
+```shell
+sudo nix-collect-garbage --delete-older-than 7d
+```
+
+Unlike a rebuild, garbage collection needs no flake path: it operates on the Nix store and the profiles under `/nix/var/nix/profiles`, not on your config. It needs `sudo` because the nix-darwin system generations live under `/nix/var/nix/profiles/system` (root-owned); without it, only your user profile gets cleaned.
 
 ### Add a package
 
