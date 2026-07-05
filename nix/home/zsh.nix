@@ -138,6 +138,22 @@ in
         success_symbol = "[➜](bold green)";
         error_symbol = "[✗](bold red)";
       };
+
+      # The built-in module runs `php --version`, which ignores the per-project
+      # version resolved by the Symfony CLI (.php-version / Composer config).
+      php.disabled = true;
+
+      # Replacement: ask the Symfony CLI for the resolved PHP version.
+      # `-n` skips php.ini (no extensions loaded) -> fast startup.
+      custom.php = {
+        symbol = "🐘 ";
+        command = "symfony php -n -r 'echo PHP_VERSION;' 2>/dev/null";
+        detect_files = [ "composer.json" ".php-version" ];
+        detect_extensions = [ "php" ];
+        format = "via [$symbol(v$output )]($style)";
+        style = "147 bold";
+        ignore_timeout = true;
+      };
     };
   };
 
