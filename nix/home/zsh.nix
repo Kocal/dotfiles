@@ -32,10 +32,12 @@ in
       sfc = "symfony console";
       sfcp = "symfony composer";
       sfp = "symfony php";
+
       ux = "cd ~/workspace/symfony/ux";
       uxc = "cd ~/workspace/symfony/ux.symfony.com";
       ux-link = "~/workspace/symfony/ux/link .";
       encore = "cd ~/workspace/symfony/webpack-encore";
+      dotfiles = "cd ${config.dotfiles.dir}";
 
       # git shortcuts (oh-my-zsh git plugin style)
       g = "git";
