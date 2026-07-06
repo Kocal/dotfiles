@@ -67,6 +67,7 @@
           pkgs.firefox-bin
           pkgs.jetbrains-toolbox
           pkgs.rectangle-pro
+          pkgs.vscode
         ];
 
       # Necessary for using flakes on this system.
@@ -93,6 +94,7 @@
           "claude-code"
           "jetbrains-toolbox"
           "rectangle-pro"
+          "vscode"
         ]
         || lib.hasInfix "blackfire" (lib.getName pkg)
         || lib.hasInfix "firefox" (lib.getName pkg);
@@ -128,6 +130,10 @@
           "pinta" # nixpkgs build broken on darwin (appstream/libadwaita)
           "yacreader" # nixpkgs build pulls linux-only pipewire on darwin
           "vorssaint/tap/vorssaint" # third-party vendor tap, not in core homebrew-cask
+          "google-chrome" # nixpkgs google-chrome is linux-only
+          "notion" # nixpkgs notion-app not available on darwin
+          "transmission" # native macOS GUI app not built by nixpkgs on darwin
+          "ultimaker-cura" # nixpkgs cura is linux-only
         ];
       };
     };
