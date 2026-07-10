@@ -1,6 +1,6 @@
 ---
 name: github-cli
-description: Use the GitHub CLI (`gh`) to fetch real data whenever the user references a GitHub issue, pull request, CI job, or any other GitHub resource by number or URL. Never guess or fabricate GitHub content.
+description: Use the GitHub CLI (`gh`) to fetch real data whenever the user references a GitHub issue, pull request, CI job, or any other GitHub resource by number or URL, and to create pull requests correctly (including from a fork). Never guess or fabricate GitHub content.
 ---
 
 ## When to Activate
@@ -53,6 +53,39 @@ gh pr checks 123
 # View PR diff
 gh pr diff 123
 ```
+
+### Creating Pull Requests
+
+Before creating, always:
+
+1. **Use the repo's PR template.** If `.github/PULL_REQUEST_TEMPLATE.md` exists (or `.github/PULL_REQUEST_TEMPLATE/*`, `docs/PULL_REQUEST_TEMPLATE.md`), base the body on it: keep its table/checklist verbatim and fill in the answers. Never send a free-form body that ignores it.
+2. **Write the body to a file** and pass `--body-file` (avoids shell-escaping multi-line Markdown).
+
+```bash
+# fetch the template if unsure it exists
+gh api repos/OWNER/REPO/contents/.github/PULL_REQUEST_TEMPLATE.md --jq .content | base64 -d
+```
+
+**From a fork (common case).** The branch lives on your fork (`origin`, e.g. `Kocal/repo`) while the PR targets the upstream default repo (e.g. `symfony/repo`). `gh` defaults the *base* repo to upstream, so an unqualified `--head my-branch` makes gh look for the branch **in upstream** and fails with `Head sha can't be blank` / `No commits between ...`. Check the setup first:
+
+```bash
+git remote -v                                        # origin = fork, upstream = canonical
+gh repo view --json nameWithOwner -q .nameWithOwner  # gh's default (base) repo
+```
+
+Then create it one of two ways:
+
+```bash
+# A. let gh auto-detect (the branch tracks origin = fork)
+gh pr create --fill
+
+# B. qualify the head with the fork owner
+gh pr create --base main --head FORK_OWNER:BRANCH --title "..." --body-file body.md
+```
+
+Note: `git push` may be sandbox-blocked; if so, ask the user to run it via the `!` prefix, then create the PR.
+
+**Squash-friendly commits.** If the repo squash-merges, the squash commit body concatenates every commit message. Collapse work-in-progress commits into a small set of meaningful commits (often one), following the repo's commit-message convention, before opening the PR.
 
 ### CI / GitHub Actions
 
