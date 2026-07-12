@@ -1,6 +1,15 @@
-{ inputs, pkgs, ... }:
+{ inputs, pkgs, config, ... }:
 let
   system = pkgs.stdenv.hostPlatform.system;
+
+  # Blackfire agent paths. Everything lives under $HOME so nothing depends on the
+  # old Homebrew prefix (/opt/homebrew) anymore. The probe (compiled into each PHP)
+  # talks to the agent over this socket; the agent forwards traces to blackfire.io.
+  homeDir = config.home.homeDirectory;
+  blackfireRunDir = "${homeDir}/.local/run";
+  blackfireSocket = "${blackfireRunDir}/blackfire-agent.sock";
+  blackfireLogDir = "${homeDir}/.local/state/blackfire";
+  blackfireConfig = "${homeDir}/.config/blackfire/agent"; # server-id/token (secret, not in git)
 
   # Extensions added on top of each PHP's defaults.
   # opcache is default-on for 8.1/8.4 and built into core for 8.5, so it is NOT
@@ -67,4 +76,28 @@ in
     pkgs.symfony-cli
     pkgs.blackfire # agent + client CLI (the probe is compiled into each PHP above)
   ];
+
+  # Point the Blackfire probe at our agent socket. The probe reads this env var and
+  # it overrides the compiled `blackfire.agent_socket` default (which pointed at
+  # /opt/homebrew). Symfony's php-fpm runs with clear_env=no, so its workers inherit
+  # this from the shell that launched `symfony serve` -> profiling from the Chrome
+  # extension reaches the agent.
+  home.sessionVariables.BLACKFIRE_AGENT_SOCKET = "unix://${blackfireSocket}";
+
+  # Run the agent as a launchd user service: starts at login, restarts if it dies.
+  # Replaces the manual foreground `blackfire agent` and the broken Homebrew service
+  # `homebrew.mxcl.blackfire`.
+  launchd.agents.blackfire = {
+    enable = true;
+    config = {
+      ProgramArguments = [
+        "/bin/sh"
+        "-c"
+        # launchd creates neither the socket dir nor the log dir; make them first.
+        "mkdir -p '${blackfireRunDir}' '${blackfireLogDir}' && exec '${pkgs.blackfire}/bin/blackfire' agent:start --config='${blackfireConfig}' --socket='unix://${blackfireSocket}' --log-file='${blackfireLogDir}/agent.log'"
+      ];
+      RunAtLoad = true;
+      KeepAlive = true;
+    };
+  };
 }

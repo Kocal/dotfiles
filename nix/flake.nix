@@ -46,6 +46,7 @@
 
           # CLI tools
           pkgs.ffmpeg
+          pkgs.imagemagick # `magick`/`convert`/`identify`/`mogrify` CLI
           pkgs.jq
           pkgs.yq-go # mikefarah yq (`yq` command), not the python yq
           pkgs.curl
