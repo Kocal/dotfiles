@@ -59,12 +59,33 @@ let
       fi
     done
   '';
+
+  # Composer as a plain phar with the official `#!/usr/bin/env php` shebang,
+  # NOT nixpkgs' `phpXX.packages.composer`. That one is a Nix wrapper whose
+  # shebang hard-pins a single PHP (8.4); `symfony composer` executes such
+  # wrappers directly, so composer always ran under 8.4 regardless of the
+  # project's selected version -> module-API mismatch on any project that ships
+  # a php.ini and pins another version (e.g. 8.5). A plain phar is detected by
+  # the Symfony CLI as a PHP script and run as `php <phar>` under the *selected*
+  # PHP, so it stays version-consistent. Bare `composer` uses `env php` = the
+  # default 8.4. Bump version+hash by hand; get the hash with
+  # `nix-prefetch-url https://getcomposer.org/download/<ver>/composer.phar`.
+  composer = pkgs.runCommand "composer-2.10.1" {
+    src = pkgs.fetchurl {
+      url = "https://getcomposer.org/download/2.10.1/composer.phar";
+      hash = "sha256-NFucapjaXDDcvUsNmfyHEL8K6Yo4mO6hj3sq2d7JPwY=";
+    };
+  } ''
+    install -Dm0555 $src $out/bin/composer
+  '';
 in
 {
   home.packages = [
-    # Default unversioned `php` = 8.4, with a matching Composer.
+    # Default unversioned `php` = 8.4.
     php84
-    php84.packages.composer
+    # Version-agnostic Composer phar (see `composer` in the `let` above) so
+    # `symfony composer` runs it under the project's selected PHP version.
+    composer
 
     # Version-specific binaries for the Symfony CLI (.php-version).
     (versioned "8.1" php81)
