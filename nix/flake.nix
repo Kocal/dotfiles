@@ -77,6 +77,11 @@
           pkgs.brave
         ];
 
+      # System fonts installed to /Library/Fonts/Nix Fonts.
+      fonts.packages = [
+        pkgs.nerd-fonts.jetbrains-mono
+      ];
+
       # Necessary for using flakes on this system.
       nix.settings.experimental-features = "nix-command flakes";
 
