@@ -1,6 +1,6 @@
 # Dotfiles
 
-Personal macOS (Apple Silicon) dotfiles, built on nix-darwin + home-manager. Everything is declarative in `nix/`. The darwinConfiguration is named `MacBook-Pro-de-Hugo` and the repo is expected to live at `~/workspace/kocal/dotfiles`.
+macOS (Apple Silicon) dotfiles, built on nix-darwin + home-manager. Everything is declarative in `nix/`. Two machines share one base: `MacBook-Pro-de-Hugo` (personal) and `MacBook-Pro-de-Hugo-2` (work). They diverge only on a handful of packages, driven by a `profile` argument (`perso` / `boulot`) in `flake.nix`. Each config is named after its machine hostname, and the repo is expected to live at `~/workspace/kocal/dotfiles`.
 
 ## Install
 
@@ -19,16 +19,21 @@ xcode-select --install
 curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install | sh
 ```
 
-Bootstrap nix-darwin (first run only):
+Bootstrap nix-darwin (first run only). Pick the config for this machine explicitly — the switch sets the hostname to match, so every later rebuild resolves it on its own:
 
 ```shell
-sudo nix run nix-darwin/master#darwin-rebuild --extra-experimental-features "nix-command flakes" -- switch --flake "$PWD/nix"
+# personal
+sudo nix run nix-darwin/master#darwin-rebuild --extra-experimental-features "nix-command flakes" -- switch --flake "$PWD/nix#MacBook-Pro-de-Hugo"
+# work
+sudo nix run nix-darwin/master#darwin-rebuild --extra-experimental-features "nix-command flakes" -- switch --flake "$PWD/nix#MacBook-Pro-de-Hugo-2"
 ```
 
-All subsequent rebuilds:
+All subsequent rebuilds. `drs` resolves the config from the current hostname, so the same command works on both machines:
 
 ```shell
-sudo darwin-rebuild switch --flake "$PWD/nix"
+drs
+# equivalent to:
+sudo darwin-rebuild switch --flake "$PWD/nix#$(scutil --get LocalHostName)"
 ```
 
 ## Layout
@@ -43,7 +48,7 @@ nix/
     zsh.nix         zsh + Starship, aliases, shell functions
     vim.nix         programs.vim: plugins + vimrc
     node.nix        fnm (Node version manager)
-    php.nix         PHP 8.1-8.5 + composer + symfony-cli
+    php.nix         PHP 8.2-8.5 (+ 8.1 on perso) + composer + symfony-cli
     docker.nix      ~/.docker/config.json symlinked out-of-store to nix/home/docker/
     claude.nix      ~/.claude/* symlinked out-of-store to nix/home/claude/
     ghostty.nix     Ghostty config (app itself is a Homebrew cask)
@@ -55,15 +60,24 @@ CLI tools and GUI apps go into `environment.systemPackages` in `flake.nix` when 
 
 GUI apps installed this way get copied as real `.app` bundles into `/Applications/Nix Apps`, so Spotlight and Launchpad find them automatically.
 
-Homebrew casks (`homebrew.casks` in `flake.nix`) are for apps that can't come from Nix: not in nixpkgs, darwin build broken (GTK/Qt deps, appstream/libadwaita), or strict signing and location requirements (1Password, Cloudflare WARP). Current casks include Ghostty, 1Password, Inkscape, Pinta, Affinity, mGBA, and a few others; see `flake.nix`.
+Homebrew casks (`homebrew.casks` in `flake.nix`) are for apps that can't come from Nix: not in nixpkgs, darwin build broken (GTK/Qt deps, appstream/libadwaita), or strict signing and location requirements (1Password, Cloudflare WARP). Current casks include Ghostty, 1Password, Inkscape, Pinta, Affinity, VLC, and a few others; mGBA is personal-only. See `flake.nix`.
+
+### Per-machine packages (perso / boulot)
+
+`flake.nix` builds one config per machine through a `mkDarwin` helper, each passing a `profile` (`perso` or `boulot`). Almost everything is shared; the profile only adds personal extras, via `lib.optionals (profile == "perso")`:
+
+- **perso only**: Brave (`environment.systemPackages`), the mGBA cask, JDK 21 (`home/java.nix`), and PHP 8.1 with its EOL `permittedInsecurePackages` entry (`home/php.nix`).
+- **shared** (both machines): everything else, VLC included.
+
+The work machine (`boulot`) gets the shared base and none of those extras. To scope a package to one machine, wrap it in `lib.optionals (profile == "perso") [ ... ]` in the relevant file.
 
 ### Home-manager modules
 
 - **git** (`home/git.nix`): commits and tags signed via 1Password's `op-ssh-sign`. Machine-local overrides (different email, signing key, etc.) go in `~/.gitconfig.local`, included but not managed by Nix.
-- **zsh** (`home/zsh.nix`): native completion, autosuggestions, syntax highlighting, Starship prompt. Aliases and shell functions are in `nix/home/zsh/functions.zsh`. Loads `~/.zshrc.local` if it exists.
+- **zsh** (`home/zsh.nix`): native completion, autosuggestions, syntax highlighting, Starship prompt. Aliases and shell functions are in `nix/home/zsh/functions.zsh`. Sources `~/.zshenv.local` (from the generated `.zshenv`, before `.zshrc`) and `~/.zshrc.local` if they exist. `drs` is a shell function that rebuilds the config matching the current hostname, so the same command works on every machine.
 - **vim** (`home/vim.nix`): plugins (vim-sensible, vim-obsession, vim-airline, vim-solarized8) via Nix; config from `nix/home/vim/vimrc.vim`.
 - **node** (`home/node.nix`): fnm as the version manager. Nix installs fnm itself; you still need to run `fnm install --lts` (or a specific version) after first setup.
-- **php** (`home/php.nix`): PHP 8.1-8.5, each with opcache, xdebug, apcu, blackfire probe, xsl, redis, amqp, and imagick. Default unversioned `php` is 8.4. Versioned binaries (`php8.1` ... `php8.5`) are on PATH so the Symfony CLI picks the right one via `.php-version`. PHP 8.1 comes from the `phps` input (EOL, dropped from nixpkgs).
+- **php** (`home/php.nix`): PHP 8.2-8.5 (plus 8.1 on the personal machine only), each with opcache, xdebug, apcu, blackfire probe, xsl, redis, amqp, and imagick. Default unversioned `php` is 8.4. Versioned binaries (`php8.2` ... `php8.5`, and `php8.1` on perso) are on PATH so the Symfony CLI picks the right one via `.php-version`. PHP 8.1 comes from the `phps` input (EOL, dropped from nixpkgs) and is installed on perso only.
 - **claude** (`home/claude.nix`): `~/.claude/settings.json`, `~/.claude/CLAUDE.md`, `~/.claude/agents/`, `~/.claude/skills/`, and `~/.claude/agent-memory/` are all out-of-store symlinks pointing back into `nix/home/claude/`. Runtime writes by Claude land in the repo, not a read-only store path.
 - **docker** (`home/docker.nix`): `~/.docker/config.json` symlinked out-of-store to `nix/home/docker/config.json`, so `docker login` / `docker context use` writes land in the repo instead of failing against a read-only store path. Sets `credsStore = osxkeychain` (the helper OrbStack ships); this replaced a stray global `ecr-login` default that broke every Docker Hub pull once the Brew-installed helper disappeared in the Nix migration.
 - **ghostty** (`home/ghostty.nix`): config written to `~/.config/ghostty/config` by home-manager. The app itself is a cask; nixpkgs ghostty is broken on darwin.
@@ -100,7 +114,7 @@ Update everything:
 
 ```shell
 sudo nix flake update --flake "$PWD/nix"
-sudo darwin-rebuild switch --flake "$PWD/nix"
+drs
 ```
 
 Update a single input:
@@ -108,7 +122,7 @@ Update a single input:
 ```shell
 sudo nix flake update nixpkgs --flake "$PWD/nix"   # bumps everything from nixpkgs: claude-code, gh, php, GUI apps, ...
 # other inputs: home-manager, nix-darwin, phps, nix-homebrew
-sudo darwin-rebuild switch --flake "$PWD/nix"
+drs
 ```
 
 "Update just Claude Code" means updating the full `nixpkgs` input, which moves every nixpkgs package to the channel's latest at once. Commit the resulting `flake.lock` change to keep the machine reproducible.
@@ -123,7 +137,7 @@ sudo darwin-rebuild --rollback
 
 ### Garbage collection
 
-Every `darwin-rebuild switch` (aliased `drs`) creates a new generation; old generations stay on disk as GC roots and pile up. Concretely, each rebuild that changes PHP leaves stale `php-with-extensions` store paths behind, so the Symfony CLI's local PHP-discovery patch lists the same PHP version several times over.
+Every `darwin-rebuild switch` (the `drs` function) creates a new generation; old generations stay on disk as GC roots and pile up. Concretely, each rebuild that changes PHP leaves stale `php-with-extensions` store paths behind, so the Symfony CLI's local PHP-discovery patch lists the same PHP version several times over.
 
 Free the store by deleting old generations:
 
@@ -141,4 +155,4 @@ Unlike a rebuild, garbage collection needs no flake path: it operates on the Nix
 
 ### Add a package
 
-For CLI tools or Nix-packaged GUI apps, add to `environment.systemPackages` in `nix/flake.nix`, then rebuild. For casks, add the cask name to `homebrew.casks`; if it's from a third-party tap, add the tap to `nix-homebrew.taps` as well.
+For CLI tools or Nix-packaged GUI apps, add to `environment.systemPackages` in `nix/flake.nix`, then rebuild. For casks, add the cask name to `homebrew.casks`; if it's from a third-party tap, add the tap to `nix-homebrew.taps` as well. To install it on one machine only, wrap it in `lib.optionals (profile == "perso") [ ... ]` (see the perso-only lists in `flake.nix`, `home/java.nix`, and `home/php.nix`).

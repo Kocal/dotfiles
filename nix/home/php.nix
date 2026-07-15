@@ -1,4 +1,4 @@
-{ inputs, pkgs, config, ... }:
+{ inputs, pkgs, lib, config, profile, ... }:
 let
   system = pkgs.stdenv.hostPlatform.system;
 
@@ -88,7 +88,6 @@ in
     composer
 
     # Version-specific binaries for the Symfony CLI (.php-version).
-    (versioned "8.1" php81)
     (versioned "8.2" php82)
     (versioned "8.3" php83)
     (versioned "8.4" php84)
@@ -96,6 +95,10 @@ in
 
     pkgs.symfony-cli
     pkgs.blackfire # agent + client CLI (the probe is compiled into each PHP above)
+  ]
+  # PHP 8.1 is EOL: perso-only (the boulot machine keeps 8.2-8.5).
+  ++ lib.optionals (profile == "perso") [
+    (versioned "8.1" php81)
   ];
 
   # Point the Blackfire probe at our agent socket. The probe reads this env var and

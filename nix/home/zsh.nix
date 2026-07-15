@@ -9,6 +9,12 @@ in
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
 
+    # Machine-local env, sourced from the generated ~/.zshenv (before .zshrc, for
+    # login + non-interactive shells). Create ~/.zshenv.local when needed.
+    envExtra = ''
+      [ -f ~/.zshenv.local ] && source ~/.zshenv.local
+    '';
+
     history = {
       size = 10000;
       save = 10000;
@@ -62,9 +68,6 @@ in
       gsta = "git stash";
       gstp = "git stash pop";
 
-      # nix-darwin rebuild switch (absolute path, so it works from any directory)
-      drs = "sudo darwin-rebuild switch --flake ${config.dotfiles.dir}/nix";
-
       # nix garbage collect: delete all old generations, free the store
       # (prunes stale php-with-extensions builds, etc.). No rollback after.
       nix-clean = "sudo nix-collect-garbage -d";
@@ -80,6 +83,15 @@ in
       # `some/dir`). Restores behavior lost when leaving oh-my-zsh.
       (lib.mkOrder 520 ''
         setopt AUTO_CD
+      '')
+
+      # nix-darwin rebuild switch. A function (not an alias) so the hostname is
+      # resolved at runtime -> the same `drs` picks darwinConfigurations.<host>
+      # on any machine. Absolute flake path so it works from any directory.
+      (lib.mkOrder 530 ''
+        drs() {
+          sudo darwin-rebuild switch --flake "${config.dotfiles.dir}/nix#$(scutil --get LocalHostName)"
+        }
       '')
 
       # shell helpers + functions (real .zsh file, no Nix escaping needed)

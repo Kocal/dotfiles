@@ -32,7 +32,10 @@
 
   outputs = inputs@{ self, nix-darwin, nixpkgs, home-manager, phps, nix-homebrew, homebrew-core, homebrew-cask, homebrew-vorssaint }:
   let
-    configuration = { config, pkgs, lib, ... }: {
+    configuration = { config, pkgs, lib, profile, ... }:
+    let
+      isPerso = profile == "perso";
+    in {
       # List packages installed in system profile. To search by name, run:
       # $ nix-env -qaP | grep wget
       environment.systemPackages =
@@ -64,11 +67,14 @@
 
           # GUI apps available on nix-darwin. nix-darwin copies these into
           # /Applications/Nix Apps as real bundles, so Spotlight/Launchpad see them.
-          pkgs.brave
           pkgs.firefox-bin
           pkgs.jetbrains-toolbox
           pkgs.rectangle-pro
           pkgs.vscode
+        ]
+        # perso-only GUI apps
+        ++ lib.optionals isPerso [
+          pkgs.brave
         ];
 
       # Necessary for using flakes on this system.
@@ -102,7 +108,9 @@
 
       # PHP 8.1 is EOL; fossar/nix-phps marks it insecure. Permit it for local dev.
       # If the switch errors, copy the exact "php-8.1.xx" name from the message here.
-      nixpkgs.config.permittedInsecurePackages = [
+      # PHP 8.1 is EOL and only installed on the perso profile, so scope its
+      # insecure permit there too.
+      nixpkgs.config.permittedInsecurePackages = lib.optionals isPerso [
         "php-8.1.33"
       ];
 
@@ -123,7 +131,6 @@
           "1password" # strict location/signing, unreliable from a nix copy
           "cloudflare-warp" # needs the signed system network extension
           "ghostty" # nixpkgs ghostty is broken on darwin
-          "mgba-app" # nixpkgs mgba is linux-only
           "imageoptim" # not in nixpkgs
           "affinity" # not in nixpkgs (proprietary Serif)
           "ankama" # nixpkgs ankama-launcher is linux-only
@@ -135,22 +142,34 @@
           "notion" # nixpkgs notion-app not available on darwin
           "transmission" # native macOS GUI app not built by nixpkgs on darwin
           "ultimaker-cura" # nixpkgs cura is linux-only
+          "vlc" # nixpkgs vlc is unreliable on darwin
+        ]
+        # perso-only casks
+        ++ lib.optionals isPerso [
+          "mgba-app" # nixpkgs mgba is linux-only
         ];
       };
     };
-  in
-  {
-    # Build darwin flake using:
-    # $ darwin-rebuild build --flake .#MacBook-Pro-de-Hugo
-    darwinConfigurations."MacBook-Pro-de-Hugo" = nix-darwin.lib.darwinSystem {
+
+    # One darwinSystem per machine. `profile` (perso|boulot) is threaded to the
+    # system module and to home-manager so packages can diverge per machine. The
+    # config name equals the machine hostname so `drs` resolves it at runtime.
+    mkDarwin = { hostname, profile }: nix-darwin.lib.darwinSystem {
+      specialArgs = { inherit inputs profile; };
       modules = [
         configuration
+        # Keep the system hostname in sync with the config name.
+        {
+          networking.hostName = hostname;
+          networking.localHostName = hostname;
+          networking.computerName = hostname;
+        }
         home-manager.darwinModules.home-manager
         {
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
           home-manager.backupFileExtension = "hm-backup";
-          home-manager.extraSpecialArgs = { inherit inputs; };
+          home-manager.extraSpecialArgs = { inherit inputs profile; };
           home-manager.users.kocal = import ./home.nix;
         }
         nix-homebrew.darwinModules.nix-homebrew
@@ -195,5 +214,12 @@
         })
       ];
     };
+  in
+  {
+    # Build darwin flake using:
+    # $ darwin-rebuild build --flake .#MacBook-Pro-de-Hugo   (perso)
+    # $ darwin-rebuild build --flake .#MacBook-Pro-de-Hugo-2 (boulot)
+    darwinConfigurations."MacBook-Pro-de-Hugo"   = mkDarwin { hostname = "MacBook-Pro-de-Hugo";   profile = "perso"; };
+    darwinConfigurations."MacBook-Pro-de-Hugo-2" = mkDarwin { hostname = "MacBook-Pro-de-Hugo-2"; profile = "boulot"; };
   };
 }
