@@ -15,6 +15,19 @@ in
       [ -f ~/.zshenv.local ] && source ~/.zshenv.local
     '';
 
+    # nix-darwin's /etc/zshenv puts the Nix profiles at the front of PATH, but
+    # macOS /etc/zprofile then runs path_helper, which re-sorts /usr/bin & co to
+    # the front and pushes the Nix profiles to the back. System binaries then
+    # shadow the Nix ones (e.g. /usr/bin/vim wins over our configured vim).
+    # ~/.zprofile is sourced right after /etc/zprofile, so re-prepend the Nix
+    # profiles here to restore their precedence for login shells.
+    profileExtra = ''
+      for p in ''${(z)NIX_PROFILES}; do
+        [[ -d "$p/bin" ]] && path=("$p/bin" $path)
+      done
+      typeset -U path  # drop the now-duplicate trailing entries, keep first
+    '';
+
     history = {
       size = 10000;
       save = 10000;
