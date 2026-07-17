@@ -137,6 +137,7 @@
           "cloudflare-warp" # needs the signed system network extension
           "ghostty" # nixpkgs ghostty is broken on darwin
           "imageoptim" # not in nixpkgs
+          "monitorcontrol" # not in nixpkgs (macOS-only app)
           "affinity" # not in nixpkgs (proprietary Serif)
           "ankama" # nixpkgs ankama-launcher is linux-only
           "inkscape" # nixpkgs build broken on darwin (appstream/libadwaita)
