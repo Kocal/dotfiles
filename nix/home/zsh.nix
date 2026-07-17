@@ -25,6 +25,9 @@ in
       for p in ''${(z)NIX_PROFILES}; do
         [[ -d "$p/bin" ]] && path=("$p/bin" $path)
       done
+      # Go-installed binaries (e.g. a locally built symfony-cli) should win over
+      # the Nix profiles, so re-prepend ~/go/bin after the loop above.
+      [[ -d "$HOME/go/bin" ]] && path=("$HOME/go/bin" $path)
       typeset -U path  # drop the now-duplicate trailing entries, keep first
     '';
 
