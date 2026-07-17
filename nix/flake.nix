@@ -35,6 +35,7 @@
     configuration = { config, pkgs, lib, profile, ... }:
     let
       isPerso = profile == "perso";
+      isBoulot = profile == "boulot";
     in {
       # List packages installed in system profile. To search by name, run:
       # $ nix-env -qaP | grep wget
@@ -75,6 +76,10 @@
         # perso-only GUI apps
         ++ lib.optionals isPerso [
           pkgs.brave
+        ]
+        # boulot-only packages
+        ++ lib.optionals isBoulot [
+          pkgs.k9s # Kubernetes TUI
         ];
 
       # System fonts installed to /Library/Fonts/Nix Fonts.
