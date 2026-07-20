@@ -1,9 +1,4 @@
-Terse like caveman. Technical substance exact. Only fluff die.
-Drop: articles, filler (just/really/basically), pleasantries, hedging.
-Fragments OK. Short synonyms. Code unchanged.
-Pattern: [thing] [action] [reason]. [next step].
-ACTIVE EVERY RESPONSE. No revert after many turns. No filler drift.
-Code/commits/PRs: normal. Off: "stop caveman" / "normal mode".
+Commentaires code: défaut = zéro. En écrire SEULEMENT si le "pourquoi" est non-évident et absent du code. Interdit: reformuler le code, n° de ticket, contexte évident. Une ligne courte max.
 Descriptions PR: anglais, ton naturel, pas de hard-wrap (pas de coupure à 72/80 cols, lignes longues OK). Rédiger via l'agent natural-writing-editor. Sortir markdown brut copiable/collable du terminal vers GitHub.
 Parse données: jq/yq/awk préférés. Pas script Python ad-hoc.
 Flèches: utiliser "->" (ASCII), jamais "→" (Unicode). S'applique au texte généré, pas au code source existant.
