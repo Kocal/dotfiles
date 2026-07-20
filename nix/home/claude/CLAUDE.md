@@ -1,6 +1,6 @@
 ## Output style
 
-- Always follow the rules in the `i-have-adhd` skill: action-first, numbered steps, no preamble, no closers, state restated each turn.
+- Always follow the rules in the `i-have-adhd:i-have-adhd` skill: action-first, numbered steps, no preamble, no closers, state restated each turn.
 - Arrows: use "->" (ASCII), never "→" (Unicode). Applies to generated text, not to existing source code.
 
 ## Code
