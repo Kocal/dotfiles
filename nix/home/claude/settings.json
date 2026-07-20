@@ -102,13 +102,27 @@
   "enabledPlugins": {
     "chrome-devtools-mcp@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true,
-    "gopls-lsp@claude-plugins-official": true
+    "gopls-lsp@claude-plugins-official": true,
+    "i-have-adhd@i-have-adhd": true,
+    "symfony-ux-skills@symfony-ux-skills": true
   },
   "extraKnownMarketplaces": {
     "chrome-devtools-plugins": {
       "source": {
         "source": "github",
         "repo": "ChromeDevTools/chrome-devtools-mcp"
+      }
+    },
+    "i-have-adhd": {
+      "source": {
+        "source": "github",
+        "repo": "ayghri/i-have-adhd"
+      }
+    },
+    "symfony-ux-skills": {
+      "source": {
+        "source": "github",
+        "repo": "smnandre/symfony-ux-skills"
       }
     }
   },
