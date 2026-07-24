@@ -9,6 +9,7 @@
     ./home/java.nix
     ./home/php.nix
     ./home/ghostty.nix
+    ./home/vscode.nix
     ./home/docker.nix
     ./home/claude.nix
   ];
