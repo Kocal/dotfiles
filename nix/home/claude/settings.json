@@ -105,7 +105,8 @@
     "gopls-lsp@claude-plugins-official": true,
     "i-have-adhd@i-have-adhd": true,
     "symfony-ux-skills@symfony-ux-skills": true,
-    "symfony-contribution-skills@symfony-contribution-skills": true
+    "symfony-contribution-skills@symfony-contribution-skills": true,
+    "claude-mem@thedotmack": true
   },
   "extraKnownMarketplaces": {
     "chrome-devtools-plugins": {
@@ -130,6 +131,12 @@
       "source": {
         "source": "github",
         "repo": "kocal/symfony-contribution-skills"
+      }
+    },
+    "thedotmack": {
+      "source": {
+        "source": "github",
+        "repo": "thedotmack/claude-mem"
       }
     }
   },
