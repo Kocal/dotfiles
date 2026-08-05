@@ -11,6 +11,9 @@
     ./home/ghostty.nix
     ./home/vscode.nix
     ./home/chrome.nix
+    ./home/firefox.nix
+    ./home/orbstack.nix
+    ./home/rectangle-pro.nix
     ./home/docker.nix
     ./home/claude.nix
   ];
