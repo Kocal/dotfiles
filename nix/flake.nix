@@ -9,6 +9,11 @@
     home-manager.url = "github:nix-community/home-manager/release-26.05";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
+    # Full VS Code Marketplace + Open VSX as Nix packages (nixpkgs only ships a
+    # small curated subset). Provides the `vscode-marketplace` overlay.
+    nix-vscode-extensions.url = "github:nix-community/nix-vscode-extensions";
+    nix-vscode-extensions.inputs.nixpkgs.follows = "nixpkgs";
+
     # EOL PHP versions (8.1, 8.0, ...) not in nixpkgs anymore.
     phps.url = "github:fossar/nix-phps";
     phps.inputs.nixpkgs.follows = "nixpkgs";
@@ -30,7 +35,7 @@
     };
   };
 
-  outputs = inputs@{ self, nix-darwin, nixpkgs, home-manager, phps, nix-homebrew, homebrew-core, homebrew-cask, homebrew-vorssaint }:
+  outputs = inputs@{ self, nix-darwin, nixpkgs, home-manager, nix-vscode-extensions, phps, nix-homebrew, homebrew-core, homebrew-cask, homebrew-vorssaint }:
   let
     configuration = { config, pkgs, lib, profile, ... }:
     let
@@ -103,6 +108,9 @@
       # The platform the configuration will be used on.
       nixpkgs.hostPlatform = "aarch64-darwin";
 
+      # Exposes pkgs.vscode-marketplace.<publisher>.<name> (see home/vscode.nix).
+      nixpkgs.overlays = [ nix-vscode-extensions.overlays.default ];
+
       # Allow specific unfree packages only (blackfire probe + agent match by name).
       nixpkgs.config.allowUnfreePredicate = pkg:
         builtins.elem (lib.getName pkg) [
@@ -114,7 +122,9 @@
           "vscode"
         ]
         || lib.hasInfix "blackfire" (lib.getName pkg)
-        || lib.hasInfix "firefox" (lib.getName pkg);
+        || lib.hasInfix "firefox" (lib.getName pkg)
+        # VS Code Marketplace extensions (e.g. Microsoft Remote-SSH) ship as unfree.
+        || lib.hasInfix "vscode-extension" (lib.getName pkg);
 
       # PHP 8.1 is EOL; fossar/nix-phps marks it insecure. Permit it for local dev.
       # If the switch errors, copy the exact "php-8.1.xx" name from the message here.
