@@ -77,6 +77,7 @@
           pkgs.jetbrains-toolbox
           pkgs.rectangle-pro
           pkgs.vscode
+          pkgs.utm
         ]
         # perso-only GUI apps
         ++ lib.optionals isPerso [
