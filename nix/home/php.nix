@@ -108,6 +108,14 @@ in
   # extension reaches the agent.
   home.sessionVariables.BLACKFIRE_AGENT_SOCKET = "unix://${blackfireSocket}";
 
+  # Default environment for traces ("Open Source Project"). Without it, `blackfire
+  # run` sends profiles to the personal account, where they are only visible to us
+  # and where `blackfire profile:graph` refuses to read them: that command wants an
+  # environment UUID and finds no agent for a personal account. Set as the UUID and
+  # not the name, because `run` accepts either but `profile:graph` only takes the
+  # UUID. Both read this variable.
+  home.sessionVariables.BLACKFIRE_ENV = "5f4f9a62-eaa0-45ee-b7b3-a1b879f550e9";
+
   # Run the agent as a launchd user service: starts at login, restarts if it dies.
   # Replaces the manual foreground `blackfire agent` and the broken Homebrew service
   # `homebrew.mxcl.blackfire`.
