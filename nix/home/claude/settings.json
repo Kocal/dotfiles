@@ -89,6 +89,11 @@
           {
             "type": "command",
             "command": "rtk hook claude"
+          },
+          {
+            "type": "command",
+            "command": "bash ~/.claude/deny-guard.sh",
+            "statusMessage": "Checking deny rules"
           }
         ]
       }

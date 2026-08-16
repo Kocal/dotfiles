@@ -12,6 +12,7 @@ in
   home.file = {
     ".claude/settings.json".source = link "settings.json";
     ".claude/statusline-command.sh".source = link "statusline-command.sh";
+    ".claude/deny-guard.sh".source = link "deny-guard.sh";
     ".claude/CLAUDE.md".source = link "CLAUDE.md";
     ".claude/agents".source = link "agents";
     ".claude/skills".source = link "skills";
