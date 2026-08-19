@@ -1,5 +1,5 @@
 ---
-name: webpack-encore-test-apps
+name: sf-webpack-encore-test-apps
 description: Add or modify a CI test app under test_apps/ in the symfony/webpack-encore repo. Enforces the lowest-peers naming convention, exact version pins, and matrix-entry layout in testing_apps.yml.
 ---
 

@@ -1,5 +1,5 @@
 ---
-name: performance-optimization
+name: sf-performance-optimization
 description: Evidence-driven performance work on PHP and JS/TS code - find hot paths, benchmark before/after with Blackfire or node, keep only measurable wins, ship one surgical branch per improvement.
 ---
 

@@ -1,5 +1,5 @@
 ---
-name: webpack-encore-release-notes
+name: sf-webpack-encore-release-notes
 description: Prepare a Webpack Encore release. Write the terse CHANGELOG.md entry and draft the GitHub release notes (GitHub-alert intro + auto-generated "What's Changed" + footer), then copy them to the clipboard. Never publishes the release. Use when releasing or writing the changelog / release notes for a version or tag.
 ---
 
@@ -35,7 +35,7 @@ Copy the assembled body to the clipboard and notify (macOS). Write the body to a
 
 ```bash
 pbcopy < /tmp/encore-release-notes.md
-osascript -e 'display notification "Release notes copied to the clipboard" with title "webpack-encore-release-notes" sound name "Glass"'
+osascript -e 'display notification "Release notes copied to the clipboard" with title "sf-webpack-encore-release-notes" sound name "Glass"'
 rm /tmp/encore-release-notes.md
 ```
 
