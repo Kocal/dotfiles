@@ -11,8 +11,10 @@
 
 ## Writing (PR, prose)
 
-- PR descriptions: English, natural tone, no hard-wrap (no breaking at 72/80 cols, long lines OK). Write via the natural-writing-editor agent. Output raw markdown, copy-pasteable from the terminal to GitHub.
-- Commit messages: also via the natural-writing-editor agent. These stay wrapped at ~72 cols, unlike PR descriptions.
+- NEVER hard-wrap prose. One paragraph = one long line, no matter the medium: PR descriptions, GitHub/GitLab issues and comments, code reviews, README and docs, changelogs, release notes, blog posts, emails, chat messages. Blank lines between paragraphs and real list items are fine; mid-sentence newlines are not. This applies to text you type directly, not only to text the agent produced.
+- The ONLY exception is the body of a git commit message, wrapped at ~72 cols. Nothing else is ever wrapped.
+- All prose for human readers goes through the natural-writing-editor agent, not just PR descriptions and commit messages.
+- When re-emitting the agent's output (heredoc, `--body`, a file, a terminal reply), copy it verbatim. Never re-wrap it on the way out; that is where the wrap usually creeps back in.
 - A PR body derived from a commit message is still a PR description: it must go through the agent and be unwrapped. Never ship `gh pr create --fill` output as-is, it inherits the commit's 72-col wrap.
 
 ## Data & tooling
