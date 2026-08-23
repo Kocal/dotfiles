@@ -80,7 +80,7 @@ Never restate or paraphrase the user's question at the start.
 
 **Documentation / README**: concise, factual, short sentences. Code examples lead, prose supports. Don't over-explain what code shows.
 
-**Commit messages / PR descriptions**: state what changed and why, not how (diff shows how). Short first line. Imperative mood in English ("Add support for...", "Fix crash when...").
+**Commit messages / PR descriptions**: state what changed and why, not how (diff shows how). Short first line, imperative mood in English ("Add support for...", "Fix crash when..."). The body below is Markdown (paragraphs, lists, code fences, links) on unwrapped lines, because `gh pr create --fill` turns the commit message into the PR description.
 
 **Code comments**: explain *why*, not *what*. Don't restate code in prose. Sparingly — a comment every 2-3 lines is too many.
 
