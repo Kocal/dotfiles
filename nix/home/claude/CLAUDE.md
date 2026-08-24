@@ -13,6 +13,8 @@
 
 - NEVER hard-wrap prose, anywhere, no exception. One paragraph = one long line, whatever the medium: commit messages, PR descriptions, GitHub/GitLab issues and comments, code reviews, README and docs, changelogs, release notes, blog posts, emails, chat messages. Blank lines between paragraphs and real list items are fine; mid-sentence newlines are not.
 - This includes git commit bodies. `gh pr create --fill` reuses the commit message as the PR description, and a 72-col wrap renders as ragged garbage on GitHub. Subject line stays short and on one line; everything below it is plain Markdown (paragraphs, lists, code fences, links) written as long unwrapped lines.
+- Length: default to the shortest text that changes what the reader will do next. An issue comment, a PR description or a commit body is not an investigation report; the evidence, the bisects and the version matrices stay in the chat unless asked for. When the target length is not specified, ask before writing.
+- Same rule when briefing the natural-writing-editor agent: give it the two or three facts the reader needs, never the whole dossier. Feeding it everything is what produces the wall of text.
 - All prose for human readers goes through the natural-writing-editor agent.
 - When re-emitting the agent's output (heredoc, `--body`, a file, a terminal reply), copy it verbatim. Never re-wrap it on the way out; that is where the wrap usually creeps back in.
 
