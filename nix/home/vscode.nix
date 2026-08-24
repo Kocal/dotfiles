@@ -35,6 +35,7 @@
         unifiedjs.vscode-mdx
 
         # Symfony/PHP dev extras
+        symfony.language-tools
         editorconfig.editorconfig
         redhat.vscode-yaml
         neilbrayfield.php-docblocker
