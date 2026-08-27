@@ -38,6 +38,13 @@ RST reference:
 
 The display name in `.. contributors::` is optional; use the handle alone when the real name is unknown. Never guess a contributor's name or pronouns.
 
+`.. contributors::` takes **one** `[...]` group: contributors first (comma-separated), then a `|`, then the PRs (comma-separated), and every PR carries its repo. Multiple contributors before the `|` are credited **jointly** for the whole PR list ("Contributed by Simon André and Hugo Alliaume in #2985, #2993") — there is no per-person PR split inside a single directive. Do **not** put two `[...]` groups in one directive: the renderer keeps only the first bracket and dumps the rest into the body as plain text. To credit people who worked on *different* PRs, either list them jointly in one group (accepting the shared PR list) or emit one `.. contributors::` directive per person.
+
+```
+.. contributors:: [handle@github(Display Name)|52487@symfony/symfony,52501@symfony/symfony]
+.. contributors:: [smnandre@github(Simon André),Kocal@github(Hugo Alliaume)|2985@symfony/ux,2993@symfony/ux]
+```
+
 Excerpt: one sentence, present tense, naming what the release brings. Title: `<Project> <version> released`, or the project's established pattern.
 
 ## Command Reference
