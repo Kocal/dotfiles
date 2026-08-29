@@ -74,7 +74,7 @@ The work machine (`boulot`) gets the shared base and none of those extras. To sc
 ### Home-manager modules
 
 - **git** (`home/git.nix`): commits and tags signed via 1Password's `op-ssh-sign`. Machine-local overrides (different email, signing key, etc.) go in `~/.gitconfig.local`, included but not managed by Nix.
-- **zsh** (`home/zsh.nix`): native completion, autosuggestions, syntax highlighting, Starship prompt. Aliases and shell functions are in `nix/home/zsh/functions.zsh`. Sources `~/.zshenv.local` (from the generated `.zshenv`, before `.zshrc`) and `~/.zshrc.local` if they exist. `drs` is a shell function that rebuilds the config matching the current hostname, so the same command works on every machine.
+- **zsh** (`home/zsh.nix`): native completion, autosuggestions, syntax highlighting, Starship prompt. Aliases and shell functions are in `nix/home/zsh/functions.zsh`. Sources `~/.zshenv.local` (from the generated `.zshenv`, before `.zshrc`) and `~/.zshrc.local` if they exist. `drs` is a shell function that rebuilds the config matching the current hostname, so the same command works on every machine. Two siblings extend that: `dro` ("darwin-rebuild outdated") previews what a flake update would change without applying it, and `dru` ("darwin-rebuild update") updates the lock and rebuilds in one step.
 - **vim** (`home/vim.nix`): plugins (vim-sensible, vim-obsession, vim-airline, vim-solarized8) via Nix; config from `nix/home/vim/vimrc.vim`.
 - **node** (`home/node.nix`): fnm as the version manager. Nix installs fnm itself; you still need to run `fnm install --lts` (or a specific version) after first setup.
 - **php** (`home/php.nix`): PHP 8.2-8.5 (plus 8.1 on the personal machine only), each with opcache, xdebug, apcu, blackfire probe, xsl, redis, amqp, and imagick. Default unversioned `php` is 8.4. Versioned binaries (`php8.2` ... `php8.5`, and `php8.1` on perso) are on PATH so the Symfony CLI picks the right one via `.php-version`. PHP 8.1 comes from the `phps` input (EOL, dropped from nixpkgs) and is installed on perso only.
@@ -110,12 +110,23 @@ fnm install --lts
 
 Dependencies are pinned in `nix/flake.lock`. Updating bumps a flake input and rebuilds; there is no per-package pin, so a package's version follows whatever input it comes from. Most CLI tools and apps (including `claude-code`, `gh`, `php`, the GUI apps) come from `nixpkgs`.
 
-Update everything:
+`dro` previews what an update would do before you commit to it: it updates the lock, builds the would-be system without activating it, then diffs it against what's currently running and prints each package's `current -> next` version, covering the whole closure (libraries included), not just what's declared in `flake.nix`. It needs no `sudo`, and the lock is restored to its original state afterward, so nothing is left changed.
 
 ```shell
-sudo nix flake update --flake "$PWD/nix"
+dro
+# preview version changes, applies nothing
+```
+
+`dru` skips the preview and updates in one step:
+
+```shell
+dru
+# equivalent to:
+nix flake update --flake "$PWD/nix"
 drs
 ```
+
+Both resolve the current hostname the same way `drs` does, so they work unchanged on either machine.
 
 Update a single input:
 

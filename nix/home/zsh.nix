@@ -110,6 +110,38 @@ in
         }
       '')
 
+      # `dro` = darwin-rebuild "outdated": preview the version bumps a flake
+      # update would bring, then restore the lock so nothing is left changed.
+      # `dru` applies the update for real (lock bump + switch).
+      (lib.mkOrder 531 ''
+        dro() {
+          local dir="${config.dotfiles.dir}/nix"
+          local host="$(scutil --get LocalHostName)"
+          local tmp; tmp="$(mktemp -d)"
+          cp "$dir/flake.lock" "$tmp/flake.lock.bak"
+          _log_info "Updating flake inputs (preview only, nothing applied)..."
+          if ! nix flake update --flake "$dir"; then
+            cp "$tmp/flake.lock.bak" "$dir/flake.lock"; rm -rf "$tmp"; return 1
+          fi
+          _log_info "Building the would-be system (not activated)..."
+          if ! nix build "$dir#darwinConfigurations.$host.system" --out-link "$tmp/result"; then
+            cp "$tmp/flake.lock.bak" "$dir/flake.lock"; rm -rf "$tmp"; return 1
+          fi
+          _log_info "Version changes a 'dru' would apply:"
+          nix store diff-closures /run/current-system "$tmp/result"
+          cp "$tmp/flake.lock.bak" "$dir/flake.lock"
+          rm -rf "$tmp"
+        }
+
+        dru() {
+          local dir="${config.dotfiles.dir}/nix"
+          _log_info "Updating flake inputs..."
+          nix flake update --flake "$dir" || return 1
+          _log_info "Applying (darwin-rebuild switch)..."
+          sudo darwin-rebuild switch --flake "$dir#$(scutil --get LocalHostName)"
+        }
+      '')
+
       # shell helpers + functions (real .zsh file, no Nix escaping needed)
       (lib.mkOrder 550 (builtins.readFile ./zsh/functions.zsh))
 
