@@ -70,6 +70,7 @@
           pkgs.wget
           pkgs.mkcert
           pkgs.zizmor
+          pkgs.android-tools # `adb`/`fastboot`
 
           # GUI apps available on nix-darwin. nix-darwin copies these into
           # /Applications/Nix Apps as real bundles, so Spotlight/Launchpad see them.
