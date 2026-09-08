@@ -16,7 +16,7 @@ Working a backlog is not the same as working one PR. The failure mode is volume:
 1. Enumerate open PRs and issues once, up front.
 2. Apply the exclusion list the user gave you. Record it — you will be tempted to drift back into excluded areas.
 3. Take the next item. Gather its dossier.
-4. Present the dossier and **ask the user for a decision on that item alone**.
+4. Present the dossier and **ask the user for a decision on that item alone**. Open with the item's **full URL** — `https://github.com/owner/repo/issues/1856`, not `#1856` — so the user can click straight through to it. A bare number forces them to go find it, which is exactly the friction the triage pass is meant to remove.
 5. Execute the decision. Prepare everything; stop before anything irreversible.
 6. Restate the running state (what is settled, what is left) and move to the next item.
 
@@ -67,7 +67,8 @@ When the decision is "rework it":
 4. Squash to one commit, **preserving the original author** via `--author`.
 5. Strip any `Co-Authored-By` trailer only if asked — it may be the contributor's own, not yours.
 6. Run the package's real checks: tests, formatter, linter, and any committed build artefacts.
-7. Hand back two lines and stop.
+7. **Run `/simplify` on the branch before handing it back.** Once the work is correct and green, it still has to be good — the pass catches the things a working diff hides: an assertion that pins an ordering the production path never emits, a method spliced between a docblock and the member it documents, a private temp directory where the class already has a shared one, an idiom that diverges from every sibling in the file. Judge each finding rather than applying it blindly, and say which ones you skipped and why.
+8. Hand back two lines and stop.
 
 **Re-check the project's own conventions on every branch, not once.** A rule you applied to the previous PR applies to this one too: a forbidden `composer.json` key, a CHANGELOG heading style, a version placeholder. Grep the branch for each of them before handing it back, rather than trusting that you would have noticed.
 
