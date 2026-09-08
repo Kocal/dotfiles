@@ -32,5 +32,28 @@
 - ALWAYS push feature branches to the `origin` fork + open the PR from the fork (`gh pr create --head <fork-owner>:<branch>`).
 - NEVER push a feature branch or open a PR on `upstream`. `upstream` = fetch/sync canonical only.
 - Always check `git remote -v` + `gh repo view` before pushing/creating a PR.
+- One PR = one commit. Squash the work-in-progress commits before opening it. This is the default everywhere, and it is mandatory on Symfony projects.
+- That single commit carries the repo's `.github/PULL_REQUEST_TEMPLATE.md`, filled in: subject = the PR title, then the template's table/checklist answered for this PR (Bug fix, New feature, Deprecations, Documentation, Issues, License), then the description. Drop the template's `<!-- ... -->` authoring hints, they are instructions to the author, not content.
+- Keep every closing keyword the template asks for. On Symfony repos the Issues row reads `| Issues | Fix #1234` — dropping the `Fix #` and leaving a bare `#1234` means GitHub does not close the issue when the PR is merged, and someone has to close it by hand. Removing the surrounding `<!-- ... -->` hint is right; removing the `Fix #` is not. When the PR closes no issue, leave the row's value empty rather than inventing one.
+- Open the PR with `gh pr create --fill` so that commit message becomes the PR title and body. NEVER also pass a `--body`/`--body-file` built from the template: the table would be duplicated.
+
+## Merging is mine, never yours
+
+- **NEVER merge a pull request.** Not with `gh pr merge`, not through the API, not because the CI is green, not because I picked an option whose label contained the word "merge". Merging is my call and mine only. Prepare everything up to the merge, then stop and hand it over. Never put "merge" in an AskUserQuestion option either.
+- `git push` is denied to you as well. Print the command and let me run it with the `!` prefix.
+- When you hand a branch back, give exactly **two lines**, nothing longer:
+
+    ```
+    cd .claude/worktrees/pr<number>
+    git push --force
+    ```
+
+- For those two lines to work, set the worktree up with `gh pr checkout <number>`, which wires `branch.<name>.remote` and `.pushremote` to the contributor's fork. Never `git fetch upstream pull/N/head:...` — it leaves no push remote and forces me to type a long explicit refspec.
+
+## Worktrees
+
+- Git worktrees go in `<repo>/.claude/worktrees/<name>`. Not the session scratchpad, not a sibling directory next to the repo.
+- Add `/.claude/worktrees/` to `.git/info/exclude` (local only, never the tracked `.gitignore`) so `git status` stays clean.
+- Remove the worktree with `git worktree remove` once the branch is merged or abandoned.
 
 @RTK.md
