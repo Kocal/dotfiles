@@ -18,7 +18,8 @@ Use when user mention:
 1. **Always use `gh` to fetch data.** Never guess issue/PR/comment/log content. Run `gh` first.
 2. **Never fabricate GitHub URLs.** Only use URLs from user or `gh` output.
 3. **Prefer specific `gh` subcommands** over `gh api`. Fall back to `gh api` when no subcommand exists.
-4. **Quote relevant parts** of fetched data so user sees actual content.
+4. **NEVER run `gh pr merge`**, and never merge through `gh api` either. Merging is the user's decision alone, whatever the CI says and whatever option label they picked. Prepare the branch, hand back the push command, stop there.
+5. **Quote relevant parts** of fetched data so user sees actual content.
 
 ## Command Reference
 
@@ -54,16 +55,49 @@ gh pr checks 123
 gh pr diff 123
 ```
 
+### Checking Out Someone Else's PR
+
+To work on a contributor's PR — rebase it, fix review findings, re-run its tests — always check it out with `gh pr checkout`, inside a worktree under `<repo>/.claude/worktrees/pr<number>`:
+
+```bash
+git worktree add --detach .claude/worktrees/pr123 upstream/main
+cd .claude/worktrees/pr123
+gh pr checkout 123 --repo owner/repo
+```
+
+`gh pr checkout` creates a local branch named after the PR head and sets `branch.<name>.remote` **and** `branch.<name>.pushremote` to the contributor's fork, so a later `git push --force` needs no refspec. Verify with:
+
+```bash
+git config --get-regexp '^branch\..*\.(remote|pushremote)$'
+```
+
+Never substitute `git fetch upstream pull/N/head:branch`. It fetches the same commits but configures no push remote, so pushing back then needs a full explicit `git push --force-with-lease=... git@github.com:owner/repo.git local:remote`, which is long and easy to get wrong.
+
+`gh pr checkout` works only when the PR allows maintainer edits — check `maintainerCanModify` first:
+
+```bash
+gh pr view 123 --repo owner/repo --json maintainerCanModify,headRepositoryOwner,headRefName
+```
+
 ### Creating Pull Requests
 
-Before creating, always:
+**One PR = one commit, and that commit message IS the PR.** Squash first, put the filled-in PR template in the commit body, then open the PR with `--fill`.
 
-1. **Use the repo's PR template.** If `.github/PULL_REQUEST_TEMPLATE.md` exists (or `.github/PULL_REQUEST_TEMPLATE/*`, `docs/PULL_REQUEST_TEMPLATE.md`), base the body on it: keep its table/checklist verbatim and fill in the answers. Never send a free-form body that ignores it.
-2. **Write the body to a file** and pass `--body-file` (avoids shell-escaping multi-line Markdown).
+1. **Read the repo's PR template.** `.github/PULL_REQUEST_TEMPLATE.md`, or `.github/PULL_REQUEST_TEMPLATE/*`, or `docs/PULL_REQUEST_TEMPLATE.md`.
+2. **Build the commit message.** Subject = the PR title, in the repo's convention. Body = the template's table/checklist with the answers filled in, then the description. Keep the rows verbatim, drop the `<!-- ... -->` authoring hints.
+3. **Open the PR with `--fill`.** `gh` then reuses that commit message as the PR title and body.
+
+**Never pass a `--body`/`--body-file` built from the template on top of `--fill`** — the table would appear twice. `--fill` ignores the repo template on purpose, which is what you want here since the commit body already carries it. `--template` stays opt-in and you do not need it.
+
+`--fill` only maps subject/body cleanly when the branch holds a single commit; with several, `gh` falls back to the branch name and a list of commit subjects. That is the reason for the one-commit rule.
 
 ```bash
 # fetch the template if unsure it exists
 gh api repos/OWNER/REPO/contents/.github/PULL_REQUEST_TEMPLATE.md --jq .content | base64 -d
+
+# write the message to a file (avoids shell-escaping multi-line Markdown), then
+git commit -F msg.txt          # or: git commit --amend -F msg.txt
+gh pr create --fill
 ```
 
 **From a fork (common case).** The branch lives on your fork (`origin`, e.g. `Kocal/repo`) while the PR targets the upstream default repo (e.g. `symfony/repo`). `gh` defaults the *base* repo to upstream, so an unqualified `--head my-branch` makes gh look for the branch **in upstream** and fails with `Head sha can't be blank` / `No commits between ...`. Check the setup first:
@@ -80,12 +114,12 @@ Then create it one of two ways:
 gh pr create --fill
 
 # B. qualify the head with the fork owner
-gh pr create --base main --head FORK_OWNER:BRANCH --title "..." --body-file body.md
+gh pr create --fill --base main --head FORK_OWNER:BRANCH
 ```
 
 Note: `git push` may be sandbox-blocked; if so, ask the user to run it via the `!` prefix, then create the PR.
 
-**Squash-friendly commits.** If the repo squash-merges, the squash commit body concatenates every commit message. Collapse work-in-progress commits into a small set of meaningful commits (often one), following the repo's commit-message convention, before opening the PR.
+**Squash before opening.** Collapse the work-in-progress commits into the single commit described above, following the repo's commit-message convention. This also keeps the squash commit body clean on repos that squash-merge, since those concatenate every commit message.
 
 ### CI / GitHub Actions
 
