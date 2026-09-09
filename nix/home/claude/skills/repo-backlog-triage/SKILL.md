@@ -72,6 +72,8 @@ When the decision is "rework it":
 
 **Re-check the project's own conventions on every branch, not once.** A rule you applied to the previous PR applies to this one too: a forbidden `composer.json` key, a CHANGELOG heading style, a version placeholder. Grep the branch for each of them before handing it back, rather than trusting that you would have noticed.
 
+**Most fixes do not get a CHANGELOG entry.** On Symfony projects the changelog records new features, backward-compatibility breaks, and bugs big enough that a reader upgrading needs to know. A routine fix — a restored doc note, a wrong default, a render glitch — gets none, and adding one reads as padding. Ask what an upgrading reader would do differently on seeing the line; if the answer is nothing, drop it. Documentation-only and test-only branches never get one.
+
 **`git checkout --ours/--theirs <file>` takes the whole file, not just the conflicting hunks.** Cleanly auto-merged changes in that file are silently discarded. After using it, diff the result against the contributor's original and re-apply what vanished.
 
 ## Closing Well
