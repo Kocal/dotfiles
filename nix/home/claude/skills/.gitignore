@@ -1,0 +1,9 @@
+# Skills synchronisees depuis le plugin chrome-devtools-mcp@claude-plugins-official.
+# Genere par nix/home/claude.nix a chaque darwin-rebuild, ne pas editer.
+/a11y-debugging/
+/chrome-devtools/
+/chrome-devtools-cli/
+/cookie-debugging/
+/debug-optimize-lcp/
+/memory-leak-debugging/
+/troubleshooting/
