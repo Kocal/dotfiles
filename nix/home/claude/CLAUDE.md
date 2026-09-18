@@ -11,7 +11,8 @@
 
 ## Writing (PR, prose)
 
-- NEVER hard-wrap prose, anywhere, no exception. One paragraph = one long line, whatever the medium: commit messages, PR descriptions, GitHub/GitLab issues and comments, code reviews, README and docs, changelogs, release notes, blog posts, emails, chat messages. Blank lines between paragraphs and real list items are fine; mid-sentence newlines are not.
+- NEVER hard-wrap prose. One paragraph = one long line, whatever the medium: commit messages, PR descriptions, GitHub/GitLab issues and comments, code reviews, README and docs, changelogs, release notes, blog posts, emails, chat messages. Blank lines between paragraphs and real list items are fine; mid-sentence newlines are not.
+- One exception, and only one: reStructuredText for Symfony projects (symfony-docs, the symfony.com blog), where the house convention is a hard wrap at ~80 columns. Those renderers reflow the text, so the ragged output this rule exists to prevent does not happen there. Never wrap inside code blocks or link targets.
 - This includes git commit bodies. `gh pr create --fill` reuses the commit message as the PR description, and a 72-col wrap renders as ragged garbage on GitHub. Subject line stays short and on one line; everything below it is plain Markdown (paragraphs, lists, code fences, links) written as long unwrapped lines.
 - Length: default to the shortest text that changes what the reader will do next. An issue comment, a PR description or a commit body is not an investigation report; the evidence, the bisects and the version matrices stay in the chat unless asked for. When the target length is not specified, ask before writing.
 - Same rule when briefing the natural-writing-editor agent: give it the two or three facts the reader needs, never the whole dossier. Feeding it everything is what produces the wall of text.
@@ -35,7 +36,7 @@
 - One PR = one commit. Squash the work-in-progress commits before opening it. This is the default everywhere, and it is mandatory on Symfony projects.
 - That single commit carries the repo's `.github/PULL_REQUEST_TEMPLATE.md`, filled in: subject = the PR title, then the template's table/checklist answered for this PR (Bug fix, New feature, Deprecations, Documentation, Issues, License), then the description. Drop the template's `<!-- ... -->` authoring hints, they are instructions to the author, not content.
 - Keep every closing keyword the template asks for. On Symfony repos the Issues row reads `| Issues | Fix #1234` — dropping the `Fix #` and leaving a bare `#1234` means GitHub does not close the issue when the PR is merged, and someone has to close it by hand. Removing the surrounding `<!-- ... -->` hint is right; removing the `Fix #` is not. When the PR closes no issue, leave the row's value empty rather than inventing one.
-- Open the PR with `gh pr create --fill` so that commit message becomes the PR title and body. NEVER also pass a `--body`/`--body-file` built from the template: the table would be duplicated.
+- Open the PR with `gh pr create --fill` so that commit message becomes the PR title and body. NEVER also pass a `--body`/`--body-file` alongside `--fill`: gh does not merge the two, `--body` takes precedence and overwrites the autofilled content, so the commit body never reaches the PR.
 
 ## Merging is mine, never yours
 

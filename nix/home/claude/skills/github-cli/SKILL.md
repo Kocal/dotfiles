@@ -1,195 +1,82 @@
 ---
 name: github-cli
-description: Use the GitHub CLI (`gh`) to fetch real data whenever the user references a GitHub issue, pull request, CI job, or any other GitHub resource by number or URL, and to create pull requests correctly (including from a fork). Never guess or fabricate GitHub content.
+description: Fetch real GitHub data with the `gh` CLI instead of reconstructing it from memory. Use whenever a message mentions an issue or PR number (`#123`, "issue 789", "la PR 12"), pastes a github.com URL, or brings up CI failures, review comments, checks, labels, releases or tags, even when the word "GitHub" never appears, since "the CI is red" and a bare `#456` are already GitHub references. Use it too when opening a pull request (repo template, fork workflow, `gh pr create` traps) or checking out someone else's PR to rebase it or answer its review.
 ---
 
-## When to Activate
+# GitHub CLI
 
-Use when user mention:
+`gh` is the only reliable account of what an issue, a PR, a review or a CI run actually contains. Reconstructing that from memory, from a branch name, or from what the user seems to imply produces fiction that reads exactly like fact, and they usually find out only after acting on it. Fetch first, answer second.
 
-- Issue/PR number (`#123`, `fix #456`, `issue 789`)
-- GitHub URL (`https://github.com/owner/repo/issues/123`, `https://github.com/owner/repo/pull/456`)
-- CI/CD logs/runs ("CI failing", "check failed job logs", Actions run link)
-- PR checks, reviews, comments, labels
-- GitHub release/tag
+## Rules
 
-## Core Rules
+**Run `gh` before answering, even when the question looks answerable from context.** "Is #42 still open?" still needs a fetch: the state moved since anything you might remember, and a stale "yes" costs more than a slow one.
 
-1. **Always use `gh` to fetch data.** Never guess issue/PR/comment/log content. Run `gh` first.
-2. **Never fabricate GitHub URLs.** Only use URLs from user or `gh` output.
-3. **Prefer specific `gh` subcommands** over `gh api`. Fall back to `gh api` when no subcommand exists.
-4. **NEVER run `gh pr merge`**, and never merge through `gh api` either. Merging is the user's decision alone, whatever the CI says and whatever option label they picked. Prepare the branch, hand back the push command, stop there.
-5. **Quote relevant parts** of fetched data so user sees actual content.
+**Only emit URLs that came from the user or from `gh` output.** A `github.com/owner/repo/pull/123` you assembled yourself is a 404 at best and a stranger's PR at worst.
 
-## Command Reference
+**Reach for the specific subcommand before `gh api`.** `gh issue view`, `gh pr checks` and `gh run view` return output shaped for reading. `gh api` returns raw JSON where the one field you wanted sits among fifty you did not, all of it billed to your context. Fall back to `gh api` when no subcommand covers the case, and pair it with `--jq` when you do.
 
-### Issues
+**Quote the part you acted on:** the failing log line, the review comment, the check name. The user should be able to audit your conclusion without re-running your commands.
+
+**Workflow rules live in `CLAUDE.md`, not here.** Its `Git & PR` and `Merging is mine, never yours` sections govern fork versus upstream, one PR = one commit, the PR template, and the fact that pushing and merging belong to the user alone. This file covers `gh` mechanics only. Where the two look like they disagree, `CLAUDE.md` wins.
+
+## Reading issues and pull requests
 
 ```bash
-# View an issue (current repo)
-gh issue view 123
+gh issue view 123                      # current repo
+gh issue view 123 --repo owner/repo    # anywhere
+gh issue view 123 --comments           # plus the discussion
+gh issue list --search "is:open label:bug sort:updated-desc"
 
-# View an issue from a specific repo
-gh issue view 123 --repo owner/repo
-
-# List issue comments
-gh issue view 123 --comments
-```
-
-### Pull Requests
-
-```bash
-# View a PR
-gh pr view 123
-
-# View a PR from a specific repo
 gh pr view 123 --repo owner/repo
-
-# List PR comments and reviews
-gh pr view 123 --comments
-
-# View PR checks/status
-gh pr checks 123
-
-# View PR diff
+gh pr view 123 --comments              # discussion and review summaries
 gh pr diff 123
+gh pr checks 123                       # each check run and its conclusion
+gh pr view 123 --json state,mergeable,reviewDecision,headRefName,maintainerCanModify
 ```
 
-### Checking Out Someone Else's PR
-
-To work on a contributor's PR — rebase it, fix review findings, re-run its tests — always check it out with `gh pr checkout`, inside a worktree under `<repo>/.claude/worktrees/pr<number>`:
+**`--comments` stops at the conversation tab.** Comments left on specific diff lines are a separate resource, and they are usually where the actual review findings are. On one symfony/symfony PR, `gh pr view --comments` surfaced 6 entries where the inline endpoint returned 28. Answering a review off the first number means missing most of it:
 
 ```bash
-git worktree add --detach .claude/worktrees/pr123 upstream/main
-cd .claude/worktrees/pr123
-gh pr checkout 123 --repo owner/repo
+gh api repos/OWNER/REPO/pulls/123/comments --paginate \
+  --jq '.[] | {path, line: (.line // .original_line), user: .user.login, body}'
 ```
 
-`gh pr checkout` creates a local branch named after the PR head and sets `branch.<name>.remote` **and** `branch.<name>.pushremote` to the contributor's fork, so a later `git push --force` needs no refspec. Verify with:
+`line` is null once the diff hunk a comment was attached to has moved; `original_line` still points at the code it was written against.
+
+## Reading CI
 
 ```bash
-git config --get-regexp '^branch\..*\.(remote|pushremote)$'
-```
-
-Never substitute `git fetch upstream pull/N/head:branch`. It fetches the same commits but configures no push remote, so pushing back then needs a full explicit `git push --force-with-lease=... git@github.com:owner/repo.git local:remote`, which is long and easy to get wrong.
-
-`gh pr checkout` works only when the PR allows maintainer edits — check `maintainerCanModify` first:
-
-```bash
-gh pr view 123 --repo owner/repo --json maintainerCanModify,headRepositoryOwner,headRefName
-```
-
-### Creating Pull Requests
-
-**One PR = one commit, and that commit message IS the PR.** Squash first, put the filled-in PR template in the commit body, then open the PR with `--fill`.
-
-1. **Read the repo's PR template.** `.github/PULL_REQUEST_TEMPLATE.md`, or `.github/PULL_REQUEST_TEMPLATE/*`, or `docs/PULL_REQUEST_TEMPLATE.md`.
-2. **Build the commit message.** Subject = the PR title, in the repo's convention. Body = the template's table/checklist with the answers filled in, then the description. Keep the rows verbatim, drop the `<!-- ... -->` authoring hints.
-3. **Open the PR with `--fill`.** `gh` then reuses that commit message as the PR title and body.
-
-**Never pass a `--body`/`--body-file` built from the template on top of `--fill`** — the table would appear twice. `--fill` ignores the repo template on purpose, which is what you want here since the commit body already carries it. `--template` stays opt-in and you do not need it.
-
-`--fill` only maps subject/body cleanly when the branch holds a single commit; with several, `gh` falls back to the branch name and a list of commit subjects. That is the reason for the one-commit rule.
-
-```bash
-# fetch the template if unsure it exists
-gh api repos/OWNER/REPO/contents/.github/PULL_REQUEST_TEMPLATE.md --jq .content | base64 -d
-
-# write the message to a file (avoids shell-escaping multi-line Markdown), then
-git commit -F msg.txt          # or: git commit --amend -F msg.txt
-gh pr create --fill
-```
-
-**From a fork (common case).** The branch lives on your fork (`origin`, e.g. `Kocal/repo`) while the PR targets the upstream default repo (e.g. `symfony/repo`). `gh` defaults the *base* repo to upstream, so an unqualified `--head my-branch` makes gh look for the branch **in upstream** and fails with `Head sha can't be blank` / `No commits between ...`. Check the setup first:
-
-```bash
-git remote -v                                        # origin = fork, upstream = canonical
-gh repo view --json nameWithOwner -q .nameWithOwner  # gh's default (base) repo
-```
-
-Then create it one of two ways:
-
-```bash
-# A. let gh auto-detect (the branch tracks origin = fork)
-gh pr create --fill
-
-# B. qualify the head with the fork owner
-gh pr create --fill --base main --head FORK_OWNER:BRANCH
-```
-
-Note: `git push` may be sandbox-blocked; if so, ask the user to run it via the `!` prefix, then create the PR.
-
-**Squash before opening.** Collapse the work-in-progress commits into the single commit described above, following the repo's commit-message convention. This also keeps the squash commit body clean on repos that squash-merge, since those concatenate every commit message.
-
-### CI / GitHub Actions
-
-```bash
-# List recent workflow runs
-gh run list
-
-# View a specific run (by ID, visible in the URL)
-gh run view 12345678
-
-# View failed job logs
-gh run view 12345678 --log-failed
-
-# View full logs of a run
-gh run view 12345678 --log
-
-# Re-run failed jobs
+gh run list --limit 10
+gh run view 12345678                   # run id comes from the URL or from gh pr checks
+gh run view 12345678 --log-failed      # only the steps that failed
 gh run rerun 12345678 --failed
 ```
 
-### Generic API Access
-
-Use `gh api` for anything not covered above:
+**`--log` dumps the entire run**, which on a matrix build is tens of thousands of lines landing in context in full. Start with `--log-failed`, and filter when you only need the assertion that broke:
 
 ```bash
-# Get PR review comments
-gh api repos/owner/repo/pulls/123/comments
-
-# Get issue timeline events
-gh api repos/owner/repo/issues/123/timeline
-
-# Get a specific check suite
-gh api repos/owner/repo/check-runs/456
+gh run view 12345678 --log-failed | grep -iE 'error|fail|assert' | head -40
 ```
 
-## Workflow
+## Going further
 
-1. **Detect reference.** Find issue/PR number or URL in user message.
-2. **Determine repo.** Full URL → extract `owner/repo`. Number only → assume current repo. Ambiguous → ask.
-3. **Fetch data.** Run `gh` command via Bash tool.
-4. **Analyze + respond.** Quote relevant output, answer question or act.
+| Task | Read |
+| --- | --- |
+| Open a PR: repo template, `--fill`, pushing from a fork | `references/creating-prs.md` |
+| Take over someone else's PR: check out, rebase, answer the review | `references/reviewing-prs.md` |
 
-## Examples
-
-### User says: "What's the status of #42?"
+Anything with no subcommand goes through `gh api`, which speaks the whole REST API and, with `graphql`, the parts REST does not reach:
 
 ```bash
-gh issue view 42
+gh api repos/OWNER/REPO/issues/123/timeline --jq '.[] | {event, actor: .actor.login}'
+gh api repos/OWNER/REPO/releases/latest --jq '.tag_name'
+gh api graphql -f query='query { viewer { login } }'
 ```
 
-Summarize title, state, assignees, latest activity.
+## Worked examples
 
-### User says: "The CI is red on my PR, can you check?"
+**"What's the status of #42?"** -> `gh issue view 42`, then report state, assignees and the last thing that happened on it. "It's open" is the part they already knew.
 
-```bash
-gh pr checks
-```
+**"The CI is red on my PR."** -> `gh pr checks` to find which check failed and its run id, then `gh run view <id> --log-failed` for the reason. Quote the failing assertion and say what would fix it.
 
-If check failed:
-
-```bash
-gh run view <run-id> --log-failed
-```
-
-Analyze failure, suggest fix.
-
-### User pastes: "https://github.com/acme/app/pull/789"
-
-```bash
-gh pr view 789 --repo acme/app
-```
-
-Answer whatever user asked about that PR.
+**A bare `https://github.com/acme/app/pull/789` with no question attached** -> `gh pr view 789 --repo acme/app`. If they asked nothing, summarise state, checks, and what the PR is waiting on.

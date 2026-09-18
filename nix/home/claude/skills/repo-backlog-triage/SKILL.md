@@ -1,6 +1,6 @@
 ---
 name: repo-backlog-triage
-description: Use when asked to clean up, triage, or "faire le ménage" in a repository's open pull requests and issues — deciding what to merge, rework, or close across a backlog rather than working a single known PR.
+description: Work a repository's whole backlog of open pull requests and issues, one item at a time, with the human deciding each one and nothing irreversible done on their behalf. Use when asked to clean up, triage, sort out or "faire le ménage" in a backlog, and on phrasings that never name it: "j'ai 40 PR ouvertes, on fait quoi", "what do I do with all these stale PRs", "trie-moi les issues", "help me get through the review queue". Covers enumerating without silently truncating, building a dossier per item, testing the premise behind a red or a green check, reworking a contributor's branch, and closing well. Not for working a single already-identified PR.
 ---
 
 # Repo Backlog Triage
@@ -13,8 +13,15 @@ Working a backlog is not the same as working one PR. The failure mode is volume:
 
 ## The Loop
 
-1. Enumerate open PRs and issues once, up front.
-2. Apply the exclusion list the user gave you. Record it — you will be tempted to drift back into excluded areas.
+1. **Enumerate open PRs and issues once, up front.** `gh pr list` and `gh issue list` stop at 30 without `--limit` and say nothing about it, so on a busy repo you triage 30 items and report the backlog as finished. Pass a `--limit` above the real count, then check what you got back:
+
+   ```bash
+   gh pr list    --repo OWNER/REPO --limit 300 --json number,title,author,isDraft,createdAt,updatedAt,reviewDecision
+   gh issue list --repo OWNER/REPO --limit 300 --json number,title,author,createdAt,updatedAt,labels
+   gh api repos/OWNER/REPO --jq .open_issues_count   # counts issues AND PRs together, so it should equal the two lists summed
+   ```
+
+2. Apply the exclusion list the user gave you. Record it — you will be tempted to drift back into excluded areas. Settle the order at the same time (oldest first, quickest first, one author at a time) and then hold it, rather than re-asking at every item.
 3. Take the next item. Gather its dossier.
 4. Present the dossier and **ask the user for a decision on that item alone**. Open with the item's **full URL** — `https://github.com/owner/repo/issues/1856`, not `#1856` — so the user can click straight through to it. A bare number forces them to go find it, which is exactly the friction the triage pass is meant to remove.
 5. Execute the decision. Prepare everything; stop before anything irreversible.
@@ -45,6 +52,7 @@ Before asking for a decision, gather enough that the user does not have to go lo
 | Which CI checks fail, and the actual log line | A red check is often stale or structural, not the contributor's fault |
 | Linked issues | They may already be satisfied, or may hold the design debate |
 | Whether the layout still matches current conventions | A branch can be correct and still be structurally obsolete |
+| Overlap with the other open items | Two PRs touching the same file, one PR superseding another, an issue an open PR already fixes. Deciding each in isolation is how a pass ends with two conflicting branches prepared. Name the overlap in the dossier, and still ask about one item only |
 
 ## Verify the Premise, Not Just the Diff
 
@@ -78,7 +86,9 @@ When the decision is "rework it":
 
 ## Closing Well
 
-A close is a message to a person who spent their evenings on this. State the verifiable reason first, acknowledge the reviewer who raised it if someone did, and name the nearest thing that *would* be welcome. Route the text through whatever prose-editing process the user has configured.
+A close is a message to a person who spent their evenings on this. State the verifiable reason first, acknowledge the reviewer who raised it if someone did, and name the nearest thing that *would* be welcome. Route the text through the `natural-writing-editor` agent, or whatever prose-editing process the user has configured.
+
+The decision to close authorizes the close, the comment included. It does not extend any further: merging and pushing still need the user, however natural the next step feels once an item is settled.
 
 ## Red Flags
 
@@ -91,7 +101,9 @@ A close is a message to a person who spent their evenings on this. State the ver
 | "I'll present these three together, they're related" | One item, one decision. |
 | "The remaining items are obvious, I'll batch them" | The user asked to decide each one. |
 | "I'll note the reviewer's points in a reply and move on" | If the decision was to rework, apply them; don't answer on the author's behalf. |
+| "`gh pr list` gave me the open PRs" | It gave you the first 30 of them. Pass `--limit` and check the count. |
+| "I'll judge this one on its own merits" | First check whether another open item supersedes it or collides with it. |
 
 ## Keep State Durable
 
-A backlog pass outlives a context window. After each settled item, write the running state somewhere persistent — what is settled with its outcome, what is left in order, and the exclusion rules. Restate the short version to the user each turn so they never have to reconstruct it.
+A backlog pass outlives a context window. After each settled item, write the running state somewhere persistent — what is settled with its outcome, what is left in order, and the exclusion rules. Restate the short version to the user each turn so they never have to reconstruct it. Keep that file in the session scratchpad rather than in the repository, so a triage pass never leaves an untracked file in `git status` for someone to explain later.

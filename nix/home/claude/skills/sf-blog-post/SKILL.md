@@ -1,84 +1,93 @@
 ---
 name: sf-blog-post
-description: Draft a symfony.com blog post announcing a release of a Symfony project (Reprise, Encore, UX...). Produces the reStructuredText body only, from the GitHub release and the PR diffs, plus a suggested title and excerpt. Never publishes anything.
+description: Draft the body of a symfony.com blog post announcing a release of a Symfony project (Reprise, Encore, UX, and the rest). Use whenever someone asks to write, draft or prepare a release announcement for the Symfony blog, in English or in French: "write the blog post for the 3.4 release", "un article de blog pour Reprise 0.8.0", "annonce la release sur le blog Symfony", or simply "the blog post" once a release is on the table. Produces reStructuredText body only, sourced from the GitHub release and the real PR diffs, plus a suggested title and excerpt. Not for GitHub release notes, which belong to `sf-webpack-encore-release-notes`, and not for `CHANGELOG.md`. Never publishes anything.
 ---
 
-## When to Activate
+# Symfony release blog post
 
-Use when the user asks to write, draft or prepare a Symfony blog post announcing a release ("un article de blog pour Reprise 0.8.0", "write the blog post for the 3.4 release", "annonce la release sur le blog Symfony"). Not for GitHub release notes (see `sf-webpack-encore-release-notes`) and not for the `CHANGELOG.md`.
+A release page lists what changed. The blog post is the only place where someone explains why it changed and what it means for the reader, so every sentence in it is a claim the author gets held to. That is why this skill keeps sending you back to the diff instead of the PR title: one plausible sentence about an option that does not exist costs more than a missing section.
 
-## Core Rules
+## What you deliver
 
-1. **Body only.** symfony.com stores the title and the excerpt in dedicated fields, so the `.rst` file must start with the intro paragraph. Never put a title, a `===` underline or a `.. Excerpt:` line in the body. Print the suggested title and excerpt in the terminal instead.
-2. **Never invent a technical fact.** Every claim, number, config snippet and JSON output comes from the release page, the PR body, the actual diff, or the repo's docs. Read the diff before describing a change. If a detail cannot be sourced, drop it or ask.
-3. **Never write the prose yourself.** Draft the structure and the facts, then pass the file to the `natural-writing-editor` agent for the wording, with an explicit constraint list (see Workflow step 6). Same for the title and the excerpt.
-4. **Hard-wrap the prose at ~76 columns.** Symfony blog RST is hard-wrapped, unlike PR descriptions. Do not wrap inside code blocks or link targets.
-5. **One section per notable change,** in the order the user asked for. A section is: a title with a `~~~~` underline of the exact same length, a `.. contributors::` directive, one to two short paragraphs, then a code example when the change is user-facing. Infra and CI changes get no code example.
-6. **Cap each section at two paragraphs before the code and one short paragraph after.** A section that does not fit is trying to say too much: cut the backstory, keep the problem and the fix. Anonymize war stories ("meant writing a custom plugin"), do not dump the reporter's metrics into the post.
-7. **Every supported target or none.** If the project supports several bundlers, frameworks or backends (Vite *and* Rsbuild for Reprise), show a code example for each one, never just the first.
-8. **Always close with a `Full Changelog` section** listing every PR of the release as `` `#NN`_ Title (@author) ``, followed by a short closing paragraph (project status, call for feedback), followed by the link-target block.
-9. **Links are named RST targets at the bottom of the file,** never inline URLs.
-10. **Verify external claims** (a tool being deprecated, a version dropping a feature, an upstream vote) with `WebSearch`/`WebFetch` before writing them, and link the primary source. Report anything you could not confirm to the user rather than shipping it.
-11. **No em dashes, no hype, no exclamation marks.** Use commas, parentheses or `->`.
-12. **Never publish.** Do not commit the file, do not push, do not open a PR on symfony/symfony-docs or anywhere else. The output is a file in the scratchpad for the user to paste.
+An `.rst` file in the scratchpad, plus two lines printed in the terminal.
 
-## Guidelines
+The file holds **the body only**, starting at the intro paragraph. symfony.com keeps the title and the excerpt in their own fields, so a title line, a `===` underline or a `.. Excerpt:` line inside the body ends up rendered twice. Print the suggested title and excerpt in the terminal instead, for the user to paste into those fields.
 
-Voice, matching the author's previous Symfony blog posts: direct and technical, problem stated before the solution, plain concrete sentences, occasionally addresses the reader as "you", candid about limitations and about the project being experimental. Short paragraphs. No marketing.
+## Hard constraints
 
-RST reference:
+**Do not invent a technical fact.** Every claim, number, option name, config snippet and JSON output comes from the release page, the PR body, the actual diff, or the repo's docs. When a detail cannot be sourced, drop it or ask. Same for anything outside the repo (a tool being deprecated, an upstream vote, a version dropping a feature): confirm it with `WebSearch` or `WebFetch`, link the primary source, and tell the user what you could not confirm rather than shipping it.
 
-| Construct | Syntax |
-|---|---|
-| Section title | title line, then `~~~~` on the next line, exactly as long as the title |
-| Contributors | ``.. contributors:: [handle@github(Display Name)|81@symfony/reprise,85@symfony/reprise]`` |
-| Code block | ``.. code-block:: javascript`` (also `json`, `css`, `yaml`, `twig`, `php`, `terminal`), blank line, 4-space indented body |
-| Link reference | `` `label`_ `` in the prose, ``.. _`label`: https://...`` at the bottom |
-| Inline code | double backticks |
+**Do not write the prose yourself.** Build the structure and the facts, then hand the file to the `natural-writing-editor` agent, which holds the style rules and the author's voice. Same for the title and the excerpt.
 
-The display name in `.. contributors::` is optional; use the handle alone when the real name is unknown. Never guess a contributor's name or pronouns.
+**Do not publish.** No commit, no branch, no PR, anywhere. The output is a file the user pastes themselves.
 
-`.. contributors::` takes **one** `[...]` group: contributors first (comma-separated), then a `|`, then the PRs (comma-separated), and every PR carries its repo. Multiple contributors before the `|` are credited **jointly** for the whole PR list ("Contributed by Simon André and Hugo Alliaume in #2985, #2993") — there is no per-person PR split inside a single directive. Do **not** put two `[...]` groups in one directive: the renderer keeps only the first bracket and dumps the rest into the body as plain text. To credit people who worked on *different* PRs, either list them jointly in one group (accepting the shared PR list) or emit one `.. contributors::` directive per person.
+## Workflow
+
+1. Identify the repo and the tag, then run `gh release view` for the PR list and the contributors.
+2. Ask which PRs deserve their own section, unless the user already said. Everything else still lands in `Full Changelog`.
+3. For each featured PR: read the PR body for the problem it solves, then read the **diff** for the real option names, config keys and generated output. A real test fixture beats an invented example.
+4. Verify the external claims and note each primary source URL.
+5. Write the draft into the scratchpad: intro, one section per featured PR, `Full Changelog`, closing paragraph, link targets.
+6. Hand the file to `natural-writing-editor` with an explicit constraint list: edit in place, keep valid RST, leave `.. contributors::`, the code blocks, the changelog list and the link targets untouched, no title and no excerpt, keep the section order, hard-wrap at ~80 columns, keep every technical fact, respect the paragraph caps, and the voice below.
+7. Report: the file path, the suggested title, the suggested excerpt, one line per section, and an explicit list of everything unverified or worth a second look before publishing.
+
+### Getting the facts
+
+`gh` needs no clone, which is the usual situation since the release is rarely the repo you are sitting in:
+
+```bash
+gh release view v0.8.0 --repo symfony/reprise
+gh pr view 81 --repo symfony/reprise --json number,title,body,author,files
+gh pr diff 81 --repo symfony/reprise
+gh api repos/symfony/reprise/compare/v0.7.0...v0.8.0 --jq '.commits[].commit.message | split("\n")[0]'
+```
+
+A local clone adds `git log v0.7.0..v0.8.0`, `git show <sha> -- <paths>`, and `grep -n "<option>" doc/index.rst` for wording that matches the project's own docs.
+
+## Shape of the body
+
+Intro paragraph, then one section per notable change in the order the user asked for, then `Full Changelog`, then a closing paragraph, then the link targets.
+
+A section is: a title, a `~~~~` underline exactly as long as the title, a `.. contributors::` directive, one or two short paragraphs, a code example when the change is user-facing, and at most one short paragraph after it. Infra and CI changes get no code example.
+
+Those caps are the point rather than a formality. A section that will not fit is usually smuggling in backstory: cut it, keep the problem and the fix. Anonymize the war stories ("meant writing a custom plugin") instead of naming a reporter or dumping their metrics into the post.
+
+When the project supports several targets (Vite *and* Rsbuild for Reprise, several bundlers or backends elsewhere), show a code example for **each** one. Showing only the first reads as the others being second-class.
+
+`Full Changelog` lists every PR of the release as `` `#NN`_ Title (@author) ``. Links are named RST targets at the bottom of the file, never inline URLs.
+
+## The `.. contributors::` trap
+
+The directive takes **one** `[...]` group: the contributors, comma-separated, then a `|`, then the PRs, comma-separated, each carrying its repo. Two `[...]` groups in a single directive do not work. The renderer keeps the first bracket and dumps the rest into the body as plain text.
+
+Everyone before the `|` is credited jointly for the whole PR list ("Contributed by Simon André and Hugo Alliaume in #2985, #2993"). There is no per-person split inside one directive. To credit people who worked on different PRs, either accept the shared list or emit one directive per person.
 
 ```
 .. contributors:: [handle@github(Display Name)|52487@symfony/symfony,52501@symfony/symfony]
 .. contributors:: [smnandre@github(Simon André),Kocal@github(Hugo Alliaume)|2985@symfony/ux,2993@symfony/ux]
 ```
 
+The display name is optional; use the handle alone when the real name is unknown. Never guess a contributor's name or pronouns.
+
+## RST reference
+
+| Construct | Syntax |
+| --- | --- |
+| Section title | title line, then `~~~~` on the next line, exactly as long as the title |
+| Contributors | ``.. contributors:: [handle@github(Name)\|81@symfony/reprise]`` |
+| Code block | ``.. code-block:: javascript`` (also `json`, `css`, `yaml`, `twig`, `php`, `terminal`), blank line, 4-space indented body |
+| Link reference | `` `label`_ `` in the prose, ``.. _`label`: https://...`` at the bottom |
+| Inline code | double backticks |
+
+## Voice
+
+Direct and technical, matching the author's previous Symfony blog posts: the problem stated before the solution, plain concrete sentences, short paragraphs, occasionally addressing the reader as "you", candid about limitations and about a project being experimental. No marketing, no hype, no exclamation marks, no em dashes (commas, parentheses or `->` instead).
+
 Excerpt: one sentence, present tense, naming what the release brings. Title: `<Project> <version> released`, or the project's established pattern.
 
-## Command Reference
+## Skeleton
 
-```bash
-# the release and its PR list
-gh release view v0.8.0 --repo symfony/reprise
-
-# the "why" behind a change, straight from the PR body
-gh pr view 81 --repo symfony/reprise --json number,title,body,files,additions,deletions
-
-# the real code and the real output, for the examples
-git log --oneline v0.7.0..v0.8.0
-git show <sha> -- <paths>
-
-# the documented behavior, for wording that matches the docs
-grep -n "<option>" doc/index.rst
-```
-
-## Workflow
-
-1. Identify the repo and the tag. Run `gh release view` to get the full PR list and the contributors.
-2. Ask which PRs deserve their own section if the user did not say. Everything else still lands in `Full Changelog`.
-3. For each featured PR: read the PR body for the problem it solves, then `git show` the diff for the actual option names, config snippets and generated output. Prefer a real test fixture over an invented example.
-4. Verify every external claim (Core Rule 10) and note the primary source URL.
-5. Write the draft `.rst` into the scratchpad directory: intro, one section per PR, `Full Changelog`, closing paragraph, link targets.
-6. Hand the file to the `natural-writing-editor` agent with: edit in place, keep valid RST, do not touch `.. contributors::` / code blocks / the changelog list / the link targets, no title or excerpt, keep the section order, hard-wrap at ~76 cols, keep every technical fact, respect the paragraph caps, and the voice description above.
-7. Report: the file path, the suggested title, the suggested excerpt, a one-line summary per section, and an explicit list of anything unverified or worth double-checking before publishing.
-
-## Examples
-
-Skeleton of the body (Reprise 0.8.0):
-
-~~~rst
+````rst
 Reprise 0.8.0 is out, a few weeks after the project was `introduced on this
 blog`_. This release brings back an Encore behavior that some codebases
 depend on: copied files that keep a stable path on disk.
@@ -115,7 +124,7 @@ Full Changelog
 .. _`introduced on this blog`: https://symfony.com/blog/...
 .. _`#81`: https://github.com/symfony/reprise/pull/81
 .. _`#82`: https://github.com/symfony/reprise/pull/82
-~~~
+````
 
 Terminal output at the end, alongside the file path:
 
