@@ -47,3 +47,14 @@ git-fork-resync-branch() {
 
   _log_success "Branch '$branch' successfully resynced with $remote_upstream."
 }
+
+# gh-stack spots a branch that is not on the remote yet by matching git's
+# English "couldn't find remote ref"; LC_ALL=fr_FR.UTF-8 makes that check miss
+# and breaks `gh stack push` / `gh stack rebase`.
+gh() {
+  if [[ $1 == stack ]]; then
+    LC_ALL=C command gh "$@"
+  else
+    command gh "$@"
+  fi
+}

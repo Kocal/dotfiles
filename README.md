@@ -104,6 +104,15 @@ blackfire agent:config
 fnm install --lts
 ```
 
+**gh**: GitHub's stacked-PR extension isn't in the Nix config; install it by hand through `gh`. nixpkgs ships gh-stack 0.0.4, older than the current release, so installing and upgrading through `gh` is what keeps it current. Docs: https://docs.github.com/en/pull-requests/get-started/stacked-prs-quickstart
+
+```shell
+gh extension install github/gh-stack
+gh extension upgrade --all      # later, to pick up new releases
+```
+
+gh-stack spots a branch that isn't on the remote yet by matching git's English "couldn't find remote ref", which the `LC_ALL=fr_FR.UTF-8` set in `home/zsh.nix` defeats, so `gh stack push` and `gh stack rebase` fail on any unpushed branch. The `gh` wrapper in `home/zsh/functions.zsh` forces `LC_ALL=C` for the `stack` subcommand only; drop it once upstream stops reading localized git output.
+
 ## Maintenance
 
 ### Update
