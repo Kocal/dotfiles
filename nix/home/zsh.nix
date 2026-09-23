@@ -142,6 +142,28 @@ in
         }
       '')
 
+      # nixpkgs stable pins an old claude-code, so nix/claude-code-manifest.json is
+      # our own version lock. `bump-claude` repoints it at the newest release.
+      (lib.mkOrder 532 ''
+        bump-claude() {
+          local base="https://downloads.claude.ai/claude-code-releases"
+          local manifest="${config.dotfiles.dir}/nix/claude-code-manifest.json"
+          local current latest
+          current="$(jq -r .version "$manifest")" || return 1
+          latest="$(curl -fsSL "$base/latest")" || {
+            _log_error "Could not reach downloads.claude.ai."
+            return 1
+          }
+          if [[ "$current" == "$latest" ]]; then
+            _log_info "claude-code already on $latest."
+            return 0
+          fi
+          _log_info "claude-code $current -> $latest, fetching manifest..."
+          curl -fsSL "$base/$latest/manifest.json" -o "$manifest" || return 1
+          _log_info "Manifest updated. Run 'drs' to apply."
+        }
+      '')
+
       # shell helpers + functions (real .zsh file, no Nix escaping needed)
       (lib.mkOrder 550 (builtins.readFile ./zsh/functions.zsh))
 

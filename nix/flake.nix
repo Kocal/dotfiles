@@ -51,7 +51,11 @@
           pkgs.gh
           pkgs.rtk
           pkgs.orbstack
-          pkgs.claude-code
+          # nixpkgs stable pins an old claude-code; ./claude-code-manifest.json is our
+          # own version lock (fetch a new one from downloads.claude.ai to bump).
+          (pkgs.claude-code.override {
+            manifest = lib.importJSON ./claude-code-manifest.json;
+          })
 
           # CLI tools
           pkgs.ffmpeg
