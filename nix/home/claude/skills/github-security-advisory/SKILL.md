@@ -21,15 +21,11 @@ The skill needs three inputs:
 2. **Issue URL** — describes the vulnerability.
 3. **PR URL** — the fix.
 
-**STOP and ask for any missing input before doing anything else.** Do not start working. In particular:
-
-- **Never infer the inputs from local context** — current branch, recent commits, working directory, or open files. A security branch checked out locally is not the inputs.
-- The user must provide the three URLs explicitly. If only some are given, ask for the rest.
-- Only after you have all three URLs do you run any `gh` command or fetch anything.
+Ask for any missing URL before running `gh` or fetching anything. Take them only from the user, never from the current branch, recent commits or open files: a security branch checked out locally is not necessarily the advisory being drafted.
 
 ## Core Rules
 
-1. **Gather the three inputs first (see Inputs).** Ask the user for the repo, issue, and PR URLs before any other action. Never infer them from the current branch, commits, or working directory.
+1. **Gather the three inputs first (see Inputs).**
 2. **Always fetch real data with `gh`** (issue, PR, diff, existing advisories). Never guess or fabricate content.
 3. **Delegate all prose to the `natural-writing-editor` agent** via the Agent tool — the title and the Description/Resolution/Credits body. Never write that prose yourself. Feed the agent the raw facts you collected.
 4. **All advisory content is in English**, regardless of conversation language.
@@ -39,7 +35,7 @@ The skill needs three inputs:
 
 ## Workflow
 
-1. **Collect the three input URLs from the user** (repo, issue, PR). If any is missing, ask and wait — do not proceed or infer from local git state. Then parse them → `owner/repo`, issue number, PR number.
+1. **Collect the three input URLs** (see Inputs), then parse them → `owner/repo`, issue number, PR number.
 2. **Fetch data:**
    ```bash
    gh issue view <n> --repo owner/repo --comments

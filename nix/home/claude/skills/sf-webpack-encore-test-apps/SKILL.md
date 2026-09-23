@@ -15,10 +15,10 @@ Do **not** activate for changes inside other repos, or for app code that has not
 
 ## Core Rules
 
-1. **Folder name MUST use the `lowest-peers-` prefix** (e.g. `lowest-peers-typescript5`, `lowest-peers-svelte4`). Never create a top-level `test_apps/<topic>/` without the prefix unless the user explicitly overrides.
-2. **`devDependencies` versions MUST be EXACT** — no `^`, no `~`, no ranges (e.g. `"typescript": "5.0.0"`, not `"^5.0.0"`).
+1. **Name the folder `lowest-peers-<topic>`** (e.g. `lowest-peers-typescript5`, `lowest-peers-svelte4`), unless the user asks otherwise.
+2. **Pin `devDependencies` to exact versions** (`"typescript": "5.0.0"`, not `"^5.0.0"`): the app exists to prove the lowest supported version works, and a range lets pnpm resolve a newer one.
 3. **Pinned version = lowest end of the matching `peerDependencies` range** in the root `package.json` of the repo. Example: `^5.0.0 || ^6.0.0` → pin `5.0.0`.
-4. **Do NOT add `ts-loader` or `fork-ts-checker-webpack-plugin`** when the app exercises `enableBabelTypeScriptPreset()` — that API is mutually exclusive with `enableTypeScriptLoader()` / `enableForkedTypeScriptTypesChecking()` (see `lib/WebpackConfig.js`).
+4. **Leave out `ts-loader` and `fork-ts-checker-webpack-plugin`** when the app exercises `enableBabelTypeScriptPreset()` — that API is mutually exclusive with `enableTypeScriptLoader()` / `enableForkedTypeScriptTypesChecking()` (see `lib/WebpackConfig.js`).
 5. **Always generate `pnpm-lock.yaml`** with `pnpm install --ignore-workspace` and commit it. CI runs with `--frozen-lockfile` and `setup-node` caches by `${working_directory}/pnpm-lock.yaml`.
 6. **Mirror an existing `lowest-peers-*` app** as the template instead of writing from scratch — that's how layout, scripts, and lockfile flags stay consistent.
 
@@ -139,4 +139,4 @@ $ pnpm run encore production
 
 ### User: "Bump the lowest-peers webpack-cli to v7"
 
-Do NOT bump the existing `lowest-peers-webpack-cli6` app — create a sibling `lowest-peers-webpack-cli7` with the new exact pin. The "lowest" apps lock the *lower* bound; covering a new major needs a new app, not an in-place edit.
+Leave the existing `lowest-peers-webpack-cli6` app alone and create a sibling `lowest-peers-webpack-cli7` with the new exact pin. The "lowest" apps lock the *lower* bound; covering a new major needs a new app, not an in-place edit.

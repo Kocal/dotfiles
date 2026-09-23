@@ -58,23 +58,23 @@ glab mr approvals 123
 
 ```bash
 # List recent pipeline runs
-glab pipeline list
+glab ci list
 
-# View a specific pipeline (by ID)
-glab pipeline view 12345
+# A pipeline and its jobs, by ID (without -p: the current branch's latest)
+glab ci get -p 12345 --with-job-details
 
-# View pipeline jobs
-glab pipeline ci view 12345
+# Failed jobs of an MR's pipeline
+glab ci get --merge-request=42 --status=failed --with-job-details
 
-# View job logs (trace)
-glab pipeline ci trace 12345 <job-name>
+# Job log, by job ID or job name (-p picks the pipeline for a name)
+glab ci trace 224356863
+glab ci trace lint -p 12345
 
-# Retry a failed pipeline
-glab pipeline retry 12345
-
-# Retry a specific job
-glab pipeline ci retry 12345 <job-name>
+# Retry a job (job ID, not pipeline ID)
+glab ci retry 224356863
 ```
+
+`glab ci view` is interactive and takes a branch or tag, not a pipeline ID.
 
 ### Generic API Access
 
@@ -91,12 +91,9 @@ glab api projects/:id/issues/123/resource_label_events
 glab api projects/:id/pipelines/456/test_report
 ```
 
-## Workflow
+## Resolving the repo
 
-1. **Detect reference.** Find issue/MR number or URL in user message.
-2. **Determine repo.** Full URL → extract `owner/repo`. Number only → assume current repo. Ambiguous → ask.
-3. **Fetch data.** Run `glab` command via Bash tool.
-4. **Analyze and respond.** Quote relevant sections, answer question or do action.
+A full URL gives `owner/repo`; a bare number means the current repo. Ask when neither settles it.
 
 ## Examples
 
@@ -117,19 +114,8 @@ glab mr view
 Get MR number, then:
 
 ```bash
-glab pipeline list --per-page 1
-```
-
-If pipeline failed:
-
-```bash
-glab pipeline ci view <pipeline-id>
-```
-
-For failed jobs:
-
-```bash
-glab pipeline ci trace <pipeline-id> <job-name>
+glab ci get --merge-request=<mr-number> --status=failed --with-job-details
+glab ci trace <job-id>
 ```
 
 Analyze failure, suggest fix.
