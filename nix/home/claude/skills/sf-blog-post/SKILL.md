@@ -67,6 +67,18 @@ Everyone before the `|` is credited jointly for the whole PR list ("Contributed 
 .. contributors:: [smnandre@github(Simon André),Kocal@github(Hugo Alliaume)|2985@symfony/ux,2993@symfony/ux]
 ```
 
+**Several directives in one section render in reverse source order.** The last one in the file is shown first, leftmost. So the person whose work carries the section has to be written *last*, which is the opposite of what the source reads like. Inside a single directive the order is untouched: first in the list is first on the page.
+
+```
+.. contributors:: [Amoifr@github(Pascal CESCON)|3798@symfony/ux]
+
+.. contributors:: [Kocal@github(Hugo Alliaume)|3887@symfony/ux]
+```
+
+That renders as "Contributed by Hugo Alliaume", then "Contributed by Pascal CESCON".
+
+Prefer **one merged directive** whenever the people can share a PR list, because the order then matches the source and nobody has to remember this rule. Split into several directives only when the credit really must be per-person, and remember to write them bottom-up.
+
 The display name is optional; use the handle alone when the real name is unknown. Never guess a contributor's name or pronouns.
 
 ## RST reference
