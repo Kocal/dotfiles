@@ -64,7 +64,7 @@ let
 
     if [ -f "$gitignore" ]; then
       grep -v '^#' "$gitignore" | sed 's|^/||;s|/$||' | while read -r previous; do
-        [ -n "$previous" ] || continue
+        [ -n "$previous" ] && [ "$previous" != synced ] || continue
         case ":$synced" in *":$previous:"*) continue ;; esac
         echo "claude: le skill $previous n'existe plus en amont, a supprimer: rm -r $skillsDir/$previous" >&2
       done
@@ -76,6 +76,8 @@ let
       echo "# Skills synchronisees depuis le plugin ${chromePlugin}."
       echo "# Genere par nix/home/claude.nix a chaque darwin-rebuild, ne pas editer."
       printf '%s' "$synced" | tr ':' '\n' | grep -v '^$' | sort | sed 's|^|/|;s|$|/|'
+      echo "# Skills du compte claude.ai, telecharges par Claude Code a chaque session."
+      echo "/synced/"
     } > "$tmp"
     cmp -s "$tmp" "$gitignore" 2>/dev/null || mv "$tmp" "$gitignore"
   '';
