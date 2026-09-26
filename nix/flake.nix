@@ -33,9 +33,14 @@
       url = "github:vorssaint/homebrew-tap";
       flake = false;
     };
+
+    homebrew-upsun = {
+      url = "github:upsun/homebrew-tap";
+      flake = false;
+    };
   };
 
-  outputs = inputs@{ self, nix-darwin, nixpkgs, home-manager, nix-vscode-extensions, phps, nix-homebrew, homebrew-core, homebrew-cask, homebrew-vorssaint }:
+  outputs = inputs@{ self, nix-darwin, nixpkgs, home-manager, nix-vscode-extensions, phps, nix-homebrew, homebrew-core, homebrew-cask, homebrew-vorssaint, homebrew-upsun }:
   let
     configuration = { config, pkgs, lib, profile, ... }:
     let
@@ -153,6 +158,9 @@
       homebrew = {
         enable = true;
         onActivation.cleanup = "none"; # don't remove undeclared brew packages
+        brews = [
+          "upsun/tap/upsun-cli"
+        ];
         casks = [
           "1password" # strict location/signing, unreliable from a nix copy
           "cloudflare-warp" # needs the signed system network extension
@@ -216,6 +224,7 @@
               "homebrew/homebrew-core" = homebrew-core;
               "homebrew/homebrew-cask" = homebrew-cask;
               "vorssaint/homebrew-tap" = homebrew-vorssaint;
+              "upsun/homebrew-tap" = homebrew-upsun;
             };
 
             # Optional: Enable fully-declarative tap management
@@ -228,7 +237,7 @@
             # Note: The trust entries are _not_ removed if you remove them from those lists!
             # Use the `brew untrust` command to remove a trust entry.
             trust = {
-              formulae = [ ];
+              formulae = [ "upsun/tap/upsun-cli" ];
               casks = [ ];
               commands = [ ];
               taps = [ ];
