@@ -82,7 +82,7 @@
       "Bash(wget *)",
       "Bash(chmod *)"
     ],
-    "defaultMode": "plan"
+    "defaultMode": "auto"
   },
   "model": "opus[1m]",
   "hooks": {
@@ -168,5 +168,10 @@
   "theme": "auto",
   "preferredNotifChannel": "notifications_disabled",
   "remoteControlAtStartup": false,
-  "agentPushNotifEnabled": true
+  "agentPushNotifEnabled": true,
+  "modelSettings": {
+    "claude-opus-5-5": {
+      "effortLevel": "xhigh"
+    }
+  }
 }
