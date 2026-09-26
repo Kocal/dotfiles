@@ -24,10 +24,22 @@ Working a backlog is not the same as working one PR. The failure mode is volume:
 2. Apply the exclusion list the user gave you. Record it — you will be tempted to drift back into excluded areas. Settle the order at the same time (oldest first, quickest first, one author at a time) and then hold it, rather than re-asking at every item.
 3. Take the next item. Gather its dossier.
 4. Present the dossier and **ask the user for a decision on that item alone**. Open with the item's **full URL** — `https://github.com/owner/repo/issues/1856`, not `#1856` — so the user can click straight through to it. A bare number forces them to go find it, which is exactly the friction the triage pass is meant to remove.
-5. Execute the decision. Prepare everything; stop before anything irreversible.
+5. Execute the decision, under the repo skill that matches it (see Repo Skills First). Prepare everything; stop before anything irreversible.
 6. Restate the running state (what is settled, what is left) and move to the next item.
 
 Never present two items in one question. Never decide an item yourself because it "obviously" should be closed.
+
+## Repo Skills First
+
+Some repositories ship their own skills, in `.claude/skills/` or `.agents/skills/`. List them once, during enumeration. Before executing a decision on an item, load the repo skill that matches it:
+
+| Decision | Repo skill to load | On symfony/ux |
+|---|---|---|
+| Review, rework, retarget or close a PR | its PR review or merge-prep skill | `pr-review-merge-prep` |
+| Fix an issue yourself | its authoring or contribution skill | `pr-authoring` |
+| Anything that looks like a vulnerability | its security triage skill, before anything public | `security-triage` |
+
+When the repo skill and this one disagree on how to handle a single item, the repo skill wins: it carries that project's conventions. This skill keeps the loop, the dossier, the running state and the rule that the human decides each item.
 
 ## Never Merge, Never Push
 
@@ -67,16 +79,19 @@ When you cannot verify something in the environment you have — a port already 
 
 ## Reworking a Contributor's Branch
 
-When the decision is "rework it":
+When the decision is "rework it", two things hold on every repository:
 
-1. Check `maintainerCanModify` first. Without it you can only comment.
-2. Worktree under `<repo>/.claude/worktrees/pr<number>`, set up with `gh pr checkout <number>` so the push remote is wired. When the branch starts from an **issue** rather than an existing PR there is no PR to check out, so create it with `git worktree add -b <branch>` and then wire the remote yourself (`git config branch.<branch>.pushremote <fork-url>` plus `git push -u`), otherwise the two-line hand-off has nowhere to push.
-3. Rebase onto the current target branch. Resolve conflicts by taking the contributor's side of *their* change and letting the formatter re-apply the target branch's conventions on top.
-4. Squash to one commit, **preserving the original author** via `--author`.
-5. Strip any `Co-Authored-By` trailer only if asked — it may be the contributor's own, not yours.
-6. Run the package's real checks: tests, formatter, linter, and any committed build artefacts.
-7. **Run `/simplify` on the branch before handing it back.** Once the work is correct and green, it still has to be good — the pass catches the things a working diff hides: an assertion that pins an ordering the production path never emits, a method spliced between a docblock and the member it documents, a private temp directory where the class already has a shared one, an idiom that diverges from every sibling in the file. Judge each finding rather than applying it blindly, and say which ones you skipped and why.
-8. Hand back two lines and stop.
+- Check `maintainerCanModify` first. Without it you can only comment.
+- **Run `/simplify` on the branch before handing it back.** Once the work is correct and green, it still has to be good — the pass catches the things a working diff hides: an assertion that pins an ordering the production path never emits, a method spliced between a docblock and the member it documents, a private temp directory where the class already has a shared one, an idiom that diverges from every sibling in the file. Judge each finding rather than applying it blindly, and say which ones you skipped and why.
+
+The rest of the procedure comes from the repo's review skill when it has one (see Repo Skills First). Without one, follow these steps:
+
+1. Worktree under `<repo>/.claude/worktrees/pr<number>`, set up with `gh pr checkout <number>` so the push remote is wired. When the branch starts from an **issue** rather than an existing PR there is no PR to check out, so create it with `git worktree add -b <branch>` and then wire the remote yourself (`git config branch.<branch>.pushremote <fork-url>` plus `git push -u`), otherwise the two-line hand-off has nowhere to push.
+2. Rebase onto the current target branch. Resolve conflicts by taking the contributor's side of *their* change and letting the formatter re-apply the target branch's conventions on top.
+3. Squash to one commit, **preserving the original author** via `--author`.
+4. Strip any `Co-Authored-By` trailer only if asked — it may be the contributor's own, not yours.
+5. Run the package's real checks: tests, formatter, linter, and any committed build artefacts.
+6. Hand back two lines and stop.
 
 **Re-check the project's own conventions on every branch, not once.** A rule you applied to the previous PR applies to this one too: a forbidden `composer.json` key, a CHANGELOG heading style, a version placeholder. Grep the branch for each of them before handing it back, rather than trusting that you would have noticed.
 
@@ -86,7 +101,12 @@ When the decision is "rework it":
 
 ## Closing Well
 
-A close is a message to a person who spent their evenings on this. State the verifiable reason first, acknowledge the reviewer who raised it if someone did, and name the nearest thing that *would* be welcome. Route the text through the `natural-writing-editor` agent, or whatever prose-editing process the user has configured.
+A close is a message to a person who spent their evenings on this. State the verifiable reason first, and acknowledge the reviewer who raised it if someone did. What comes next depends on why the item closes:
+
+- **Rejected on the merits:** give the reason, and the working alternative if one exists, then stop. Do not invite a fresh pull request: it reopens the same discussion under a new number.
+- **Stale, and nobody rejected it:** a short line welcoming a fresh take is the right tone.
+
+Route the text through the `natural-writing-editor` agent, or whatever prose-editing process the user has configured.
 
 The decision to close authorizes the close, the comment included. It does not extend any further: merging and pushing still need the user, however natural the next step feels once an item is settled.
 
@@ -103,6 +123,7 @@ The decision to close authorizes the close, the comment included. It does not ex
 | "I'll note the reviewer's points in a reply and move on" | If the decision was to rework, apply them; don't answer on the author's behalf. |
 | "`gh pr list` gave me the open PRs" | It gave you the first 30 of them. Pass `--limit` and check the count. |
 | "I'll judge this one on its own merits" | First check whether another open item supersedes it or collides with it. |
+| "This skill's rework steps are enough here" | If the repo ships its own review skill, load it: it carries that project's conventions. |
 
 ## Keep State Durable
 
