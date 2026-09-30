@@ -2,7 +2,7 @@
   imports = [
     ./home/options.nix
     ./home/git.nix
-    ./home/vim.nix
+    ./home/neovim.nix
     ./home/zsh.nix
     ./home/node.nix
     ./home/go.nix
