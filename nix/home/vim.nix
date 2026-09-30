@@ -8,7 +8,6 @@
       vim-obsession
       vim-airline
       vim-solarized8
-      vim-twig
     ];
 
     # Reuse the shared vimrc kept alongside this module.

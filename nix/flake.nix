@@ -126,7 +126,6 @@
       nixpkgs.config.allowUnfreePredicate = pkg:
         builtins.elem (lib.getName pkg) [
           "vim-solarized8"
-          "vim-twig"
           "orbstack"
           "claude-code"
           "jetbrains-toolbox"
