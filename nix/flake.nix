@@ -163,6 +163,7 @@
         ];
         casks = [
           "1password" # strict location/signing, unreliable from a nix copy
+          "1password-cli" # `op`
           "cloudflare-warp" # needs the signed system network extension
           "ghostty" # nixpkgs ghostty is broken on darwin
           "imageoptim" # not in nixpkgs
