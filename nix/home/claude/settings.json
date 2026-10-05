@@ -163,15 +163,15 @@
     ]
   },
   "effortLevel": "xhigh",
+  "modelSettings": {
+    "claude-opus-5-5": {
+      "effortLevel": "xhigh"
+    }
+  },
   "companyAnnouncements": [],
   "tui": "default",
   "theme": "auto",
   "preferredNotifChannel": "notifications_disabled",
   "remoteControlAtStartup": false,
-  "agentPushNotifEnabled": true,
-  "modelSettings": {
-    "claude-opus-5-5": {
-      "effortLevel": "xhigh"
-    }
-  }
+  "agentPushNotifEnabled": true
 }

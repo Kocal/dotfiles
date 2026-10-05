@@ -29,7 +29,7 @@ Use when about to write or edit Jira content through `mcp__mcp-atlassian__*` too
 | Bullet list | `- item` | Flat only. |
 | Numbered list | `1. item` | Flat only. |
 | Task list | `- [ ] item` / `- [x] item` | Becomes an ADF `taskList`. |
-| Code block | Triple backticks | The language tag is dropped, the content survives verbatim. |
+| Code block | Triple backticks, with a language tag (`` ```typescript ``) | Since 0.23.1 the tag is stored as `attrs.language`. The read path always drops it, so a missing tag on read-back proves nothing: check in the browser. |
 | Inline code | `` `code` `` | Safe except for `{{ }}` — see rule 3. |
 | Bold / italic | `**bold**`, `*italic*` | Renders correctly, see "Reading Artifacts" below. |
 | Link | `[text](url)` | |
@@ -43,7 +43,7 @@ Use when about to write or edit Jira content through `mcp__mcp-atlassian__*` too
 | Nested bullets | Indented lines become standalone paragraphs, visually spaced out | Flat list, bold lead-in per item, details after a colon |
 | Colored panel via blockquote | Renders as a plain quote | `:::warning` block |
 | Twig/Handlebars braces in inline code | `{{ x }}` comes out as `{{{{ x }}}}` | Fenced code block |
-| Syntax highlighting | Language tag is dropped | Accept plain code blocks |
+| Inline code inside bold | `` **`x` label** `` stays bold but the backticks render literally | Keep the code outside the bold: `` **Label** (`x`) `` |
 
 ## Reading Artifacts
 
