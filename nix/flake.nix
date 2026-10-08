@@ -164,8 +164,10 @@
         casks = [
           "1password" # strict location/signing, unreliable from a nix copy
           "1password-cli" # `op`
+          "claude" # desktop app, not in nixpkgs
           "cloudflare-warp" # needs the signed system network extension
           "ghostty" # nixpkgs ghostty is broken on darwin
+          "handy" # not in nixpkgs
           "imageoptim" # not in nixpkgs
           "monitorcontrol" # not in nixpkgs (macOS-only app)
           "affinity" # not in nixpkgs (proprietary Serif)
