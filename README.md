@@ -24,10 +24,11 @@ Homebrew is optional and only used for casks. Install it with the official insta
 First run. Flakes are not enabled yet, home-manager enables them itself afterwards:
 
 ```shell
+export NIX_CONFIG="experimental-features = nix-command flakes"
 # personal
-nix --extra-experimental-features "nix-command flakes" run home-manager/release-26.05 -- switch -b hm-backup --flake "$PWD/nix#perso"
+nix run home-manager/release-26.05 -- switch -b hm-backup --flake "$PWD/nix#perso"
 # work
-nix --extra-experimental-features "nix-command flakes" run home-manager/release-26.05 -- switch -b hm-backup --flake "$PWD/nix#boulot"
+nix run home-manager/release-26.05 -- switch -b hm-backup --flake "$PWD/nix#boulot"
 ```
 
 All subsequent rebuilds. The profile is baked into `drs` at build time, so the same command works on both machines:
