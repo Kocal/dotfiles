@@ -22,6 +22,26 @@ The workflow rules, one PR = one commit, the filled-in repo template inside the 
    gh pr create --fill
    ```
 
+## Shape the description for a human
+
+GitHub renders the commit body with no extra spacing, so consecutive sentences fuse into one solid block. Four long sentences become a six-line wall that a reviewer skims and abandons, however accurate every word is.
+
+Give each long sentence its own paragraph, with a blank line between them. The break goes *between* two sentences, never inside one: the no-hard-wrap rule still holds, and every paragraph stays a single unwrapped line.
+
+Budget three paragraphs at most, one or two sentences each. When a sentence joins two ideas with a comma plus "and" or "so", split it at the comma. Whatever still does not fit belongs in the documentation, the CHANGELOG, or a PR comment, not in the description.
+
+Reads as a wall:
+
+> UX Turbo now allows symfony/mercure-bundle 0.6, which requires the Mercure component 0.9. MercureBundle 0.6 makes the Mercure protocol 1.0 the default, and UX Turbo 3.6 already speaks that protocol in `turbo_stream_from()` and `<twig:Turbo:Stream:From>`, so the package needs no code change. The test kernel gains a hub that states `protocol_version: '0.x'`, next to the existing hub that states `'1.0'`, and every protocol test now names the hub it targets.
+
+Reads in three glances:
+
+> UX Turbo now allows MercureBundle 0.6, which requires the Mercure component 0.9.
+>
+> MercureBundle 0.6 makes the Mercure protocol 1.0 the default. UX Turbo already speaks it, so no code change is needed.
+>
+> The test kernel now pins one hub per protocol, and every protocol test names the hub it targets.
+
 ## Why `--fill` alone
 
 `--fill` reads git and ignores the repo template. That is deliberate and it is what you want here, since the commit body already carries the filled-in template.

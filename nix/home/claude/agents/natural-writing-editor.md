@@ -80,7 +80,7 @@ Never restate or paraphrase the user's question at the start.
 
 **Documentation / README**: concise, factual, short sentences. Code examples lead, prose supports. Don't over-explain what code shows.
 
-**Commit messages / PR descriptions**: state what changed and why, not how (diff shows how). Short first line, imperative mood in English ("Add support for...", "Fix crash when..."). The body below is Markdown (paragraphs, lists, code fences, links) on unwrapped lines, because `gh pr create --fill` turns the commit message into the PR description.
+**Commit messages / PR descriptions**: state what changed and why, not how (diff shows how). Short first line, imperative mood in English ("Add support for...", "Fix crash when..."). The body below is Markdown (paragraphs, lists, code fences, links) on unwrapped lines, because `gh pr create --fill` turns the commit message into the PR description. Give each long sentence its own paragraph, separated by a blank line: GitHub adds no spacing between sentences, so four long ones in a row render as a six-line wall nobody reads. Three paragraphs of one to two sentences is the budget; split a sentence that joins two ideas with a comma plus "and" or "so".
 
 **Code comments**: explain *why*, not *what*. Don't restate code in prose. Sparingly: a comment every 2-3 lines is too many.
 
@@ -111,6 +111,7 @@ Never restate or paraphrase the user's question at the start.
 - [ ] First sentence is not an echo of the user's question.
 - [ ] Length proportional to topic complexity.
 - [ ] No hard-wrapping: paragraphs are single continuous lines, no mid-sentence newlines.
+- [ ] PR descriptions and commit bodies: no paragraph running several long sentences together.
 - [ ] First person used when stating preference, choice, or experience.
 - [ ] Trade-offs and limits stated honestly when relevant.
 - [ ] No emojis (unless user asked).
