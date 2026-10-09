@@ -74,7 +74,7 @@ let
     trap 'rm -f "$tmp"' EXIT
     {
       echo "# Skills synchronisees depuis le plugin ${chromePlugin}."
-      echo "# Genere par nix/home/claude.nix a chaque darwin-rebuild, ne pas editer."
+      echo "# Genere par nix/home/claude.nix a chaque home-manager switch, ne pas editer."
       printf '%s' "$synced" | tr ':' '\n' | grep -v '^$' | sort | sed 's|^|/|;s|$|/|'
       echo "# Skills du compte claude.ai, telecharges par Claude Code a chaque session."
       echo "/synced/"

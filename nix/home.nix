@@ -1,6 +1,10 @@
 { ... }: {
   imports = [
+    ./nixpkgs.nix
+    ./packages.nix
     ./home/options.nix
+    ./home/nix.nix
+    ./home/homebrew.nix
     ./home/git.nix
     ./home/neovim.nix
     ./home/zsh.nix
@@ -18,6 +22,12 @@
     ./home/claude.nix
   ];
 
-  # Match with system.stateVersion / your nixpkgs release.
+  # Spotlight ignores symlinked apps, so copy the bundles instead.
+  targets.darwin.linkApps.enable = false;
+  targets.darwin.copyApps.enable = true;
+
+  programs.home-manager.enable = true;
+
+  # Match with your nixpkgs release.
   home.stateVersion = "24.11";
 }

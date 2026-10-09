@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, profile, ... }:
 let
   isLinux = pkgs.stdenv.hostPlatform.isLinux;
 in
@@ -12,10 +12,14 @@ in
     # Machine-local env, sourced from the generated ~/.zshenv (before .zshrc, for
     # login + non-interactive shells). Create ~/.zshenv.local when needed.
     envExtra = ''
+      # Load Nix here: macOS updates overwrite /etc/zshrc and drop the installer's hook.
+      if [ -e /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
+        . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+      fi
       [ -f ~/.zshenv.local ] && source ~/.zshenv.local
     '';
 
-    # nix-darwin's /etc/zshenv puts the Nix profiles at the front of PATH, but
+    # ~/.zshenv (envExtra above) puts the Nix profiles at the front of PATH, but
     # macOS /etc/zprofile then runs path_helper, which re-sorts /usr/bin & co to
     # the front and pushes the Nix profiles to the back. System binaries then
     # shadow the Nix ones (e.g. /usr/bin/vim wins over our configured vim).
@@ -86,7 +90,7 @@ in
 
       # nix garbage collect: delete all old generations, free the store
       # (prunes stale php-with-extensions builds, etc.). No rollback after.
-      nix-clean = "sudo nix-collect-garbage -d";
+      nix-clean = "nix-collect-garbage -d";
     };
 
     initContent = lib.mkMerge [
@@ -101,34 +105,33 @@ in
         setopt AUTO_CD
       '')
 
-      # nix-darwin rebuild switch. A function (not an alias) so the hostname is
-      # resolved at runtime -> the same `drs` picks darwinConfigurations.<host>
-      # on any machine. Absolute flake path so it works from any directory.
+      # home-manager switch. The profile is baked in at build time, so `drs`
+      # rebuilds this machine's config. Absolute flake path so it works from any
+      # directory.
       (lib.mkOrder 530 ''
         drs() {
-          sudo darwin-rebuild switch --flake "${config.dotfiles.dir}/nix#$(scutil --get LocalHostName)"
+          home-manager switch -b hm-backup --flake "${config.dotfiles.dir}/nix#${profile}"
         }
       '')
 
-      # `dro` = darwin-rebuild "outdated": preview the version bumps a flake
+      # `dro` = rebuild "outdated": preview the version bumps a flake
       # update would bring, then restore the lock so nothing is left changed.
       # `dru` applies the update for real (lock bump + switch).
       (lib.mkOrder 531 ''
         dro() {
           local dir="${config.dotfiles.dir}/nix"
-          local host="$(scutil --get LocalHostName)"
           local tmp; tmp="$(mktemp -d)"
           cp "$dir/flake.lock" "$tmp/flake.lock.bak"
           _log_info "Updating flake inputs (preview only, nothing applied)..."
           if ! nix flake update --flake "$dir"; then
             cp "$tmp/flake.lock.bak" "$dir/flake.lock"; rm -rf "$tmp"; return 1
           fi
-          _log_info "Building the would-be system (not activated)..."
-          if ! nix build "$dir#darwinConfigurations.$host.system" --out-link "$tmp/result"; then
+          _log_info "Building the would-be generation (not activated)..."
+          if ! nix build "$dir#homeConfigurations.${profile}.activationPackage" --out-link "$tmp/result"; then
             cp "$tmp/flake.lock.bak" "$dir/flake.lock"; rm -rf "$tmp"; return 1
           fi
           _log_info "Version changes a 'dru' would apply:"
-          nix store diff-closures /run/current-system "$tmp/result"
+          nix store diff-closures "$HOME/.local/state/nix/profiles/home-manager" "$tmp/result"
           cp "$tmp/flake.lock.bak" "$dir/flake.lock"
           rm -rf "$tmp"
         }
@@ -137,8 +140,8 @@ in
           local dir="${config.dotfiles.dir}/nix"
           _log_info "Updating flake inputs..."
           nix flake update --flake "$dir" || return 1
-          _log_info "Applying (darwin-rebuild switch)..."
-          sudo darwin-rebuild switch --flake "$dir#$(scutil --get LocalHostName)"
+          _log_info "Applying (home-manager switch)..."
+          home-manager switch -b hm-backup --flake "$dir#${profile}"
         }
       '')
 
