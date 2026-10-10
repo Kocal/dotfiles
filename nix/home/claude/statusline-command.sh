@@ -3,6 +3,9 @@ input=$(cat)
 
 cwd=$(echo "$input" | jq -r '.workspace.current_dir // .cwd')
 dir=$(basename "$cwd")
+case "$cwd" in
+  */.claude/worktrees/*) dir=".claude/worktrees/${cwd#*/.claude/worktrees/}" ;;
+esac
 model=$(echo "$input" | jq -r '.model.display_name // empty')
 used=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
 transcript=$(echo "$input" | jq -r '.transcript_path // empty')
