@@ -43,7 +43,8 @@ arrow="\033[1;32m➜\033[0m"
 dir_part="\033[0;36m${dir}\033[0m"
 
 if [ -n "$branch" ]; then
-  git_part=" \033[1;34mgit:(\033[0;31m${branch}\033[1;34m)\033[0m"
+  # 2 spaces: with 1, Ghostty's link detection double-click-selects "dir git" as one path
+  git_part="  \033[1;34mgit:(\033[0;31m${branch}\033[1;34m)\033[0m"
 else
   git_part=""
 fi
