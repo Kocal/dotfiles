@@ -23,13 +23,14 @@ The file holds **the body only**, starting at the intro paragraph. symfony.com k
 
 ## Workflow
 
-1. Identify the repo and the tag, then run `gh release view` for the PR list and the contributors.
-2. Ask which PRs deserve their own section, unless the user already said. Everything else still lands in `Full Changelog`.
-3. For each featured PR: read the PR body for the problem it solves, then read the **diff** for the real option names, config keys and generated output. A real test fixture beats an invented example.
+1. Identify the repo and the tag, then run `gh release view` for the PR list and the contributors. When the tag does not exist yet, compare the previous tag with the branch, and fill in `Full Changelog` once the user hands you the release page at the end.
+2. Ask which PRs deserve their own section, unless the user already said. Ask too whether something outside the repo deserves one, such as a new feature on the project's website: it is easy to forget. Everything else still lands in `Full Changelog`.
+3. For each featured PR, read the PR body for the problem it solves, then the **diff** for the real option names, config keys and generated output. A real test fixture beats an invented example. Take each contributor's real name from their commits (author name), never from the handle.
 4. Verify the external claims and note each primary source URL.
 5. Write the draft into the scratchpad: intro, one section per featured PR, `Full Changelog`, closing paragraph, link targets.
 6. Hand the file to `natural-writing-editor` with an explicit constraint list: edit in place, keep valid RST, leave `.. contributors::`, the code blocks, the changelog list and the link targets untouched, no title and no excerpt, keep the section order, hard-wrap at ~80 columns, keep every technical fact, respect the paragraph caps, and the voice below.
-7. Report: the file path, the suggested title, the suggested excerpt, one line per section, and an explicit list of everything unverified or worth a second look before publishing.
+7. Right before reporting, check again every PR that the post describes as still open, such as a Flex recipe in review. If it has been merged, remove the sentence about it and its link target.
+8. Report: the file path, the suggested title, the suggested excerpt, one line per section, and an explicit list of everything unverified or worth a second look before publishing.
 
 ### Getting the facts
 
@@ -55,6 +56,34 @@ Those caps are the point rather than a formality. A section that will not fit is
 When the project supports several targets (Vite *and* Rsbuild for Reprise, several bundlers or backends elsewhere), show a code example for **each** one. Showing only the first reads as the others being second-class.
 
 `Full Changelog` lists every PR of the release as `` `#NN`_ Title (@author) ``. Links are named RST targets at the bottom of the file, never inline URLs.
+
+## What the reader needs
+
+**Present a new package instead of installing it.** Say what it shows or does for the reader, and leave the installation steps to the recipe and the docs. End the section with a short paragraph of its own that links the demo page on the project's website, and the Flex recipe PR if it is still open.
+
+**Take examples from the real site.** A template from the project's website, with the HTML the live page really renders, beats an invented example. Strip anything that belongs to your environment from captured output, such as a `/app/` container prefix in paths.
+
+**Describe the behavior, not the internals.** The reader never touches a fallback provider's DSN, or the README a preview is extracted from, so say "nothing is transformed by default" or "every example" instead. A restyle gets one sentence on its direction, not the list of rings and paddings that changed.
+
+**Build every list from the code.** When the post enumerates things (new recipes, per-package exceptions, bridges), derive the list from the git history and the source, never from the PRs the user named. `git log --diff-filter=A --name-only <previous-tag>..<branch> -- <dir>` lists what was added.
+
+**Link every tool the first time it is named**, such as AssetMapper, Vite, Rsbuild, Webpack Encore or Playwright, with a named target at the bottom.
+
+**Keep it scannable.** Three items or more go in a bullet list, not in a sentence. A summary of fixes is a bullet list too, with its headline number in bold ("**about thirty bugs**"). Start a new paragraph whenever the idea changes, even in a short section.
+
+## Performance sections
+
+Readers want the gain, not the list of optimizations. Name what was optimized in one sentence, give the before and after numbers measured on a real application, then the side effects (templates to recompile, a cache to warm). There is no code example here, so three short paragraphs are fine.
+
+Unless the user hands you numbers, measure them:
+
+1. Ask for the benchmark app (for UX: `~/workspace/kocal/sf-ux-perfs-twig-components`). Never modify it: copy it into the scratchpad, once per version.
+2. Check out the previous tag and the new one as worktrees in `<repo>/.claude/worktrees/`, and symlink each copy's `vendor/<package>` to the matching worktree.
+3. Run `pmset -g` first. If the machine is on battery or in low power mode, ask the user to plug it in before measuring anything.
+4. Use the prod environment and the same cache state on both sides. Alternate the versions (6 runs of 60 requests each), compare the medians, and check that both sides render the same HTML (same hash).
+5. Cross-check with `blackfire run` (`--samples` is now a no-op). Remove the worktrees once the user has approved the numbers.
+
+In the post, give the method in one sentence: the app and what it renders per request, the runs, the environment, the PHP and Twig versions.
 
 ## The `.. contributors::` trap
 
