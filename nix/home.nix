@@ -9,6 +9,7 @@
     ./home/neovim.nix
     ./home/zsh.nix
     ./home/node.nix
+    ./home/vite-plus.nix
     ./home/go.nix
     ./home/java.nix
     ./home/php.nix

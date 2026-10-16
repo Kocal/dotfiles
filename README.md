@@ -54,7 +54,8 @@ nix/
     git.nix         programs.git: SSH signing via 1Password's op-ssh-sign
     zsh.nix         zsh + Starship, aliases, shell functions
     neovim.nix      programs.neovim: plugins, treesitter, vimrc
-    node.nix        fnm (Node version manager)
+    node.nix        fnm (Node version manager), boulot only
+    vite-plus.nix   sources Vite+ env from .zshrc (Node and package managers on perso)
     php.nix         PHP 8.2-8.5 (+ 8.1 on perso) + composer + symfony-cli
     docker.nix      ~/.docker/config.json symlinked out-of-store to nix/home/docker/
     claude.nix      ~/.claude/* symlinked out-of-store to nix/home/claude/
@@ -75,7 +76,7 @@ Each switch generates a Brewfile and runs `brew bundle --no-upgrade`, which inst
 
 `flake.nix` builds one config per machine through a `mkHome` helper, each passing a `profile` (`perso` or `boulot`). Almost everything is shared; the profile only adds personal extras, via `lib.optionals (profile == "perso")`:
 
-- **perso only**: Brave and yt-dlp (`packages.nix`), the upsun-cli brew with its upsun tap, and the mGBA, Ankama, YACReader, Notion, Transmission and Ultimaker Cura casks (`home/homebrew.nix`), JDK 21 (`home/java.nix`), and PHP 8.1 with its EOL `permittedInsecurePackages` entry (`home/php.nix`).
+- **perso only**: Brave and yt-dlp (`packages.nix`), the upsun-cli brew with its upsun tap, and the mGBA, Ankama, YACReader, Notion, Transmission and Ultimaker Cura casks (`home/homebrew.nix`), JDK 21 (`home/java.nix`), and PHP 8.1 with its EOL `permittedInsecurePackages` entry (`home/php.nix`). Perso also gets Node from Vite+ (`home/vite-plus.nix`) instead of fnm.
 - **shared** (both machines): everything else, VLC included.
 
 The work machine (`boulot`) gets the shared base and none of those extras. To scope a package to one machine, wrap it in `lib.optionals (profile == "perso") [ ... ]` in the relevant file.
@@ -85,7 +86,8 @@ The work machine (`boulot`) gets the shared base and none of those extras. To sc
 - **git** (`home/git.nix`): commits and tags signed via 1Password's `op-ssh-sign`. Machine-local overrides (different email, signing key, etc.) go in `~/.gitconfig.local`, included but not managed by Nix.
 - **zsh** (`home/zsh.nix`): native completion, autosuggestions, syntax highlighting, Starship prompt. Aliases and shell functions are in `nix/home/zsh/functions.zsh`. Sources `~/.zshenv.local` (from the generated `.zshenv`, before `.zshrc`) and `~/.zshrc.local` if they exist. `~/.zshenv` loads Nix itself (`nix-daemon.sh`), because macOS updates overwrite `/etc/zshrc` and drop the Nix installer's hook. `drs` is a shell function that runs `home-manager switch` for the profile baked in at build time, so the same command works on every machine. Two siblings extend that: `dro` ("rebuild outdated") previews what a flake update would change without applying it, and `dru` ("rebuild update") updates the lock and rebuilds in one step.
 - **neovim** (`home/neovim.nix`): `programs.neovim` replaces Vim, with `vi`, `vim`, and `vimdiff` pointing to it; same plugins as before via Nix, plus nvim-treesitter with its grammars declared in Nix (no `:TSInstall`), highlighting on for every filetype with a grammar; config still comes from `nix/home/vim/vimrc.vim`.
-- **node** (`home/node.nix`): fnm as the version manager. Nix installs fnm itself; you still need to run `fnm install --lts` (or a specific version) after first setup.
+- **node** (`home/node.nix`): fnm as the version manager, boulot only. Nix installs fnm itself; you still need to run `fnm install --lts` (or a specific version) after first setup.
+- **vite-plus** (`home/vite-plus.nix`): perso only. Sources `~/.config/vite-plus/env` from `.zshrc`, so `vp` and its node/npm/pnpm/yarn shims are on PATH. The shims pick the Node version from `.nvmrc`, `.node-version`, `engines.node` or `devEngines.runtime`, and download a missing version on first use. Vite+ itself is installed outside Nix (see Post-install).
 - **php** (`home/php.nix`): PHP 8.2-8.5 (plus 8.1 on the personal machine only), each with opcache, xdebug, apcu, blackfire probe, xsl, redis, amqp, and imagick. Default unversioned `php` is 8.4. Versioned binaries (`php8.2` ... `php8.5`, and `php8.1` on perso) are on PATH so the Symfony CLI picks the right one via `.php-version`. PHP 8.1 comes from the `phps` input (EOL, dropped from nixpkgs) and is installed on perso only.
 - **claude** (`home/claude.nix`): `~/.claude/settings.json`, `~/.claude/CLAUDE.md`, `~/.claude/agents/`, `~/.claude/skills/`, and `~/.claude/agent-memory/` are all out-of-store symlinks pointing back into `nix/home/claude/`. Runtime writes by Claude land in the repo, not a read-only store path.
 - **docker** (`home/docker.nix`): `~/.docker/config.json` symlinked out-of-store to `nix/home/docker/config.json`, so `docker login` / `docker context use` writes land in the repo instead of failing against a read-only store path. Sets `credsStore = osxkeychain` (the helper OrbStack ships); this replaced a stray global `ecr-login` default that broke every Docker Hub pull once the Brew-installed helper disappeared in the Nix migration.
@@ -107,7 +109,13 @@ rtk init --global
 blackfire agent:config
 ```
 
-**Node**: install at least one version via fnm:
+**Node**: on perso, install [Vite+](https://viteplus.dev), which provides Node, npm, pnpm and yarn:
+
+```shell
+curl -fsSL https://vite.plus | bash
+```
+
+On boulot, install at least one version via fnm:
 
 ```shell
 fnm install --lts

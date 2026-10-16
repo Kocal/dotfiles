@@ -1,8 +1,12 @@
-{ config, pkgs, lib, ... }: {
+{ config, pkgs, lib, profile, ... }:
+let
+  isPerso = profile == "perso";
+in {
   # Node version manager (nix-native replacement for nvm). Reads .nvmrc /
   # .node-version and switches automatically when entering a directory.
   # Install a version once with e.g. `fnm install --lts` or `fnm install 22`.
-  home.packages = [ pkgs.fnm ];
+  # Boulot-only: perso gets Node from Vite+ instead (vite-plus.nix).
+  home.packages = lib.optional (!isPerso) pkgs.fnm;
 
   # pnpm global bin dir. `pnpm setup` can't write our read-only ~/.zshrc (managed
   # by home-manager), so declare PNPM_HOME + PATH here instead of letting pnpm
@@ -11,7 +15,7 @@
   home.sessionVariables.PNPM_HOME = "${config.home.homeDirectory}/.local/share/pnpm";
   home.sessionPath = [ "${config.home.homeDirectory}/.local/share/pnpm" ];
 
-  programs.zsh.initContent = lib.mkOrder 1000 ''
+  programs.zsh.initContent = lib.mkIf (!isPerso) (lib.mkOrder 1000 ''
     eval "$(fnm env --use-on-cd --shell zsh)"
-  '';
+  '');
 }
