@@ -19,7 +19,7 @@ let
       for _ in $(seq 1 50); do curl -sf "$url/json/version" >/dev/null && break; sleep 0.2; done
     fi
 
-    exec npx -y chrome-devtools-mcp@latest --category-extensions --browserUrl "$url"
+    exec npx --prefix "$HOME" -y chrome-devtools-mcp@latest --category-extensions --browserUrl "$url"
   '';
 
   mcpServers = {
