@@ -2,7 +2,10 @@
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "cleanupPeriodDays": 365,
   "env": {
-    "CHROME_DEVTOOLS_MCP_NO_USAGE_STATISTICS": "1"
+    "CHROME_DEVTOOLS_MCP_NO_USAGE_STATISTICS": "1",
+    "CLAUDE_CODE_SUBAGENT_MODEL": "claude-sonnet-5-5",
+    "CLAUDE_CODE_ENABLE_PROMPT_SUGGESTION": "false",
+    "CLAUDE_MEM_MODEL": "claude-haiku-5-5"
   },
   "attribution": {
     "commit": "",
@@ -85,6 +88,7 @@
     "defaultMode": "auto"
   },
   "model": "opus[1m]",
+  "autoCompactWindow": 500000,
   "hooks": {
     "PreToolUse": [
       {
@@ -162,7 +166,7 @@
       "Processing"
     ]
   },
-  "effortLevel": "xhigh",
+  "effortLevel": "high",
   "modelSettings": {
     "claude-opus-5-5": {
       "effortLevel": "xhigh"
