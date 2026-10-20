@@ -6,17 +6,27 @@ let
 
   chromePlugin = "chrome-devtools-mcp@claude-plugins-official";
 
+  # One MCP server per Claude session, so they all share one debug Chrome instead of fighting over the profile lock.
+  chromeDevtoolsMcp = pkgs.writeShellScript "chrome-devtools-mcp-shared" ''
+    set -eu
+    export PATH="${lib.makeBinPath [ pkgs.curl pkgs.coreutils ]}:$PATH"
+    url="http://127.0.0.1:9222"
+
+    if ! curl -sf "$url/json/version" >/dev/null; then
+      /usr/bin/open -na "Google Chrome" --args --remote-debugging-port=9222 \
+        --user-data-dir="$HOME/.cache/chrome-devtools-mcp/chrome-profile" \
+        --disable-blink-features=AutomationControlled
+      for _ in $(seq 1 50); do curl -sf "$url/json/version" >/dev/null && break; sleep 0.2; done
+    fi
+
+    exec npx -y chrome-devtools-mcp@latest --category-extensions --browserUrl "$url"
+  '';
+
   mcpServers = {
     chrome-devtools = {
       type = "stdio";
-      command = "npx";
-      args = [
-        "-y"
-        "chrome-devtools-mcp@latest"
-        "--category-extensions"
-        "--ignore-default-chrome-arg=--enable-automation"
-        "--chrome-arg=--disable-blink-features=AutomationControlled"
-      ];
+      command = "${chromeDevtoolsMcp}";
+      args = [ ];
       env.CHROME_DEVTOOLS_MCP_NO_USAGE_STATISTICS = "1";
     };
   };
