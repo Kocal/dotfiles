@@ -52,5 +52,6 @@ in
   # boulot-only packages
   ++ lib.optionals isBoulot [
     pkgs.k9s # Kubernetes TUI
+    pkgs.awscli2
   ];
 }
