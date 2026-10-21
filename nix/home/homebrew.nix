@@ -38,6 +38,7 @@ let
     "notion" # nixpkgs notion-app not available on darwin
     "transmission" # native macOS GUI app not built by nixpkgs on darwin
     "ultimaker-cura" # nixpkgs cura is linux-only
+    "tailscale-app" # needs the signed system network extension
   ];
 
   # Homebrew refuses to load third-party tap formulae/casks (the "tap/name"

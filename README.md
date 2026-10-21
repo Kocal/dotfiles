@@ -68,7 +68,7 @@ CLI tools and GUI apps go into `home.packages` in `nix/packages.nix` when they'r
 
 GUI apps installed this way get copied as real `.app` bundles into `~/Applications/Home Manager Apps`, so Spotlight and Launchpad find them automatically. The JetBrains Mono Nerd Font lands in `~/Library/Fonts/HomeManager`. VS Code itself is installed by `programs.vscode` in `home/vscode.nix`.
 
-Homebrew casks live in `nix/home/homebrew.nix`. They are for apps that can't come from Nix: not in nixpkgs, darwin build broken (GTK/Qt deps, appstream/libadwaita), or strict signing and location requirements (1Password, Cloudflare WARP). Current casks include Ghostty, 1Password, Inkscape, Pinta, Affinity, VLC, and a few others; mGBA, Ankama, YACReader, Notion, Transmission and Ultimaker Cura are personal-only.
+Homebrew casks live in `nix/home/homebrew.nix`. They are for apps that can't come from Nix: not in nixpkgs, darwin build broken (GTK/Qt deps, appstream/libadwaita), or strict signing and location requirements (1Password, Cloudflare WARP). Current casks include Ghostty, 1Password, Inkscape, Pinta, Affinity, VLC, and a few others; mGBA, Ankama, YACReader, Notion, Transmission, Ultimaker Cura and Tailscale are personal-only.
 
 Each switch generates a Brewfile and runs `brew bundle --no-upgrade`, which installs missing casks but never upgrades or uninstalls anything. The module writes every fully qualified entry (`tap/name`, i.e. from a third-party tap) with `trusted: true` in the Brewfile, so `brew bundle` trusts it itself. If Homebrew isn't installed in `/opt/homebrew`, the step is skipped with a warning.
 
@@ -76,7 +76,7 @@ Each switch generates a Brewfile and runs `brew bundle --no-upgrade`, which inst
 
 `flake.nix` builds one config per machine through a `mkHome` helper, each passing a `profile` (`perso` or `boulot`). Almost everything is shared; the profile only adds personal extras, via `lib.optionals (profile == "perso")`:
 
-- **perso only**: Brave and yt-dlp (`packages.nix`), the upsun-cli brew with its upsun tap, and the mGBA, Ankama, YACReader, Notion, Transmission and Ultimaker Cura casks (`home/homebrew.nix`), JDK 21 (`home/java.nix`), and PHP 8.1 with its EOL `permittedInsecurePackages` entry (`home/php.nix`). Perso also gets Node from Vite+ (`home/vite-plus.nix`) instead of fnm.
+- **perso only**: Brave and yt-dlp (`packages.nix`), the upsun-cli brew with its upsun tap, and the mGBA, Ankama, YACReader, Notion, Transmission, Ultimaker Cura and Tailscale casks (`home/homebrew.nix`), JDK 21 (`home/java.nix`), and PHP 8.1 with its EOL `permittedInsecurePackages` entry (`home/php.nix`). Perso also gets Node from Vite+ (`home/vite-plus.nix`) instead of fnm.
 - **shared** (both machines): everything else, VLC included.
 
 The work machine (`boulot`) gets the shared base and none of those extras. To scope a package to one machine, wrap it in `lib.optionals (profile == "perso") [ ... ]` in the relevant file.
