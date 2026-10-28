@@ -1,15 +1,15 @@
 { pkgs, ... }: {
-  # home-manager owns VS Code itself, its settings and its extensions:
+  # VS Code itself is a Homebrew cask; home-manager owns its settings and extensions:
   #   - mutableExtensionsDir  -> ~/.vscode/extensions becomes a read-only symlink,
   #     fully declarative (add/remove extensions by editing this file, not the UI).
-  #   - enable*UpdateCheck    -> writes update.mode=none & extensions.autoCheckUpdates=false,
-  #     because the Squirrel/extension updaters can't write into the Nix bundle.
+  #   - enableExtensionUpdateCheck -> writes extensions.autoCheckUpdates=false,
+  #     because the extension updater can't write into the read-only extensions dir.
   programs.vscode = {
     enable = true;
+    package = null;
     mutableExtensionsDir = false;
 
     profiles.default = {
-      enableUpdateCheck = false;
       enableExtensionUpdateCheck = false;
 
       extensions = with pkgs.vscode-marketplace; [

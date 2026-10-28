@@ -1,7 +1,6 @@
 { ... }: {
   imports = [
     ./nixpkgs.nix
-    ./packages.nix
     ./home/options.nix
     ./home/nix.nix
     ./home/homebrew.nix

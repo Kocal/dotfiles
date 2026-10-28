@@ -26,6 +26,8 @@ in
     # ~/.zprofile is sourced right after /etc/zprofile, so re-prepend the Nix
     # profiles here to restore their precedence for login shells.
     profileExtra = ''
+      # Homebrew goes before the macOS tools it replaces (/usr/bin/jq, make, curl).
+      [[ -d /opt/homebrew ]] && path=(/opt/homebrew/opt/make/libexec/gnubin /opt/homebrew/opt/curl/bin /opt/homebrew/bin /opt/homebrew/sbin $path)
       for p in ''${(z)NIX_PROFILES}; do
         [[ -d "$p/bin" ]] && path=("$p/bin" $path)
       done
@@ -103,6 +105,11 @@ in
       # `some/dir`). Restores behavior lost when leaving oh-my-zsh.
       (lib.mkOrder 520 ''
         setopt AUTO_CD
+      '')
+
+      # Completions of Homebrew packages (gh, rg, fd, ...), before compinit at 570.
+      (lib.mkOrder 525 ''
+        [[ -d /opt/homebrew/share/zsh/site-functions ]] && fpath+=(/opt/homebrew/share/zsh/site-functions)
       '')
 
       # home-manager switch. The profile is baked in at build time, so `drs`

@@ -1,6 +1,7 @@
 { lib, pkgs, profile, ... }:
 let
   isPerso = profile == "perso";
+  isBoulot = profile == "boulot";
 
   taps = [
     "vorssaint/tap"
@@ -9,8 +10,36 @@ let
     "upsun/tap"
   ];
 
-  brews = lib.optionals isPerso [
+  brews = [
+    "bat"
+    "btop"
+    "curl" # keg-only: not linked into /opt/homebrew/bin, home/zsh.nix adds it to PATH
+    "fd"
+    "ffmpeg"
+    "gh"
+    "glab"
+    "htop"
+    "imagemagick" # `magick`/`convert`/`identify`/`mogrify` CLI
+    "jq"
+    "make" # installs `gmake`, home/zsh.nix puts its `make` gnubin on PATH
+    "mkcert"
+    "ripgrep"
+    "rtk"
+    "tree"
+    "uv"
+    "wget"
+    "yq" # mikefarah yq (`yq` command), not the python yq
+    "zizmor"
+  ]
+  # perso-only brews
+  ++ lib.optionals isPerso [
     "upsun/tap/upsun-cli"
+    "yt-dlp"
+  ]
+  # boulot-only brews
+  ++ lib.optionals isBoulot [
+    "awscli"
+    "k9s" # Kubernetes TUI
   ];
 
   # GUI apps (and Claude Code) -> Homebrew casks.
@@ -29,6 +58,7 @@ let
     "vorssaint/tap/vorssaint" # third-party vendor tap, not in core homebrew-cask
     "google-chrome" # nixpkgs google-chrome is linux-only
     "vlc" # nixpkgs vlc is unreliable on darwin
+    "android-platform-tools" # `adb`/`fastboot`
     "claude-code@latest" # `claude`; the plain `claude-code` cask lags behind
     "firefox"
     "font-jetbrains-mono-nerd-font"
@@ -36,6 +66,7 @@ let
     "orbstack"
     "rectangle-pro"
     "utm"
+    "visual-studio-code" # settings and extensions stay in home/vscode.nix
   ]
   # perso-only casks
   ++ lib.optionals isPerso [

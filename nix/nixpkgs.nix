@@ -10,7 +10,6 @@ in
   nixpkgs.config.allowUnfreePredicate = pkg:
     builtins.elem (lib.getName pkg) [
       "vim-solarized8"
-      "vscode"
     ]
     || lib.hasInfix "blackfire" (lib.getName pkg)
     # VS Code Marketplace extensions (e.g. Microsoft Remote-SSH) ship as unfree.
