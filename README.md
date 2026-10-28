@@ -19,7 +19,7 @@ xcode-select --install
 curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install | sh
 ```
 
-Homebrew is optional and only used for casks. Install it with the official installer, in `/opt/homebrew`.
+Homebrew is required: it installs every package except PHP and the tools home-manager configures. Install it with the official installer, in `/opt/homebrew`; like Nix, that needs admin rights once. On boulot, the `cloudflare-warp` cask ships a .pkg, so its install also needs admin rights.
 
 First run. Flakes are not enabled yet, home-manager enables them itself afterwards:
 
