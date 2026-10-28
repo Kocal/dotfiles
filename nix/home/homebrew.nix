@@ -107,4 +107,20 @@ in
       warnEcho "Homebrew is not installed in /opt/homebrew, skipping the casks."
     fi
   '';
+
+  # The keys written back when these were read-only Nix copies persist: re-enable updates.
+  targets.darwin.defaults = {
+    "org.mozilla.firefox" = {
+      EnterprisePoliciesEnabled = true;
+      DisableAppUpdate = false;
+    };
+    "dev.kdrag0n.MacVirt" = {
+      SUEnableAutomaticChecks = true;
+      SUAutomaticallyUpdate = true;
+    };
+    "com.knollsoft.Hookshot" = {
+      SUEnableAutomaticChecks = true;
+      SUAutomaticallyUpdate = true;
+    };
+  };
 }

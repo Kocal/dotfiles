@@ -164,7 +164,7 @@ drs
 
 Claude Code comes from the `claude-code@latest` cask, so `brew upgrade claude-code@latest` updates it alone.
 
-Homebrew casks are managed by Homebrew, not the lock file. `dru` ends with `brew upgrade`, which skips casks marked `auto_updates` (Firefox, OrbStack, Rectangle Pro, JetBrains Toolbox) because they update themselves. `home/firefox.nix`, `home/orbstack.nix` and `home/rectangle-pro.nix` re-enable their updaters.
+Homebrew casks are managed by Homebrew, not the lock file. `dru` ends with `brew upgrade`, which skips casks marked `auto_updates` (Firefox, OrbStack, Rectangle Pro, JetBrains Toolbox) because they update themselves. `home/homebrew.nix` re-enables their updaters.
 
 Roll back a bad update:
 
