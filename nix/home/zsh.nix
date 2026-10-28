@@ -116,7 +116,7 @@ in
 
       # `dro` = rebuild "outdated": preview the version bumps a flake
       # update would bring, then restore the lock so nothing is left changed.
-      # `dru` applies the update for real (lock bump + switch).
+      # `dru` applies the update for real (lock bump + switch + brew upgrade).
       (lib.mkOrder 531 ''
         dro() {
           local dir="${config.dotfiles.dir}/nix"
@@ -141,29 +141,9 @@ in
           _log_info "Updating flake inputs..."
           nix flake update --flake "$dir" || return 1
           _log_info "Applying (home-manager switch)..."
-          home-manager switch -b hm-backup --flake "$dir#${profile}"
-        }
-      '')
-
-      # nixpkgs stable pins an old claude-code, so nix/claude-code-manifest.json is
-      # our own version lock. `bump-claude` repoints it at the newest release.
-      (lib.mkOrder 532 ''
-        bump-claude() {
-          local base="https://downloads.claude.ai/claude-code-releases"
-          local manifest="${config.dotfiles.dir}/nix/claude-code-manifest.json"
-          local current latest
-          current="$(jq -r .version "$manifest")" || return 1
-          latest="$(curl -fsSL "$base/latest")" || {
-            _log_error "Could not reach downloads.claude.ai."
-            return 1
-          }
-          if [[ "$current" == "$latest" ]]; then
-            _log_info "claude-code already on $latest."
-            return 0
-          fi
-          _log_info "claude-code $current -> $latest, fetching manifest..."
-          curl -fsSL "$base/$latest/manifest.json" -o "$manifest" || return 1
-          _log_info "Manifest updated. Run 'drs' to apply."
+          home-manager switch -b hm-backup --flake "$dir#${profile}" || return 1
+          _log_info "Upgrading Homebrew packages..."
+          brew upgrade
         }
       '')
 

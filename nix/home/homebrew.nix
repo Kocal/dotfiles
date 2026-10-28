@@ -13,7 +13,7 @@ let
     "upsun/tap/upsun-cli"
   ];
 
-  # GUI apps not available/working in nixpkgs on darwin -> Homebrew casks.
+  # GUI apps (and Claude Code) -> Homebrew casks.
   casks = [
     "1password" # strict location/signing, unreliable from a nix copy
     "1password-cli" # `op`
@@ -29,6 +29,13 @@ let
     "vorssaint/tap/vorssaint" # third-party vendor tap, not in core homebrew-cask
     "google-chrome" # nixpkgs google-chrome is linux-only
     "vlc" # nixpkgs vlc is unreliable on darwin
+    "claude-code@latest" # `claude`; the plain `claude-code` cask lags behind
+    "firefox"
+    "font-jetbrains-mono-nerd-font"
+    "jetbrains-toolbox"
+    "orbstack"
+    "rectangle-pro"
+    "utm"
   ]
   # perso-only casks
   ++ lib.optionals isPerso [
@@ -39,6 +46,7 @@ let
     "transmission" # native macOS GUI app not built by nixpkgs on darwin
     "ultimaker-cura" # nixpkgs cura is linux-only
     "tailscale-app" # needs the signed system network extension
+    "brave-browser"
   ];
 
   # Homebrew refuses to load third-party tap formulae/casks (the "tap/name"

@@ -9,12 +9,6 @@ in
     pkgs.bat
     pkgs.gh
     pkgs.rtk
-    pkgs.orbstack
-    # nixpkgs stable pins an old claude-code; ./claude-code-manifest.json is our
-    # own version lock (fetch a new one from downloads.claude.ai to bump).
-    (pkgs.claude-code.override {
-      manifest = lib.importJSON ./claude-code-manifest.json;
-    })
 
     # CLI tools
     pkgs.ffmpeg
@@ -33,20 +27,9 @@ in
     pkgs.mkcert
     pkgs.zizmor
     pkgs.android-tools # `adb`/`fastboot`
-
-    # GUI apps. home-manager copies these into ~/Applications/Home Manager Apps
-    # as real bundles (see home.nix), so Spotlight/Launchpad see them.
-    pkgs.firefox-bin
-    pkgs.jetbrains-toolbox
-    pkgs.rectangle-pro
-    pkgs.utm
-
-    # Copied into ~/Library/Fonts/HomeManager.
-    pkgs.nerd-fonts.jetbrains-mono
   ]
   # perso-only packages
   ++ lib.optionals isPerso [
-    pkgs.brave
     pkgs.yt-dlp
   ]
   # boulot-only packages

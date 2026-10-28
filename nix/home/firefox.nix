@@ -1,8 +1,7 @@
 { ... }: {
-  # firefox-bin is read-only in the Nix store -> its updater nags; kill it via the
-  # macOS enterprise policy. Update via `home-manager switch`.
+  # The keys written back when this was a read-only Nix copy persist: re-enable updates.
   targets.darwin.defaults."org.mozilla.firefox" = {
     EnterprisePoliciesEnabled = true;
-    DisableAppUpdate = true;
+    DisableAppUpdate = false;
   };
 }

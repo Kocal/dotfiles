@@ -44,13 +44,13 @@ home-manager switch -b hm-backup --flake "$PWD/nix#<profile>"
 ```
 nix/
   flake.nix         flake inputs, one home-manager config per machine (mkHome)
-  home.nix          home-manager entrypoint, imports everything below, copies GUI apps into ~/Applications/Home Manager Apps
-  nixpkgs.nix       allowed unfree/insecure packages, overlays (VS Code marketplace, JetBrains Toolbox pin)
-  packages.nix      CLI tools, GUI apps and fonts (home.packages)
+  home.nix          home-manager entrypoint, imports everything below, copies VS Code into ~/Applications/Home Manager Apps
+  nixpkgs.nix       allowed unfree/insecure packages, VS Code marketplace overlay
+  packages.nix      CLI tools (home.packages)
   home/
     options.nix     dotfiles.dir option (defaults to ~/workspace/kocal/dotfiles)
     nix.nix         enables flakes in ~/.config/nix/nix.conf
-    homebrew.nix    Homebrew taps, brews and casks
+    homebrew.nix    Homebrew taps, brews and casks (GUI apps, fonts, Claude Code)
     git.nix         programs.git: SSH signing via 1Password's op-ssh-sign
     zsh.nix         zsh + Starship, aliases, shell functions
     neovim.nix      programs.neovim: plugins, treesitter, vimrc
@@ -64,11 +64,11 @@ nix/
 
 ### Packages
 
-CLI tools and GUI apps go into `home.packages` in `nix/packages.nix` when they're available and working in nixpkgs: things like `gh`, `bat`, `ripgrep`, `ffmpeg`, `claude-code`, `orbstack`, `jetbrains-toolbox`, `rectangle-pro`, and more. See `packages.nix` for the full list.
+CLI tools go into `home.packages` in `nix/packages.nix`: things like `gh`, `bat`, `ripgrep`, `ffmpeg`, and more. See `packages.nix` for the full list.
 
-GUI apps installed this way get copied as real `.app` bundles into `~/Applications/Home Manager Apps`, so Spotlight and Launchpad find them automatically. The JetBrains Mono Nerd Font lands in `~/Library/Fonts/HomeManager`. VS Code itself is installed by `programs.vscode` in `home/vscode.nix`.
+VS Code is installed by `programs.vscode` in `home/vscode.nix` and copied as a real `.app` bundle into `~/Applications/Home Manager Apps`, so Spotlight and Launchpad find it.
 
-Homebrew casks live in `nix/home/homebrew.nix`. They are for apps that can't come from Nix: not in nixpkgs, darwin build broken (GTK/Qt deps, appstream/libadwaita), or strict signing and location requirements (1Password, Cloudflare WARP). Current casks include Ghostty, 1Password, Inkscape, Pinta, Affinity, VLC, and a few others; mGBA, Ankama, YACReader, Notion, Transmission, Ultimaker Cura and Tailscale are personal-only.
+GUI apps, the JetBrains Mono Nerd Font and Claude Code are Homebrew casks, listed in `nix/home/homebrew.nix`. App casks install into `/Applications` and update in place, unlike read-only Nix store copies. Claude Code uses `claude-code@latest`, which gets new releases sooner than the plain `claude-code` cask. Current casks include Ghostty, 1Password, OrbStack, JetBrains Toolbox, Firefox, Rectangle Pro, UTM, VLC, and others; Brave, mGBA, Ankama, YACReader, Notion, Transmission, Ultimaker Cura and Tailscale are personal-only.
 
 Each switch generates a Brewfile and runs `brew bundle --no-upgrade`, which installs missing casks but never upgrades or uninstalls anything. The module writes every fully qualified entry (`tap/name`, i.e. from a third-party tap) with `trusted: true` in the Brewfile, so `brew bundle` trusts it itself. If Homebrew isn't installed in `/opt/homebrew`, the step is skipped with a warning.
 
@@ -76,7 +76,7 @@ Each switch generates a Brewfile and runs `brew bundle --no-upgrade`, which inst
 
 `flake.nix` builds one config per machine through a `mkHome` helper, each passing a `profile` (`perso` or `boulot`). Almost everything is shared; the profile only adds personal extras, via `lib.optionals (profile == "perso")`:
 
-- **perso only**: Brave and yt-dlp (`packages.nix`), the upsun-cli brew with its upsun tap, and the mGBA, Ankama, YACReader, Notion, Transmission, Ultimaker Cura and Tailscale casks (`home/homebrew.nix`), JDK 21 (`home/java.nix`), and PHP 8.1 with its EOL `permittedInsecurePackages` entry (`home/php.nix`). Perso also gets Node from Vite+ (`home/vite-plus.nix`) instead of fnm.
+- **perso only**: yt-dlp (`packages.nix`), the upsun-cli brew with its upsun tap, and the Brave, mGBA, Ankama, YACReader, Notion, Transmission, Ultimaker Cura and Tailscale casks (`home/homebrew.nix`), JDK 21 (`home/java.nix`), and PHP 8.1 with its EOL `permittedInsecurePackages` entry (`home/php.nix`). Perso also gets Node from Vite+ (`home/vite-plus.nix`) instead of fnm.
 - **shared** (both machines): everything else, VLC included.
 
 The work machine (`boulot`) gets the shared base and none of those extras. To scope a package to one machine, wrap it in `lib.optionals (profile == "perso") [ ... ]` in the relevant file.
@@ -134,7 +134,7 @@ gh-stack spots a branch that isn't on the remote yet by matching git's English "
 
 ### Update
 
-Dependencies are pinned in `nix/flake.lock`. Updating bumps a flake input and rebuilds; there is no per-package pin, so a package's version follows whatever input it comes from. Most CLI tools and apps (including `claude-code`, `gh`, `php`, the GUI apps) come from `nixpkgs`.
+Dependencies are pinned in `nix/flake.lock`. Updating bumps a flake input and rebuilds; there is no per-package pin, so a package's version follows whatever input it comes from. Most CLI tools (`gh`, `php`, ...) come from `nixpkgs`.
 
 `dro` previews what an update would do before you commit to it: it updates the lock, builds the would-be home-manager generation without activating it, then diffs it against the current one and prints each package's `current -> next` version, covering the whole closure (libraries included), not just what's declared in `packages.nix`. It needs no `sudo`, and the lock is restored to its original state afterward, so nothing is left changed.
 
@@ -150,6 +150,7 @@ dru
 # equivalent to:
 nix flake update --flake "$PWD/nix"
 drs
+brew upgrade
 ```
 
 Both use the profile baked in at build time, so they work unchanged on either machine.
@@ -157,14 +158,14 @@ Both use the profile baked in at build time, so they work unchanged on either ma
 Update a single input:
 
 ```shell
-nix flake update nixpkgs --flake "$PWD/nix"   # bumps everything from nixpkgs: claude-code, gh, php, GUI apps, ...
+nix flake update nixpkgs --flake "$PWD/nix"   # bumps everything from nixpkgs: gh, php, ...
 # other inputs: home-manager, phps, nix-vscode-extensions
 drs
 ```
 
-"Update just Claude Code" means updating the full `nixpkgs` input, which moves every nixpkgs package to the channel's latest at once. Commit the resulting `flake.lock` change to keep the machine reproducible.
+Claude Code comes from the `claude-code@latest` cask, so `brew upgrade claude-code@latest` updates it alone.
 
-Homebrew casks (1Password, Ghostty, ...) are managed by Homebrew, not the lock file. Upgrade them with `brew upgrade`.
+Homebrew casks are managed by Homebrew, not the lock file. `dru` ends with `brew upgrade`, which skips casks marked `auto_updates` (Firefox, OrbStack, Rectangle Pro, JetBrains Toolbox) because they update themselves. `home/firefox.nix`, `home/orbstack.nix` and `home/rectangle-pro.nix` re-enable their updaters.
 
 Roll back a bad update:
 

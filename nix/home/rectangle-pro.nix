@@ -1,8 +1,7 @@
 { ... }: {
-  # Rectangle Pro is read-only in the Nix store -> Sparkle can't install updates.
-  # Disable the background checks. Update via `home-manager switch`.
+  # The keys written back when this was a read-only Nix copy persist: re-enable updates.
   targets.darwin.defaults."com.knollsoft.Hookshot" = {
-    SUEnableAutomaticChecks = false;
-    SUAutomaticallyUpdate = false;
+    SUEnableAutomaticChecks = true;
+    SUAutomaticallyUpdate = true;
   };
 }
