@@ -45,7 +45,7 @@ home-manager switch -b hm-backup --flake "$PWD/nix#<profile>"
 nix/
   flake.nix         flake inputs, one home-manager config per machine (mkHome)
   home.nix          home-manager entrypoint, imports everything below, copies GUI apps into ~/Applications/Home Manager Apps
-  nixpkgs.nix       allowed unfree/insecure packages, VS Code marketplace overlay
+  nixpkgs.nix       allowed unfree/insecure packages, overlays (VS Code marketplace, JetBrains Toolbox pin)
   packages.nix      CLI tools, GUI apps and fonts (home.packages)
   home/
     options.nix     dotfiles.dir option (defaults to ~/workspace/kocal/dotfiles)
