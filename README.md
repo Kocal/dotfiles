@@ -75,7 +75,7 @@ Each switch generates a Brewfile and runs `brew bundle --no-upgrade`, which inst
 
 `flake.nix` builds one config per machine through a `mkHome` helper, each passing a `profile` (`perso` or `boulot`). Almost everything is shared; the profile only adds personal extras, via `lib.optionals (profile == "perso")`:
 
-- **perso only**: the yt-dlp and upsun-cli brews (with the upsun tap), and the Brave, mGBA, Ankama, YACReader, Notion, Transmission, Ultimaker Cura and Tailscale casks (`home/homebrew.nix`), JDK 21 (`home/java.nix`), and PHP 8.1 with its EOL `permittedInsecurePackages` entry (`home/php.nix`). Perso also gets Node from Vite+ (`home/vite-plus.nix`) instead of fnm.
+- **perso only**: the yt-dlp and upsun-cli brews (with the upsun tap), and the Brave, mGBA, Ankama, YACReader, Notion, Transmission, Ultimaker Cura and Tailscale casks (`home/homebrew.nix`), JDK 21 and 25 (`openjdk@*` brews, wired up in `home/java.nix`), and PHP 8.1 with its EOL `permittedInsecurePackages` entry (`home/php.nix`). Perso also gets Node from Vite+ (`home/vite-plus.nix`) instead of fnm.
 - **shared** (both machines): everything else, VLC included.
 
 The work machine (`boulot`) gets the shared base and none of those extras. To scope a package to one machine, wrap it in `lib.optionals (profile == "perso") [ ... ]` in the relevant file.
@@ -133,7 +133,7 @@ gh-stack spots a branch that isn't on the remote yet by matching git's English "
 
 ### Update
 
-Dependencies are pinned in `nix/flake.lock`. Updating bumps a flake input and rebuilds; there is no per-package pin, so a package's version follows whatever input it comes from. Nix still installs PHP, Go, the JDKs and the tools home-manager configures (git, neovim, zsh, starship), from the `nixpkgs` or `phps` inputs.
+Dependencies are pinned in `nix/flake.lock`. Updating bumps a flake input and rebuilds; there is no per-package pin, so a package's version follows whatever input it comes from. Nix still installs PHP (with composer, symfony-cli and Blackfire) and the tools home-manager configures (git, neovim, zsh, starship), from the `nixpkgs` or `phps` inputs. PHP stays on Nix on purpose: on Homebrew it would need three taps plus activation scripts for the Blackfire probe and php.ini.
 
 `dro` previews what an update would do before you commit to it: it updates the lock, builds the would-be home-manager generation without activating it, then diffs it against the current one and prints each package's `current -> next` version, covering the whole closure (libraries included), not just what the modules declare. It needs no `sudo`, and the lock is restored to its original state afterward, so nothing is left changed.
 
@@ -157,7 +157,7 @@ Both use the profile baked in at build time, so they work unchanged on either ma
 Update a single input:
 
 ```shell
-nix flake update nixpkgs --flake "$PWD/nix"   # bumps everything from nixpkgs: git, neovim, go, ...
+nix flake update nixpkgs --flake "$PWD/nix"   # bumps everything from nixpkgs: php, git, neovim, ...
 # other inputs: home-manager, phps, nix-vscode-extensions
 drs
 ```

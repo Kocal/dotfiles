@@ -14,10 +14,13 @@ let
     "bat"
     "btop"
     "curl" # keg-only: not linked into /opt/homebrew/bin, home/zsh.nix adds it to PATH
+    "delve" # Go debugger (`dlv`)
     "fd"
     "ffmpeg"
     "gh"
     "glab"
+    "go"
+    "gopls" # Go language server
     "htop"
     "imagemagick" # `magick`/`convert`/`identify`/`mogrify` CLI
     "jq"
@@ -33,6 +36,8 @@ let
   ]
   # perso-only brews
   ++ lib.optionals isPerso [
+    "openjdk@21" # keg-only, home/java.nix points JAVA_HOME and Gradle at it
+    "openjdk@25"
     "upsun/tap/upsun-cli"
     "yt-dlp"
   ]
