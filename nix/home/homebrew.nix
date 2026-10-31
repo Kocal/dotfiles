@@ -62,6 +62,7 @@ let
     "pinta" # nixpkgs build broken on darwin (appstream/libadwaita)
     "vorssaint/tap/vorssaint" # third-party vendor tap, not in core homebrew-cask
     "google-chrome" # nixpkgs google-chrome is linux-only
+    "google-chrome@canary" # debug browser for the chrome-devtools MCP (home/claude.nix), separate bundle so the Dock icon never activates it
     "vlc" # nixpkgs vlc is unreliable on darwin
     "android-platform-tools" # `adb`/`fastboot`
     "claude-code@latest" # `claude`; the plain `claude-code` cask lags behind

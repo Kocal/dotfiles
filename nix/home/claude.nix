@@ -13,7 +13,7 @@ let
     url="http://127.0.0.1:9222"
 
     if ! curl -sf "$url/json/version" >/dev/null; then
-      /usr/bin/open -na "Google Chrome" --args --remote-debugging-port=9222 \
+      /usr/bin/open -na "Google Chrome Canary" --args --remote-debugging-port=9222 \
         --user-data-dir="$HOME/.cache/chrome-devtools-mcp/chrome-profile" \
         --disable-blink-features=AutomationControlled
       for _ in $(seq 1 50); do curl -sf "$url/json/version" >/dev/null && break; sleep 0.2; done
