@@ -3,33 +3,11 @@ let
   # Live path to this repo's claude config (working tree, not the Nix store).
   claudeSrc = "${config.dotfiles.dir}/nix/home/claude";
   link = path: config.lib.file.mkOutOfStoreSymlink "${claudeSrc}/${path}";
+  agentsLink = path: config.lib.file.mkOutOfStoreSymlink "${config.dotfiles.dir}/agents/${path}";
 
   chromePlugin = "chrome-devtools-mcp@claude-plugins-official";
 
-  # One MCP server per Claude session, so they all share one debug Chrome instead of fighting over the profile lock.
-  chromeDevtoolsMcp = pkgs.writeShellScript "chrome-devtools-mcp-shared" ''
-    set -eu
-    export PATH="${lib.makeBinPath [ pkgs.curl pkgs.coreutils ]}:$PATH"
-    url="http://127.0.0.1:9222"
-
-    if ! curl -sf "$url/json/version" >/dev/null; then
-      /usr/bin/open -na "Google Chrome Canary" --args --remote-debugging-port=9222 \
-        --user-data-dir="$HOME/.cache/chrome-devtools-mcp/chrome-profile" \
-        --disable-blink-features=AutomationControlled
-      for _ in $(seq 1 50); do curl -sf "$url/json/version" >/dev/null && break; sleep 0.2; done
-    fi
-
-    exec npx --prefix "$HOME" -y chrome-devtools-mcp@latest --category-extensions --browserUrl "$url"
-  '';
-
-  mcpServers = {
-    chrome-devtools = {
-      type = "stdio";
-      command = "${chromeDevtoolsMcp}";
-      args = [ ];
-      env.CHROME_DEVTOOLS_MCP_NO_USAGE_STATISTICS = "1";
-    };
-  };
+  mcpServers = lib.mapAttrs (_: s: { type = "stdio"; inherit (s) command args env; }) config.dotfiles.agents.mcpServers;
 
   mcpServersJson = pkgs.writeText "claude-mcp-servers.json" (builtins.toJSON mcpServers);
 
@@ -44,11 +22,30 @@ let
     mv "$tmp" "$config"
   '';
 
+  warnClaudeCommands = pkgs.writeShellScript "claude-warn-commands" ''
+    export PATH="${lib.makeBinPath [ pkgs.coreutils pkgs.diffutils ]}:$PATH"
+    dir="''${1:-$HOME/.claude/commands}"
+    shared="''${2:-${config.dotfiles.dir}/agents/commands}"
+    if [ -L "$dir" ] || [ ! -d "$dir" ]; then
+      exit 0
+    fi
+    for file in "$dir"/*.md; do
+      [ -f "$file" ] || continue
+      name="$(basename "$file")"
+      if [ ! -f "$shared/$name" ]; then
+        echo "claude: $file n'existe pas dans $shared, le déplacer dans agents/commands/ et le commiter avant le switch" >&2
+      elif ! cmp -s "$file" "$shared/$name"; then
+        echo "claude: $file diffère de $shared/$name, reporter les changements dans agents/commands/ et les commiter avant le switch" >&2
+      fi
+    done
+    exit 0
+  '';
+
   syncPluginSkills = pkgs.writeShellScript "claude-sync-plugin-skills" ''
     set -euo pipefail
     export PATH="${lib.makeBinPath [ pkgs.coreutils pkgs.gnugrep pkgs.gnused pkgs.jq pkgs.rsync pkgs.diffutils ]}:$PATH"
 
-    skillsDir="${claudeSrc}/skills"
+    skillsDir="${config.dotfiles.dir}/agents/skills"
     gitignore="$skillsDir/.gitignore"
     installed="$HOME/.claude/plugins/installed_plugins.json"
 
@@ -101,11 +98,15 @@ in
     ".claude/settings.json".source = link "settings.json";
     ".claude/statusline-command.sh".source = link "statusline-command.sh";
     ".claude/deny-guard.sh".source = link "deny-guard.sh";
-    ".claude/CLAUDE.md".source = link "CLAUDE.md";
-    ".claude/agents".source = link "agents";
-    ".claude/skills".source = link "skills";
+    ".claude/CLAUDE.md".source = agentsLink "AGENTS.md";
+    ".claude/agents".source = agentsLink "subagents";
+    ".claude/commands".source = agentsLink "commands";
+    ".claude/skills".source = agentsLink "skills";
     ".claude/agent-memory".source = link "agent-memory";
   };
+
+  home.activation.claudeWarnCommands =
+    lib.hm.dag.entryBefore [ "checkLinkTargets" ] "$DRY_RUN_CMD ${warnClaudeCommands} || true";
 
   # MCP servers can only be declared in ~/.claude.json, which also holds runtime
   # state (history, per-project data, OAuth tokens), so it cannot be symlinked

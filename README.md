@@ -42,6 +42,7 @@ home-manager switch -b hm-backup --flake "$PWD/nix#<profile>"
 ## Layout
 
 ```
+agents/             shared by Claude Code and OpenCode: AGENTS.md, commands/, skills/, subagents/
 nix/
   flake.nix         flake inputs, one home-manager config per machine (mkHome)
   home.nix          home-manager entrypoint, imports everything below
@@ -57,7 +58,9 @@ nix/
     vite-plus.nix   sources Vite+ env from .zshrc (Node and package managers on perso)
     php.nix         PHP 8.2-8.5 (+ 8.1 on perso) + composer + symfony-cli
     docker.nix      ~/.docker/config.json symlinked out-of-store to nix/home/docker/
-    claude.nix      ~/.claude/* symlinked out-of-store to nix/home/claude/
+    agents.nix      MCP servers shared by Claude Code and OpenCode
+    claude.nix      ~/.claude/* symlinked out-of-store to nix/home/claude/ and agents/
+    opencode.nix    OpenCode config, permissions and plugins (files in nix/home/opencode/)
     ghostty.nix     Ghostty config (app itself is a Homebrew cask)
 ```
 
@@ -88,9 +91,41 @@ The work machine (`boulot`) gets the shared base and none of those extras. To sc
 - **node** (`home/node.nix`): fnm as the version manager, boulot only. Nix installs fnm itself; you still need to run `fnm install --lts` (or a specific version) after first setup.
 - **vite-plus** (`home/vite-plus.nix`): perso only. Sources `~/.config/vite-plus/env` from `.zshrc`, so `vp` and its node/npm/pnpm/yarn shims are on PATH. The shims pick the Node version from `.nvmrc`, `.node-version`, `engines.node` or `devEngines.runtime`, and download a missing version on first use. Vite+ itself is installed outside Nix (see Post-install).
 - **php** (`home/php.nix`): PHP 8.2-8.5 (plus 8.1 on the personal machine only), each with opcache, xdebug, apcu, blackfire probe, xsl, redis, amqp, and imagick. Default unversioned `php` is 8.4. Versioned binaries (`php8.2` ... `php8.5`, and `php8.1` on perso) are on PATH so the Symfony CLI picks the right one via `.php-version`. PHP 8.1 comes from the `phps` input (EOL, dropped from nixpkgs) and is installed on perso only.
-- **claude** (`home/claude.nix`): `~/.claude/settings.json`, `~/.claude/CLAUDE.md`, `~/.claude/agents/`, `~/.claude/skills/`, and `~/.claude/agent-memory/` are all out-of-store symlinks pointing back into `nix/home/claude/`. Runtime writes by Claude land in the repo, not a read-only store path.
+- **claude** (`home/claude.nix`): `~/.claude/settings.json` and `~/.claude/agent-memory/` are out-of-store symlinks into `nix/home/claude/`. `~/.claude/CLAUDE.md`, `~/.claude/agents/`, `~/.claude/commands/` and `~/.claude/skills/` point into the repo's `agents/` (`AGENTS.md`, `subagents/`, `commands/`, `skills/`), which OpenCode reads too. Claude's runtime writes land in the repo, not in a read-only store path.
+- **agents** (`home/agents.nix`): the MCP servers used by both tools, defined once.
+- **opencode** (`home/opencode.nix`): see [OpenCode](#opencode).
 - **docker** (`home/docker.nix`): `~/.docker/config.json` symlinked out-of-store to `nix/home/docker/config.json`, so `docker login` / `docker context use` writes land in the repo instead of failing against a read-only store path. Sets `credsStore = osxkeychain` (the helper OrbStack ships); this replaced a stray global `ecr-login` default that broke every Docker Hub pull once the Brew-installed helper disappeared in the Nix migration.
 - **ghostty** (`home/ghostty.nix`): config written to `~/.config/ghostty/config` by home-manager. The app itself is a cask; nixpkgs ghostty is broken on darwin.
+
+### OpenCode
+
+OpenCode is the `opencode` formula plus the `opencode-desktop` cask. It uses Claude through its built-in Claude Agent provider, which reuses the Claude Code login, so there is no API key. Once per machine, run `/connect` in OpenCode and pick Claude Agent.
+
+`~/.config/opencode/opencode.json` is a real file, merged at every switch. Nix owns these keys: `$schema`, `autoupdate`, `model` (`claude-agent/opus#xhigh`), `agents.title`, `agents.general`, `agents.plan` and `agents.explore`, `instructions`, `plugins` and `permissions`. In `mcp`, only `chrome-devtools` and `claude-mem` are overwritten. Any other key you add is kept.
+
+`~/.config/opencode/AGENTS.md` is the shared `agents/AGENTS.md`. Every `agents/commands/*.md` (today `/review`) is linked into `~/.config/opencode/commands/` at the next switch. Only its `description` frontmatter works in both tools. `/simplify` exists in OpenCode only (`nix/home/opencode/commands/simplify.md`).
+
+OpenCode reads `~/.claude/skills` natively. The skills of the Claude plugins (i-have-adhd, symfony-ux-skills, symfony-contribution-skills, skill-creator) are copied into `~/.config/opencode/skills/`.
+
+Permissions run in auto mode, in the CLI and the desktop app. A leading rule allows everything, then come deny rules generated from Claude's `permissions.deny` (`Bash` becomes `shell`, `Read` stays `read`, `Edit` stays `edit`), plus an `edit` deny on Claude's project memory. A Claude rule that pipes into a command, like `curl * | sh`, also denies that command run alone or with `-s`, because OpenCode checks each command of a pipe separately.
+
+Subagents copied from `agents/subagents/` get the same deny rules after their own allow rules. The built-in agents keep their restrictions: plan and explore cannot edit (plan can still write plan files in `~/.opencode/plan/`), and general cannot ask questions or start subagents.
+
+The `deny-guard` plugin also runs `~/.claude/deny-guard.sh`, so the deny list applies to wrapped commands too (loops, subshells, `&&`, pipes).
+
+Plugins:
+
+- **rtk**: generated by `rtk init` in a temporary HOME.
+- **superpowers**: loaded from the Claude plugin's directory, or from its git repository when that plugin is not installed.
+- **claude-mem**: both tools share one database. Each switch sets `CLAUDE_MEM_SESSION_START_INCLUDE_ALL_SOURCES=true`, so each tool sees the other's observations. After a claude-mem update in Claude Code (`claude plugin update claude-mem@thedotmack`), run `opencode-install-claude-mem`.
+- **claude-memory**: gives OpenCode sessions Claude Code's per-project `MEMORY.md`, read-only, including under the Claude Agent provider.
+- **statusline** (CLI only): replaces the left part of the prompt footer, clickable folder included, with the Claude Code status line. It hides the cost while it is 0, and counts lines from the git diff of the working copy, not from the session's edits.
+
+After an OpenCode upgrade, compare the output of `opencode debug agents` with the per-agent lists in `nix/home/opencode/merge-config.jq`, which copy the plan, general and explore rules of 2.2.3.
+
+A running OpenCode background service keeps the plugins it already loaded. After a switch that changes plugins, quit your OpenCode sessions, or test with `opencode run --standalone`.
+
+On boulot, before the first switch, move `~/.claude/commands/*.md` into `agents/commands/` and commit them: the switch replaces that directory with a link and warns about files missing there. Then switch, run `/connect` (Claude Agent), then `opencode-install-claude-mem`.
 
 ## Post-install
 

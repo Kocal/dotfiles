@@ -26,6 +26,7 @@ let
     "jq"
     "make" # installs `gmake`, home/zsh.nix puts its `make` gnubin on PATH
     "mkcert"
+    "opencode"
     "ripgrep"
     "rtk"
     "tree"
@@ -69,6 +70,7 @@ let
     "firefox"
     "font-jetbrains-mono-nerd-font"
     "jetbrains-toolbox"
+    "opencode-desktop"
     "orbstack"
     "rectangle-pro"
     "utm"
