@@ -1,13 +1,15 @@
-. + {
+del(.autoupdate) + {
   "$schema": "https://opencode.ai/config.json",
-  autoupdate: false,
+  update: "disable",
   model: "claude-agent/opus#xhigh",
+  worktree: {directory: ".claude/worktrees"},
   instructions: ["\($home)/.claude/RTK.md", "\($opencodeSrc)/AGENTS.opencode.md"],
   plugins: [$superpowers],
   permissions: ([{action: "*", resource: "*", effect: "allow"}] + $denies)
 }
 | .agents = ((.agents // {}) * {
     title: {model: "claude-agent/haiku"},
+    build: {model: "claude-agent/opus#xhigh"},
     general: {
       model: "claude-agent/sonnet",
       permissions: [
@@ -16,6 +18,7 @@
       ]
     },
     plan: {
+      model: "claude-agent/opus#xhigh",
       permissions: ([
         {action: "edit", resource: "*", effect: "deny"},
         {action: "edit", resource: "\($home)/.opencode/plan/*", effect: "allow"}

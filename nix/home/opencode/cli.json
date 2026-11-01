@@ -18,6 +18,9 @@
     "new_location": "launch"
   },
   "animations": true,
+  "prompt": {
+    "paste": "full"
+  },
   "tabs": {
     "mode": "off",
     "layout": "horizontal"

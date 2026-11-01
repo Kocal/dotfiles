@@ -101,9 +101,9 @@ The work machine (`boulot`) gets the shared base and none of those extras. To sc
 
 OpenCode is the `opencode` formula plus the `opencode-desktop` cask. It uses Claude through its built-in Claude Agent provider, which reuses the Claude Code login, so there is no API key. Once per machine, run `/connect` in OpenCode and pick Claude Agent.
 
-`~/.config/opencode/opencode.json` is a real file, merged at every switch. Nix owns these keys: `$schema`, `autoupdate`, `model` (`claude-agent/opus#xhigh`), `agents.title`, `agents.general`, `agents.plan` and `agents.explore`, `instructions`, `plugins` and `permissions`. In `mcp`, only `chrome-devtools` and `claude-mem` are overwritten. Any other key you add is kept.
+`~/.config/opencode/opencode.json` is a real file, merged at every switch. Nix owns these keys: `$schema`, `update` (`disable`), `model` (`claude-agent/opus#xhigh`), `worktree` (OpenCode worktrees go in `<repo>/.claude/worktrees/`), `agents.title`, `agents.general`, `agents.build`, `agents.plan` and `agents.explore`, `instructions`, `plugins` and `permissions`. The old `autoupdate` key is removed from the file. `agents.build` and `agents.plan` repeat `claude-agent/opus#xhigh` because OpenCode drops the `#xhigh` variant from the root `model`. In `mcp`, only `chrome-devtools` and `claude-mem` are overwritten. Any other key you add is kept.
 
-`~/.config/opencode/cli.json` holds the TUI settings and is also a real file, deep-merged at every switch with `nix/home/opencode/cli.json`. Keys from the repo file win (today: `theme`, `diffs`, `session`, `animations`, `tabs`, including `tabs.mode: off`), and keys set elsewhere, for example from the settings dialog (Ctrl+P), are kept.
+`~/.config/opencode/cli.json` holds the TUI settings and is also a real file, deep-merged at every switch with `nix/home/opencode/cli.json`. Keys from the repo file win (today: `theme`, `diffs`, `session`, `animations`, `prompt`, `tabs`, including `tabs.mode: off`), and keys set elsewhere, for example from the settings dialog (Ctrl+P), are kept.
 
 `~/.config/opencode/AGENTS.md` is the shared `agents/AGENTS.md`. Every `agents/commands/*.md` (today `/review`) is linked into `~/.config/opencode/commands/` at the next switch. Only its `description` frontmatter works in both tools. `/simplify` exists in OpenCode only (`nix/home/opencode/commands/simplify.md`).
 
