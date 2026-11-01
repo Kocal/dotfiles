@@ -70,6 +70,27 @@ let
     cmp -s "$tmp" "$config" || mv "$tmp" "$config"
   '';
 
+  mergeCliConfig = pkgs.writeShellScript "opencode-merge-cli-config" ''
+    set -euo pipefail
+    export PATH="${lib.makeBinPath [ pkgs.coreutils pkgs.diffutils pkgs.jq ]}:$PATH"
+    config="$HOME/.config/opencode/cli.json"
+    mkdir -p "$(dirname "$config")"
+    [ -f "$config" ] && [ -n "$(tr -d '[:space:]' < "$config")" ] || printf '{}\n' > "$config"
+    if ! jq empty "$config" 2>/dev/null; then
+      echo "opencode: ~/.config/opencode/cli.json n'est pas du JSON valide, fusion ignorée" >&2
+      exit 0
+    fi
+
+    tmp="$(mktemp "$config.XXXXXX")"
+    trap 'rm -f "$tmp"' EXIT
+    jq -s '.[0] * .[1]' "$config" ${./opencode/cli.json} > "$tmp"
+    if [ ! -s "$tmp" ]; then
+      echo "opencode: la fusion a produit un fichier vide, cli.json inchangé" >&2
+      exit 0
+    fi
+    cmp -s "$tmp" "$config" || mv "$tmp" "$config"
+  '';
+
   syncPluginSkills = pkgs.writeShellScript "opencode-sync-plugin-skills" ''
     set -euo pipefail
     export PATH="${lib.makeBinPath [ pkgs.coreutils pkgs.jq pkgs.rsync ]}:$PATH"
@@ -284,6 +305,9 @@ in
 
   home.activation.opencodeConfig =
     lib.hm.dag.entryAfter [ "writeBoundary" ] "$DRY_RUN_CMD ${mergeConfig}";
+
+  home.activation.opencodeCliConfig =
+    lib.hm.dag.entryAfter [ "writeBoundary" ] "$DRY_RUN_CMD ${mergeCliConfig}";
 
   home.activation.opencodeSharedCommands =
     lib.hm.dag.entryAfter [ "writeBoundary" ] "$DRY_RUN_CMD ${syncCommands}";

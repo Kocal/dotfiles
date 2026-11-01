@@ -103,6 +103,8 @@ OpenCode is the `opencode` formula plus the `opencode-desktop` cask. It uses Cla
 
 `~/.config/opencode/opencode.json` is a real file, merged at every switch. Nix owns these keys: `$schema`, `autoupdate`, `model` (`claude-agent/opus#xhigh`), `agents.title`, `agents.general`, `agents.plan` and `agents.explore`, `instructions`, `plugins` and `permissions`. In `mcp`, only `chrome-devtools` and `claude-mem` are overwritten. Any other key you add is kept.
 
+`~/.config/opencode/cli.json` holds the TUI settings and is also a real file, deep-merged at every switch with `nix/home/opencode/cli.json`. Keys from the repo file win (today: `theme`, `diffs`, `session`, `animations`, `tabs`, including `tabs.mode: off`), and keys set elsewhere, for example from the settings dialog (Ctrl+P), are kept.
+
 `~/.config/opencode/AGENTS.md` is the shared `agents/AGENTS.md`. Every `agents/commands/*.md` (today `/review`) is linked into `~/.config/opencode/commands/` at the next switch. Only its `description` frontmatter works in both tools. `/simplify` exists in OpenCode only (`nix/home/opencode/commands/simplify.md`).
 
 OpenCode reads `~/.claude/skills` natively. The skills of the Claude plugins (i-have-adhd, symfony-ux-skills, symfony-contribution-skills, skill-creator) are copied into `~/.config/opencode/skills/`.
