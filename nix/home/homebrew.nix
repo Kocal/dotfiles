@@ -13,6 +13,7 @@ let
   brews = [
     "bat"
     "btop"
+    "bun" # compiles the claude-mem hook launcher; nixpkgs' re-signed bun builds binaries macOS kills
     "curl" # keg-only: not linked into /opt/homebrew/bin, home/zsh.nix adds it to PATH
     "delve" # Go debugger (`dlv`)
     "fd"
