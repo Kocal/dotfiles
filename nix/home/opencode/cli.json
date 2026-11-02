@@ -18,7 +18,6 @@
     "new_location": "launch"
   },
   "animations": true,
-  "mouse": false,
   "prompt": {
     "paste": "full"
   },
