@@ -1,0 +1,2 @@
+- "AskUserQuestion" in these instructions means the `question` tool.
+- The `i-have-adhd:i-have-adhd` skill is named `i-have-adhd` here.

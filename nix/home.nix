@@ -16,7 +16,9 @@
     ./home/vscode.nix
     ./home/chrome.nix
     ./home/docker.nix
+    ./home/agents.nix
     ./home/claude.nix
+    ./home/opencode.nix
   ];
 
   # Spotlight ignores symlinked apps, so copy the bundles instead.

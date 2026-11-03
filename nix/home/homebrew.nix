@@ -13,6 +13,7 @@ let
   brews = [
     "bat"
     "btop"
+    "bun" # compiles the claude-mem hook launcher; nixpkgs' re-signed bun builds binaries macOS kills
     "curl" # keg-only: not linked into /opt/homebrew/bin, home/zsh.nix adds it to PATH
     "delve" # Go debugger (`dlv`)
     "fd"
@@ -26,6 +27,7 @@ let
     "jq"
     "make" # installs `gmake`, home/zsh.nix puts its `make` gnubin on PATH
     "mkcert"
+    "opencode"
     "ripgrep"
     "rtk"
     "tree"
@@ -69,6 +71,7 @@ let
     "firefox"
     "font-jetbrains-mono-nerd-font"
     "jetbrains-toolbox"
+    "opencode-desktop"
     "orbstack"
     "rectangle-pro"
     "utm"
