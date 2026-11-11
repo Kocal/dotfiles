@@ -45,14 +45,8 @@ const DenyGuardPlugin = {
       const command = e?.input?.command
       if ((tool !== "bash" && tool !== "shell") || typeof command !== "string" || !command.trim()) return
 
-      const candidates = [command]
-      const unwrapped = command.replace(/^\s*rtk\s+/, "")
-      if (unwrapped !== command) candidates.push(unwrapped)
-
-      for (const candidate of candidates) {
-        const reason = await check(candidate)
-        if (reason) throw new Error(reason)
-      }
+      const reason = await check(command)
+      if (reason) throw new Error(reason)
     })
   },
 }

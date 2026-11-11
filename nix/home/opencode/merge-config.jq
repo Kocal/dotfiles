@@ -3,7 +3,7 @@ del(.autoupdate) + {
   update: "disable",
   model: "claude-agent/opus#xhigh",
   worktree: {directory: ".claude/worktrees"},
-  instructions: ["\($home)/.claude/RTK.md", "\($opencodeSrc)/AGENTS.opencode.md"],
+  instructions: ["\($opencodeSrc)/AGENTS.opencode.md"],
   plugins: [$superpowers],
   permissions: ([{action: "*", resource: "*", effect: "allow"}] + $denies)
 }

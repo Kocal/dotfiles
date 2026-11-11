@@ -58,5 +58,3 @@
 - Git worktrees go in `<repo>/.claude/worktrees/<name>`. Not the session scratchpad, not a sibling directory next to the repo.
 - Add `/.claude/worktrees/` to `.git/info/exclude` (local only, never the tracked `.gitignore`) so `git status` stays clean.
 - Remove the worktree with `git worktree remove` once the branch is merged or abandoned.
-
-@RTK.md

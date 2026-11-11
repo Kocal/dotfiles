@@ -213,32 +213,6 @@ let
     done
   '';
 
-  rtkPlugin = pkgs.writeShellScript "opencode-rtk-plugin" ''
-    set -euo pipefail
-    export PATH="${lib.makeBinPath [ pkgs.coreutils pkgs.diffutils ]}:$PATH"
-    rtk=/opt/homebrew/bin/rtk
-    if [ ! -x "$rtk" ]; then
-      echo "opencode: $rtk absent, plugin rtk ignoré" >&2
-      exit 0
-    fi
-
-    tmp="$(mktemp -d)" || { echo "opencode: mktemp a échoué, plugin rtk ignoré" >&2; exit 0; }
-    if ! output="$(HOME="$tmp" "$rtk" init -g --opencode --hook-only </dev/null 2>&1)"; then
-      echo "opencode: rtk init a échoué, plugin rtk ignoré" >&2
-      printf '%s\n' "$output" >&2
-      exit 0
-    fi
-    generated="$tmp/.config/opencode/plugins/rtk.ts"
-    if [ ! -f "$generated" ]; then
-      echo "opencode: rtk n'a pas généré rtk.ts, plugin ignoré" >&2
-      exit 0
-    fi
-
-    target="$HOME/.config/opencode/plugins/rtk.ts"
-    mkdir -p "$(dirname "$target")"
-    cmp -s "$generated" "$target" || cp "$generated" "$target"
-  '';
-
   installClaudeMem = pkgs.writeShellScriptBin "opencode-install-claude-mem" ''
     set -euo pipefail
     export PATH="${lib.makeBinPath [ pkgs.coreutils pkgs.jq pkgs.nodejs ]}:$PATH"
@@ -317,9 +291,6 @@ in
 
   home.activation.opencodeAgents =
     lib.hm.dag.entryAfter [ "opencodeConfig" ] "$DRY_RUN_CMD ${syncAgents}";
-
-  home.activation.opencodeRtkPlugin =
-    lib.hm.dag.entryAfter [ "opencodeConfig" "homebrewBundle" ] "$DRY_RUN_CMD ${rtkPlugin}";
 
   home.activation.opencodeCheckClaudeMem =
     lib.hm.dag.entryAfter [ "opencodeConfig" ] "$DRY_RUN_CMD ${checkClaudeMem}";

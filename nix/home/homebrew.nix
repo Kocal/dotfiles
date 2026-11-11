@@ -29,7 +29,6 @@ let
     "mkcert"
     "opencode"
     "ripgrep"
-    "rtk"
     "tree"
     "uv"
     "wget"
