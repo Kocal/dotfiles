@@ -67,6 +67,8 @@ in
       encore = "cd ~/workspace/symfony/webpack-encore";
       dotfiles = "cd ${config.dotfiles.dir}";
 
+      oc = "opencode";
+
       # git shortcuts (oh-my-zsh git plugin style)
       g = "git";
       ga = "git add";
