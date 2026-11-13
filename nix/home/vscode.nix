@@ -43,7 +43,17 @@
         github.github-vscode-theme
         k--kato.intellij-idea-keybindings
         ms-ceintl.vscode-language-pack-fr
-      ];
+      ] ++ (with pkgs.vscode-marketplace-release; [
+        # Java, on the release channel: vscode-marketplace serves their nightly pre-releases.
+        # Pack members are listed too: VS Code can't install them into the read-only dir.
+        vscjava.vscode-java-pack
+        redhat.java
+        vscjava.vscode-java-debug
+        vscjava.vscode-java-test
+        vscjava.vscode-maven
+        vscjava.vscode-gradle
+        vscjava.vscode-java-dependency
+      ]);
     };
   };
 }
