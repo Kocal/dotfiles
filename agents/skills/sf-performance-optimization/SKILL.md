@@ -49,6 +49,9 @@ description: Evidence-driven performance work on PHP and JS/TS. Find the hot pat
 | Trap | Reality |
 |------|---------|
 | The first run right after `git checkout` | Contaminated: it pays template recompilation and cold caches. One profile read 4584ms/109MB this way against 3054-3259ms/93MB once warm — a 36% "win" that did not exist. Run once and discard before measuring. |
+| Measuring a Symfony app in its `dev` environment | `debug=true` (profiler, `DebugClassLoader`, traceable dispatcher) can triple wall time and buries the code you changed: one page read 501 ms with debug, 189 ms without. Every measured run goes with debug off (`APP_DEBUG=0`, or `parent::__construct($environment, false)` in `Kernel::__construct`, reverted before commit), then that app's cache cleared and warmed up. |
+| All BEFORE runs, then all AFTER runs | The machine drifts: two benchmarks ten minutes apart are not comparable. Alternate rounds (AFTER, BEFORE, AFTER, BEFORE) with a cache clear and a warmup at each switch. Two agreeing rounds settle it. |
+| Timing an HTTP page without checking what came back | A lost session cookie or a redirect returns a smaller, faster page, and the "win" is an empty response. Log `%{http_code}` and `%{size_download}` next to every timing; both sides must match. |
 | `git checkout <branch> -- <file>` to compare | If the change is not committed, this **destroys it**. Use `git show <base>:<path>` instead, which writes to stdout and cannot touch the working tree. |
 | Blackfire numbers disagreeing with raw ones | Instrumentation costs per *call*, so it flattens wins that shrink work inside one call and inflates wins that remove calls. Report both. |
 | Grepping to confirm you removed something | Grep for what the reader sees, not the string you renamed. A renamed heading made a search come up clean while the whole dump was still in 14 PRs. |
@@ -113,6 +116,26 @@ cp "$S/Foo.candidate.php" src/Foo.php             # run AFTER
 
 `git show` writes to stdout and leaves the working tree alone. `git checkout <base> -- <path>`
 overwrites it, which is how uncommitted work disappears.
+
+### HTTP endpoints
+
+Behind a login, fetch a session first (GET the login page into `cookies.txt`, then POST the form
+with `-b cookies.txt -c cookies.txt`). Then, for each side of each round:
+
+```sh
+#!/bin/sh
+# usage: sh bench.sh "<label>" "<url>"
+export LC_ALL=C
+for i in 1 2 3 4 5; do curl -sk -b cookies.txt -o /dev/null "$2"; done
+META=$(curl -sk -b cookies.txt -o /dev/null -w '%{http_code} %{size_download}b' "$2")
+for i in $(seq 1 30); do curl -sk -b cookies.txt -o /dev/null -w '%{time_total}\n' "$2"; done \
+  | sort -n | awk -v l="$1" -v m="$META" '{a[NR]=$1} END {
+      printf "%-24s med=%.1fms p90=%.1fms min=%.1fms %s\n",
+             l, a[int(NR*.5)]*1000, a[int(NR*.9)]*1000, a[1]*1000, m }'
+```
+
+The median of these raw requests is the number to publish. A Blackfire trace taken alongside
+gives the deterministic `ct` and the SQL query count, not the time.
 
 ## Tooling
 
