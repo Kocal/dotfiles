@@ -19,6 +19,7 @@
     ./home/agents.nix
     ./home/claude.nix
     ./home/opencode.nix
+    ./home/modern-web-guidance.nix
   ];
 
   # Spotlight ignores symlinked apps, so copy the bundles instead.

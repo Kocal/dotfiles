@@ -29,6 +29,12 @@ in
     description = "MCP servers shared by every coding agent (Claude Code, OpenCode).";
   };
 
+  options.dotfiles.agents.unversionedSkills = lib.mkOption {
+    type = lib.types.listOf lib.types.str;
+    default = [ ];
+    description = "Skills installed by hand into agents/skills/ and kept out of git.";
+  };
+
   config.dotfiles.agents.mcpServers.chrome-devtools = {
     command = "${chromeDevtoolsMcp}";
     env.CHROME_DEVTOOLS_MCP_NO_USAGE_STATISTICS = "1";

@@ -25,6 +25,8 @@
       "Bash(npm run *)",
       "Bash(npm test *)",
       "Bash(npx tsc *)",
+      "Bash(npx -y modern-web-guidance@latest *)",
+      "Bash(pnpx modern-web-guidance@latest *)",
       "Bash(git status)",
       "Bash(git branch --show-current)",
       "Bash(git diff *)",

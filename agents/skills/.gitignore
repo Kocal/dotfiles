@@ -7,5 +7,7 @@
 /debug-optimize-lcp/
 /memory-leak-debugging/
 /troubleshooting/
+# Skills installes a la main, declares dans dotfiles.agents.unversionedSkills.
+/modern-web-guidance/
 # Skills du compte claude.ai, telecharges par Claude Code a chaque session.
 /synced/

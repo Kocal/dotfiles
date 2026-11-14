@@ -7,6 +7,8 @@ let
 
   chromePlugin = "chrome-devtools-mcp@claude-plugins-official";
 
+  unversionedSkills = lib.sort lib.lessThan config.dotfiles.agents.unversionedSkills;
+
   mcpServers = lib.mapAttrs (_: s: { type = "stdio"; inherit (s) command args env; }) config.dotfiles.agents.mcpServers;
 
   mcpServersJson = pkgs.writeText "claude-mcp-servers.json" (builtins.toJSON mcpServers);
@@ -61,6 +63,7 @@ let
       exit 0
     fi
 
+    manual="${lib.concatMapStrings (s: "${s}:") unversionedSkills}"
     synced=""
     for dir in "$src"/skills/*/; do
       [ -f "$dir/SKILL.md" ] || continue
@@ -72,7 +75,7 @@ let
     if [ -f "$gitignore" ]; then
       grep -v '^#' "$gitignore" | sed 's|^/||;s|/$||' | while read -r previous; do
         [ -n "$previous" ] && [ "$previous" != synced ] || continue
-        case ":$synced" in *":$previous:"*) continue ;; esac
+        case ":$synced$manual" in *":$previous:"*) continue ;; esac
         echo "claude: le skill $previous n'existe plus en amont, a supprimer: rm -r $skillsDir/$previous" >&2
       done
     fi
@@ -83,6 +86,9 @@ let
       echo "# Skills synchronisees depuis le plugin ${chromePlugin}."
       echo "# Genere par nix/home/claude.nix a chaque home-manager switch, ne pas editer."
       printf '%s' "$synced" | tr ':' '\n' | grep -v '^$' | sort | sed 's|^|/|;s|$|/|'
+      ${lib.optionalString (unversionedSkills != [ ]) ''
+        echo "# Skills installes a la main, declares dans dotfiles.agents.unversionedSkills."
+        ${lib.concatMapStrings (s: "echo ${lib.escapeShellArg "/${s}/"}\n") unversionedSkills}''}
       echo "# Skills du compte claude.ai, telecharges par Claude Code a chaque session."
       echo "/synced/"
     } > "$tmp"
