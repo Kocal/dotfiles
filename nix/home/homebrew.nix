@@ -57,7 +57,6 @@ let
     "ghostty" # nixpkgs ghostty is broken on darwin
     "handy" # not in nixpkgs
     "imageoptim" # not in nixpkgs
-    "monitorcontrol" # not in nixpkgs (macOS-only app)
     "affinity" # not in nixpkgs (proprietary Serif)
     "inkscape" # nixpkgs build broken on darwin (appstream/libadwaita)
     "pinta" # nixpkgs build broken on darwin (appstream/libadwaita)
