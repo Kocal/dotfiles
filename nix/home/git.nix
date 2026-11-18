@@ -6,8 +6,18 @@ let
     if pkgs.stdenv.hostPlatform.isDarwin
     then "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
     else "/opt/1Password/op-ssh-sign";
+
+  # `gh` is left out of runtimeInputs on purpose: it comes from Homebrew and
+  # holds the user's auth, a Nix copy would start unauthenticated.
+  worktreeGc = pkgs.writeShellApplication {
+    name = "worktree-gc";
+    runtimeInputs = [ pkgs.git pkgs.coreutils ];
+    text = builtins.readFile ./git/worktree-gc.sh;
+  };
 in
 {
+  home.packages = [ worktreeGc ];
+
   programs.git = {
     enable = true;
 
