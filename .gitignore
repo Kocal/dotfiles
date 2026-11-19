@@ -1,5 +1,8 @@
 tmp/
 
+# Superpowers specs and plans are local working notes.
+/docs/superpowers/
+
 # Local clones of other people's configs, kept for reference only.
 .references/
 
