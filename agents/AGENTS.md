@@ -3,6 +3,22 @@
 - Always follow the rules in the `i-have-adhd:i-have-adhd` skill: action-first, numbered steps, no preamble, no closers, state restated each turn.
 - Arrows: use "->" (ASCII), never "→" (Unicode). Applies to generated text, not to existing source code.
 
+## Development loop
+
+- Load the matching skill before editing a file or choosing how to build something. The edit itself is the trigger, not only the start of the task, and this holds while executing a plan.
+
+    | Before you touch | Load |
+    |---|---|
+    | HTML, CSS, Twig markup or client-side JS/TS (UI, forms, dialogs, popovers, accessibility, dates), except copy-only or rename-only edits | `modern-web-guidance` |
+    | A Stimulus controller, Turbo, a TwigComponent or LiveComponent, UX Icons, UX Map | `stimulus`, `turbo`, `twig-component`, `live-component`, `ux-icons`, `ux-map` (`symfony-ux` when unsure) |
+    | PHP or `.rst` docs for a pull request to Symfony itself (core, bundles, UX, AI) | `symfony-code-contribution`, `symfony-docs-contribution` |
+    | Something slow, a benchmark, memory use | `sf-performance-optimization` |
+    | Core Web Vitals: field data from Sentry, or LCP in the lab | `sentry-web-vitals`, `debug-optimize-lcp` |
+
+- A plan that touches front-end files names the matching skill from this table in each such task, so execution loads it.
+- Before handing back, run the project's checks. Look in this order: its `AGENTS.md`, the `composer.json` and `package.json` scripts, the `Makefile`, the CI workflow. Report what ran and what failed.
+- After a UI change, open the page in the chrome-devtools browser and read the console. Load `a11y-debugging` when the change touches interaction or forms.
+
 ## Code
 
 - Code comments: default = zero. Write one ONLY if the "why" is non-obvious and absent from the code. Forbidden: restating the code, ticket numbers, obvious context. One short line max.
