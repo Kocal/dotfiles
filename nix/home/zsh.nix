@@ -27,7 +27,7 @@ in
     # profiles here to restore their precedence for login shells.
     profileExtra = ''
       # Homebrew goes before the macOS tools it replaces (/usr/bin/jq, make, curl).
-      [[ -d /opt/homebrew ]] && path=(/opt/homebrew/opt/make/libexec/gnubin /opt/homebrew/opt/curl/bin /opt/homebrew/bin /opt/homebrew/sbin $path)
+      [[ -d /opt/homebrew ]] && path=(/opt/homebrew/opt/make/libexec/gnubin /opt/homebrew/opt/curl/bin /opt/homebrew/opt/rustup/bin /opt/homebrew/bin /opt/homebrew/sbin $HOME/.cargo/bin $path)
       for p in ''${(z)NIX_PROFILES}; do
         [[ -d "$p/bin" ]] && path=("$p/bin" $path)
       done

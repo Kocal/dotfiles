@@ -29,6 +29,7 @@ let
     "mkcert"
     "opencode"
     "ripgrep"
+    "rustup" # keg-only: not linked into /opt/homebrew/bin, home/zsh.nix adds it to PATH
     "tree"
     "uv"
     "wget"
